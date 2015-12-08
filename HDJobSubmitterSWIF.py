@@ -226,7 +226,7 @@ class HDJobSubmitterSWIF:
             self.current_phase += 1
             if self.VERBOSE>1:
                 print "PASS 3:   phase %d ..."%(self.current_phase)
-            self.AddJobToSWIF(run,0,"pass1","run_calib_pass3.csh","fullrun")
+            self.AddJobToSWIF(run,0,"pass3","run_calib_pass3.csh","fullrun")
 
 
         # FINAL PASS: 
