@@ -173,7 +173,6 @@ class HDJobSubmitterSWIF:
 
             self.AddEVIOJobToSWIF(run,0,"pass0","file_calib_pass0.csh")
 
-    
         # PASS 1: 
         # Generate jobs for the full pass over the data
         for run in sorted(runfile_mapping.keys()):
@@ -190,8 +189,6 @@ class HDJobSubmitterSWIF:
             if self.VERBOSE>1:
                 print "PASS 1:   phase %d ..."%(self.current_phase)
             self.AddJobToSWIF(run,0,"pass1","run_calib_pass1.csh","fullrun")
-
-        return
 
         # PASS 2: 
         # Generate jobs for the full pass over the data

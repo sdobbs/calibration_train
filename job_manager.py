@@ -228,7 +228,7 @@ if __name__ == "__main__":
         if len(sys.argv) < 3:
             print "Need to pass config file!"
             sys.exit(0)
-        if len(sys.argv) < 3:
+        if len(sys.argv) < 4:
             print "Need to pass list of runs!"
             sys.exit(0)
         jm.LoadConfig(sys.argv[2])
