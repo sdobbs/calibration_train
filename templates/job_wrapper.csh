@@ -56,8 +56,8 @@ unsetenv JANA_CALIB_URL
 unsetenv JANA_CALIB_CONTEXT
 # 
 setenv CALIB_LIBDIR /work/halld/home/sdobbs/calib_lib
-setenv CALIB_CCDB_SQLITE_FILE /home/gxproj3/calib_challenge/ccdb.sqlite
-setenv CALIB_DEBUG
+#setenv CALIB_CCDB_SQLITE_FILE /home/gxproj3/calib_challenge/ccdb.sqlite
+#setenv CALIB_DEBUG
 
 echo ==printing environment==
 env

@@ -43,8 +43,9 @@ setenv HDDS_HOME   ${GLUEX_TOP}/hdds/hdds
 # CCDB must be built before JANA
 # To get CCDB via svn, use
 # svn co https://phys12svn.jlab.org/repos/trunk/ccdb
-setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb_1.05
-setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.3/$BMS_OSNAME
+#setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb_1.05
+setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb.git
+setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.4p2/$BMS_OSNAME
 
 #------------------------------------------------------------#
 #                Check that all directories exist            #
@@ -116,16 +117,16 @@ setenv LD_LIBRARY_PATH /apps/python/PRO/lib\:$LD_LIBRARY_PATH
 #              Print out environment variables               #
 #------------------------------------------------------------#
 
-echo "GlueX Environment"
-echo ""
-echo "GLUEX_TOP           :    $GLUEX_TOP"
-echo "HALLD_HOME          :    $HALLD_HOME"
-echo "CCDB_HOME           :    $CCDB_HOME"
-echo "JANA_HOME           :    $JANA_HOME"
-echo "JANA_CALIB_URL      :    $JANA_CALIB_URL"
-echo "CCDB_CONNECTION     :    $CCDB_CONNECTION"
-echo "JANA_RESOURCE_DIR   :    $JANA_RESOURCE_DIR"
-echo "JANA_PLUGIN_PATH    :    $JANA_PLUGIN_PATH"
-echo "PATH                :    $PATH"
-echo "LD_LIBRARY_PATH     :    $LD_LIBRARY_PATH"
+#echo "GlueX Environment"
+#echo ""
+#echo "GLUEX_TOP           :    $GLUEX_TOP"
+#echo "HALLD_HOME          :    $HALLD_HOME"
+#echo "CCDB_HOME           :    $CCDB_HOME"
+#echo "JANA_HOME           :    $JANA_HOME"
+#echo "JANA_CALIB_URL      :    $JANA_CALIB_URL"
+#echo "CCDB_CONNECTION     :    $CCDB_CONNECTION"
+#echo "JANA_RESOURCE_DIR   :    $JANA_RESOURCE_DIR"
+#echo "JANA_PLUGIN_PATH    :    $JANA_PLUGIN_PATH"
+#echo "PATH                :    $PATH"
+#echo "LD_LIBRARY_PATH     :    $LD_LIBRARY_PATH"
 

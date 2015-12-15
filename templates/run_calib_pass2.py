@@ -28,9 +28,10 @@ if __name__ == "__main__":
         hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C"])
         hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeOffsetsAndCEff.C"])
         # SC timewalks
-        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/st_tw_corr_auto/macros/st_tw_fits.C(\"%s\")"%("hd_root.root")])
+        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/st_tw_corr_auto/macros/st_tw_fits.C(\"%s\")"%(os.environ["RUN_OUTPUT_FILENAME"])])
         # PSC timewalks - NEED TO UPDATE
-        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/PSC_TW/tw_corr.C"])
+        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/PSC_TW/tw_corr.C(\"%s\")"%(os.environ["RUN_OUTPUT_FILENAME"])])
+        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/PS_E_calib/PSEcorr.C(\"%s\")"%(os.environ["RUN_OUTPUT_FILENAME"])])
         #hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/st_tw_corr_auto/macros/st_tw_resols.C"]) - run at the end
         #hdmon_root_utils.run_calib_script(input_file, 
         #                                  [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_ROCTITimes.C"],

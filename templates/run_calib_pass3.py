@@ -26,6 +26,8 @@ if __name__ == "__main__":
         # TAGM timewalks
         hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/gaussian_fits.C(\"%s\",true)"%(os.environ['RUN_OUTPUT_FILENAME'])])
         hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/gaussian_fits.C(\"%s\")"%("gaussian-fits-csv")])
+        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/TAGM_TW/scripts/tw_corr.C(\"%s\",true)"%(os.environ['RUN_OUTPUT_FILENAME'])])
+        
         # BCAL calibrations, loop over modules 
         for module in xrange(48):
             hdmon_root_utils.run_calib_script(input_file, 

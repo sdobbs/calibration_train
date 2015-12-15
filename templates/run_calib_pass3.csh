@@ -33,7 +33,8 @@ python run_calib_pass3.py $RUN_OUTPUT_FILENAME
 
 # update CCDB
 echo ==update CCDB==
-ccdb add /PHOTON_BEAM/hodoscope/tdc_timewalk  -v calib_pass3 -r ${RUN}-${RUN} tdc_timewalk.txt
+ccdb add /PHOTON_BEAM/hodoscope/tdc_timewalk -v calib_pass3 -r ${RUN}-${RUN} tdc_timewalk.txt
+ccdb add /PHOTON_BEAM/microscope/tdc_timewalk_corrections -v calib_pass3 -r ${RUN}-${RUN} tagm_tw_parms.out
 
 # register output
 echo ==register output files to SWIF==
@@ -44,8 +45,11 @@ foreach MODULE (`seq 1 48`)
     set MODULE_FILENAME="pass3_BCAL_gainratios_module${MODULE}.png"
     swif outfile ${MODULE_FILENAME} file:file:${BASEDIR}/output/Run${RUN}/pass3/${MODULE_FILENAME}
 end
-swif outfile tdc_timewalk.txt file:${BASEDIR}/output/Run${RUN}/pass3/tdc_timewalk.txt
+swif outfile tdc_timewalk.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_tdc_timewalk.txt
 swif outfile gaussian-fits-csv file:${BASEDIR}/output/Run${RUN}/pass3/gaussian-fits-csv
+swif outfile tagm_tw_parms.out file:${BASEDIR}/output/Run${RUN}/pass3/tagm_tdc_timewalk.txt
+swif outfile sigmas.out file:${BASEDIR}/output/Run${RUN}/pass3/tagm_sigmas_twcorr.txt
+swif outfile results.root file:${BASEDIR}/output/Run${RUN}/pass3/tagm_results_twcorr.txt
 
 ###################################################
 ## Cleanup

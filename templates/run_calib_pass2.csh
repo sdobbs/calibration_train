@@ -1,4 +1,4 @@
-#!/bin/tcsh
+ #!/bin/tcsh
 # Do a first pass of calibrations for a given run
 
 # initialize CCDB before running
@@ -67,7 +67,8 @@ ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN}
 ccdb add /BCAL/timewalk_tdc -v calib_pass2 -r ${RUN}-${RUN} TimewalkBCAL.txt
 ccdb add /BCAL/channel_global_offset -v calib_pass2 -r ${RUN}-${RUN} channel_global_offset_BCAL.txt
 ccdb add /BCAL/tdiff_u_d -v calib_pass2 -r ${RUN}-${RUN} tdiff_u_d_BCAL.txt
-ccdb add /PHOTON_BEAM/pair_spectrometer/tdc_timewalk_corrections  -v calib_pass2 -r ${RUN}-${RUN} psc_tw_parms.out
+ccdb add /PHOTON_BEAM/pair_spectrometer/tdc_timewalk_corrections -v calib_pass2 -r ${RUN}-${RUN} psc_tw_parms.out
+ccdb add /PHOTON_BEAM/pair_spectrometer/fine/energy_corrections -v calib_pass2 -r ${RUN}-${RUN} Eparms_calib_chal.out
 
 # register output
 echo ==register output files to SWIF==
@@ -99,6 +100,7 @@ swif outfile tdiff_u_d_BCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/tdiff_u_d
 swif outfile results.txt file:${BASEDIR}/output/Run${RUN}/pass2/st_timewalks.txt
 swif outfile psc_tw_parms.out file:${BASEDIR}/output/Run${RUN}/pass2/psc_tw_parms.txt
 swif outfile sigmas.out  file:${BASEDIR}/output/Run${RUN}/pass2/psc_tw_sigmas.txt
+swif outfile Eparms_calib_chal.out file:${BASEDIR}/output/Run${RUN}/pass2/ps_ecalib.txt
 
 ###################################################
 ## Cleanup
