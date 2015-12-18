@@ -153,7 +153,7 @@ class HDJobManager:
         
         # show the current state of the workflow for some feedback
         os.system("swif status -workflow %s"%jsub.workflow)
-        """
+        
         ### Now, we reset all the tables we're going to calibrate
         # figure out which CCDB instance to connect to
         if 'ccdb_connection' in self.config_mgr.config:
@@ -171,7 +171,7 @@ class HDJobManager:
         for table in self.ccdb_tables:
             for run in runlist:
                 copier.CopyTable(table,dest_minrun=run,dest_variation="calib_pass0")        
-        """
+        
 
     def RunJobs(self):
         """
