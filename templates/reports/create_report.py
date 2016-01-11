@@ -10,7 +10,7 @@ class HDCalibReport:
     """
     Generate some information to summarize the results of a calibration run
 
-    Compare the newly calibrated run/variation set of constants against a refer
+    Compare the newly calibrated run/variation set of constants against a reference
     """
 
     def __init__(self,table_filename,src_run,ref_run=None,src_variation="calib",ref_variation="default"):
@@ -48,9 +48,9 @@ class HDCalibReport:
             # get information for each table
             try:
                 table = self.provider.get_type_table(tablename)
-                assignment = self.provider.get_assignment(self.src_run, table, self.src_variation)
+                assignment = self.provider.get_assignment(table, self.src_run, self.src_variation)
                 data = assignment.constant_set.data_table
-                ref_assignment = self.provider.get_assignment(self.ref_run, table, self.ref_variation)
+                ref_assignment = self.provider.get_assignment(table, self.ref_run, self.ref_variation)
                 ref_data = ref_assignment.constant_set.data_table
             except:
                 e = sys.exc_info()[0]
@@ -91,5 +91,9 @@ class HDCalibReport:
 
 
 if __name__ == "__main__":
+    usage_str = ""
+    if(len(sys.argv)<3):
+        
+
     reporter = HDCalibReport(sys.argv[1],sys.argv[2])
     reporter.GenerateReport()

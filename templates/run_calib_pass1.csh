@@ -28,7 +28,7 @@ set RUNDIR=${BASEDIR}/output/Run${RUN}
 
 # merge results of per-file processing
 #set PASS1_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}_${FILE}.root
-set RUN_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}.root
+setenv RUN_OUTPUT_FILENAME hd_calib_pass1_Run${RUN}.root
 echo ==summing ROOT files==
 #hadd -f -k -v 0 $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1_*.root
 hadd -f -k  $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1_*.root
@@ -46,7 +46,13 @@ ls -lRh
 
 # process the results
 echo ==first pass calibrations==
-python run_calib_pass1.py $RUN_OUTPUT_FILENAME
+#python run_calib_pass1.py $RUN_OUTPUT_FILENAME
+echo Running: HLDetectorTiming, ExtractTDCADCTiming.C(
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(${RUNNUM}\)
+echo Running: PS_timing, fits.C
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/fits.C\(${RUN_OUTPUT_FILENAME},true\)
+echo Running: PS_timing, offsets.C
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/offsets.C(\"fits-csv\")
 
 # update CCDB
 echo ==update CCDB==

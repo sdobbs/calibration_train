@@ -15,6 +15,8 @@ setenv JANA_CALIB_CONTEXT "variation=calib_pass0"
 #mv data.evio data_link.evio
 #cp -v data_link.evio data.evio
 
+set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+
 ##########################################################################
 ## STEP 1: basic timing validation
 
@@ -37,8 +39,32 @@ endif
 
 # process the results
 echo ==run calibrations==
-python run_calib_pass0.1.py $PASS0_OUTPUT_FILENAME
-# error check?
+#python run_calib_pass0.1.py $PASS0_OUTPUT_FILENAME
+echo Running: RF_online, RFMacro_ROCTITimes.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_ROCTITimes.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_ROCTITimes.C
+echo Running: RF_online, RFMacro_TDCConversion.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_TDCConversion.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_TDCConversion.C
+echo Running: RF_online, RFMacro_SignalPeriod.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_SignalPeriod.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_SignalPeriod.C
+echo Running: RF_online, RFMacro_BeamBunchPeriod.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_BeamBunchPeriod.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_BeamBunchPeriod.C
+
+#echo Running:
+#python run_single_root_command.py
+
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_ROCTITimes.C"],
+#                                          "pass0_RF_ROCTITimes.png")
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_TDCConversion.C"],
+#                                          "pass0_RF_TDCConversion.png")
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_SignalPeriod.C"],
+#                                          "pass0_RF_SignalPeriod.png")
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_BeamBunchPeriod.C"],
+#                                          "pass0_RF_BeamBunchPeriod.png")
+
 
 # register output from python script
 mkdir -p ${BASEDIR}/output/Run${RUN}/pass0/
@@ -70,8 +96,21 @@ endif
 
 # process the results
 echo ==run calibrations==
-python run_calib_pass0.2.py $PASS0_OUTPUT_FILENAME
-# error check?
+#python run_calib_pass0.2.py $PASS0_OUTPUT_FILENAME
+echo Running: RF_online, RFMacro_SelfResolution.C
+python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_SelfResolution.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_SelfResolution.C
+echo Running: RF_online, RFMacro_CoarseTimeOffsets.C
+python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_CoarseTimeOffsets.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_CoarseTimeOffsets.C\(${RUNNUM}\)
+
+#        print "Running RFMacro_SelfResolution.C"
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_SelfResolution.C"],
+#                                          "pass0_RF_SelfResolution.png")
+#        print "RFMacro_CoarseTimeOffsets.C"
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_CoarseTimeOffsets.C(%d)"%int(os.environ["RUN"])], 
+#                                          "pass0_RF_CoarseTimeOffsets.png")
+
 
 # register output from python script
 swif outfile pass0_RF_SelfResolution.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_SelfResolution.png
@@ -105,8 +144,15 @@ endif
 
 # process the results
 echo ==run calibrations==
-python run_calib_pass0.3.py $PASS0_OUTPUT_FILENAME
+#python run_calib_pass0.3.py $PASS0_OUTPUT_FILENAME
 # error check?
+
+echo Running: RF_online, RFMacro_FineTimeOffsets.C
+python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets.png $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib_pass0\"\)
+
+#        hdmon_root_utils.run_calib_script(input_file, 
+#                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C(%d,\"%s\")"%(int(os.environ["RUN"]),"calib_pass0")], 
+#                                          "pass0_RF_FineTimeOffsets.png")
 
 # register output
 swif outfile pass0_RF_FineTimeOffsets.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_FineTimeOffsets.png

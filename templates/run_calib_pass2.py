@@ -25,8 +25,8 @@ if __name__ == "__main__":
         # refine global timing
         hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTrackBasedTiming.C(%d)"%(int(os.environ["RUN"]))])
         # BCAL timewalks + time offsets
-        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C"])
-        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeOffsetsAndCEff.C"])
+        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C(\"%s\")"%(os.environ["RUN_OUTPUT_FILENAME"])])
+        hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeOffsetsAndCEff.C(%d,\"%s\")"%(int(os.environ["RUN"]),os.environ["RUN_OUTPUT_FILENAME"])])
         # SC timewalks
         hdmon_root_utils.run_root_commands([".x $HALLD_HOME/src/plugins/Calibration/st_tw_corr_auto/macros/st_tw_fits.C(\"%s\")"%(os.environ["RUN_OUTPUT_FILENAME"])])
         # PSC timewalks - NEED TO UPDATE
