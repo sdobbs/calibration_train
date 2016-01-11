@@ -16,7 +16,8 @@ import HDRunFileList
 import HDRunFileRAIDList
 import HDJobSubmitterSWIF
 import HDJobSubmitterLocal
-import HDCCDBCopier
+#import HDCCDBCopier
+import HDCCDBCopierCLI
 
 ## TODO: function to delete a run
 
@@ -149,11 +150,13 @@ class HDJobManager:
         if 'time_limit' in self.config_mgr.config:
             jsub.time_limit = self.config_mgr.config['time_limit']
 
-        jsub.CreateJobs(runfile_map.files)
+        #jsub.CreateJobs(runfile_map.files)  # DEBUG
         
         # show the current state of the workflow for some feedback
+        print "Workflow status:"
         os.system("swif status -workflow %s"%jsub.workflow)
-        
+        print ""
+
         ### Now, we reset all the tables we're going to calibrate
         # figure out which CCDB instance to connect to
         if 'ccdb_connection' in self.config_mgr.config:
@@ -163,11 +166,15 @@ class HDJobManager:
 
         # these are the tables to reset
         self.ccdb_tables = self.LoadCCDBTableList(self.config_mgr.config['ccdb_table_file'])
-        os.system("cp %s %s/config/ccdb_tables"%(self.config_mgr.config['ccdb_table_file'],self.basename))
+        os.system("mkdir -p %s/config/"%self.basedir)
+        print "cp %s %s/config/ccdb_tables"%(self.config_mgr.config['ccdb_table_file'],self.basedir)        
+        os.system("cp %s %s/config/ccdb_tables"%(self.config_mgr.config['ccdb_table_file'],self.basedir))
 
         # defaults are stored in run = 0, variation = calib
         # initialize the variation for the first set of jobs
-        copier = HDCCDBCopier.HDCCDBCopier(CCDB_CONNECTION,run=0,variation="calib",ccdb_username="calib")
+        #copier = HDCCDBCopier.HDCCDBCopier(CCDB_CONNECTION,run=0,variation="calib",ccdb_username="calib")
+        #copier = HDCCDBCopier.HDCCDBCopier(CCDB_CONNECTION,run=0,variation="calib",ccdb_username="gxproj3")
+        copier = HDCCDBCopierCLI.HDCCDBCopierCLI(CCDB_CONNECTION,run=0,variation="calib",ccdb_username="gxproj3")
         for table in self.ccdb_tables:
             for run in runlist:
                 copier.CopyTable(table,dest_minrun=run,dest_variation="calib_pass0")        

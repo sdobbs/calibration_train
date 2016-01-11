@@ -177,7 +177,7 @@ class HDJobSubmitterSWIF:
         if "pass0" in passes_to_run:
             for run in sorted(runfile_mapping.keys()):
                 if self.VERBOSE>0:
-                    print "submiting jobs for run %d, phase 0 ..."%(int(run))
+                    print "submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
 
                 self.AddEVIOJobToSWIF(run,0,"pass0","file_calib_pass0.csh")
 
