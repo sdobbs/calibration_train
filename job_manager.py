@@ -150,7 +150,7 @@ class HDJobManager:
         if 'time_limit' in self.config_mgr.config:
             jsub.time_limit = self.config_mgr.config['time_limit']
 
-        #jsub.CreateJobs(runfile_map.files)  # DEBUG
+        jsub.CreateJobs(runfile_map.files)
         
         # show the current state of the workflow for some feedback
         print "Workflow status:"
