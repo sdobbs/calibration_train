@@ -26,8 +26,7 @@ set RUNDIR=${BASEDIR}/output/Run${RUN}
 #setenv PASS2_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}_${FILE}.root
 setenv RUN_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}.root
 echo ==summing ROOT files==
-#hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass2_*.root
-cp ${RUNDIR}/$RUN_OUTPUT_FILENAME .
+hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass2_*.root
 
 # configure files for HLDetectorTiming
 set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`

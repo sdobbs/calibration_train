@@ -41,18 +41,18 @@ mkdir -p $HLTIMING_DIR
 mkdir -p $HLTIMING_CONST_DIR
 cp -v $RUN_OUTPUT_FILENAME $HLTIMING_DIR/TDCADCTiming.root
 
-echo ==ls -lR before running scripts==
-ls -lRh
+#echo ==ls -lR before running scripts==
+#ls -lRh
 
 # process the results
 echo ==first pass calibrations==
 #python run_calib_pass1.py $RUN_OUTPUT_FILENAME
-echo Running: HLDetectorTiming, ExtractTDCADCTiming.C(
+echo Running: HLDetectorTiming, ExtractTDCADCTiming.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(${RUNNUM}\)
 echo Running: PS_timing, fits.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/fits.C\(${RUN_OUTPUT_FILENAME},true\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/fits.C\(\"${RUN_OUTPUT_FILENAME}\",true\)
 echo Running: PS_timing, offsets.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/offsets.C(\"fits-csv\")
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/offsets.C\(\"fits-csv\"\)
 
 # update CCDB
 echo ==update CCDB==
