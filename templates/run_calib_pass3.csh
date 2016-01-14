@@ -33,14 +33,16 @@ echo ==first pass calibrations==
 echo Running: TAGH_timewalk, gaussian_fits.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/gaussian_fits.C\(\"${RUN_OUTPUT_FILENAME}\",true\)
 echo Running: TAGH_timewalk, timewalk_fits.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/timewalk_fits.C\(gaussian-fits-csv\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/timewalk_fits.C\(\"gaussian-fits-csv\"\)
 echo Running: TAGM_TW, tw_corr.C 
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGM_TW/tw_corr.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 
 # update CCDB
-echo ==update CCDB==
-ccdb add /PHOTON_BEAM/hodoscope/tdc_timewalk -v calib_pass3 -r ${RUN}-${RUN} tdc_timewalk.txt
-ccdb add /PHOTON_BEAM/microscope/tdc_timewalk_corrections -v calib_pass3 -r ${RUN}-${RUN} tagm_tw_parms.out
+if ( $?CALIB_SUBMIT_CONSTANTS ) then
+    echo ==update CCDB==
+    ccdb add /PHOTON_BEAM/hodoscope/tdc_timewalk -v calib_pass3 -r ${RUN}-${RUN} tdc_timewalk.txt
+    ccdb add /PHOTON_BEAM/microscope/tdc_timewalk_corrections -v calib_pass3 -r ${RUN}-${RUN} tagm_tw_parms.out
+endif
 
 # register output
 echo ==register output files to SWIF==
@@ -56,6 +58,10 @@ swif outfile gaussian-fits-csv file:${BASEDIR}/output/Run${RUN}/pass3/gaussian-f
 swif outfile tagm_tw_parms.out file:${BASEDIR}/output/Run${RUN}/pass3/tagm_tdc_timewalk.txt
 swif outfile sigmas.out file:${BASEDIR}/output/Run${RUN}/pass3/tagm_sigmas_twcorr.txt
 swif outfile results.root file:${BASEDIR}/output/Run${RUN}/pass3/tagm_results_twcorr.root
+
+# copy some directories
+cp -a fits_gaussian ${BASEDIR}/output/Run${RUN}/pass3/fits_gaussian
+cp -a fits_timewalk ${BASEDIR}/output/Run${RUN}/pass3/fits_timewalk
 
 ###################################################
 ## Cleanup

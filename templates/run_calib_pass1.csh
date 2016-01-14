@@ -18,8 +18,8 @@ if ( $?CALIB_DEBUG ) then
 endif
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
-#mv data.evio data_link.evio
-#cp -v data_link.evio data.evio
+mv data.evio data_link.evio
+cp -v data_link.evio data.evio
 
 ###################################################
 
@@ -55,29 +55,31 @@ echo Running: PS_timing, offsets.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/offsets.C\(\"fits-csv\"\)
 
 # update CCDB
-echo ==update CCDB==
-ccdb add /BCAL/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_base_time.txt
-ccdb add /CDC/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/cdc_base_time.txt
-ccdb add /FCAL/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_base_time.txt
-ccdb add /FDC/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fdc_base_time.txt
-ccdb add /START_COUNTER/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_base_time.txt
-ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_base_time.txt
-ccdb add /PHOTON_BEAM/microscope/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_base_time.txt
-ccdb add /TOF/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tof_base_time.txt
-ccdb add /BCAL/ADC_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_adc_timing_offsets.txt
-ccdb add /BCAL/TDC_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_tdc_timing_offsets.txt
-ccdb add /FCAL/timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_adc_timing_offsets.txt
-ccdb add /START_COUNTER/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_adc_timing_offsets.txt
-ccdb add /START_COUNTER/tdc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_tdc_timing_offsets.txt
-ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_adc_timing_offsets.txt
-ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_tdc_timing_offsets.txt
-ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_adc_timing_offsets.txt
-ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_tdc_timing_offsets.txt
-ccdb add /TOF/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tof_adc_timing_offsets.txt
-ccdb add /PHOTON_BEAM/pair_spectrometer/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} offsets/base_time_offset.txt
-ccdb add /PHOTON_BEAM/pair_spectrometer/coarse/tdc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} offsets/tdc_timing_offsets_psc.txt
-ccdb add /PHOTON_BEAM/pair_spectrometer/coarse/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} offsets/adc_timing_offsets_psc.txt
-ccdb add /PHOTON_BEAM/pair_spectrometer/fine/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} offsets/adc_timing_offsets_ps.txt
+if ( $?CALIB_SUBMIT_CONSTANTS ) then
+    echo ==update CCDB==
+    ccdb add /BCAL/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_base_time.txt
+    ccdb add /CDC/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/cdc_base_time.txt
+    ccdb add /FCAL/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_base_time.txt
+    ccdb add /FDC/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fdc_base_time.txt
+    ccdb add /START_COUNTER/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_base_time.txt
+    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_base_time.txt
+    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_base_time.txt
+    ccdb add /TOF/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tof_base_time.txt
+    ccdb add /BCAL/ADC_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_adc_timing_offsets.txt
+    ccdb add /BCAL/TDC_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_tdc_timing_offsets.txt
+    ccdb add /FCAL/timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_adc_timing_offsets.txt
+    ccdb add /START_COUNTER/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_adc_timing_offsets.txt
+    ccdb add /START_COUNTER/tdc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_tdc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_tdc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_tdc_timing_offsets.txt
+    ccdb add /TOF/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tof_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/pair_spectrometer/base_time_offset -v calib_pass1 -r ${RUN}-${RUN} offsets/base_time_offset.txt
+    ccdb add /PHOTON_BEAM/pair_spectrometer/coarse/tdc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} offsets/tdc_timing_offsets_psc.txt
+    ccdb add /PHOTON_BEAM/pair_spectrometer/coarse/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} offsets/adc_timing_offsets_psc.txt
+    ccdb add /PHOTON_BEAM/pair_spectrometer/fine/adc_timing_offsets -v calib_pass1 -r ${RUN}-${RUN} offsets/adc_timing_offsets_ps.txt
+endif
 
 # register output
 echo ==register output files to SWIF==

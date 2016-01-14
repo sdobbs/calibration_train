@@ -119,8 +119,10 @@ swif outfile rf_coarse_time_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass0/r
 swif outfile rf_time_resolution_sq.txt file:${BASEDIR}/output/Run${RUN}/pass0/rf_time_resolution_sq.txt
 
 # update CCDB for next step
-ccdb add /PHOTON_BEAM/RF/time_offset -v calib_pass0 -r ${RUN}-${RUN} rf_coarse_time_offsets.txt #"coarse time offsets"
-ccdb add /PHOTON_BEAM/RF/time_resolution_sq -v calib_pass0 -r ${RUN}-${RUN} rf_time_resolution_sq.txt #"time resolution squared"
+if ( $?CALIB_SUBMIT_CONSTANTS ) then
+    ccdb add /PHOTON_BEAM/RF/time_offset -v calib_pass0 -r ${RUN}-${RUN} rf_coarse_time_offsets.txt #"coarse time offsets"
+    ccdb add /PHOTON_BEAM/RF/time_resolution_sq -v calib_pass0 -r ${RUN}-${RUN} rf_time_resolution_sq.txt #"time resolution squared"
+endif
 
 ##########################################################################
 ## STEP 3: fine RF calibration, time_offset_var
@@ -160,8 +162,10 @@ swif outfile rf_fine_time_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass0/rf_
 swif outfile rf_time_offset_vars.txt file:${BASEDIR}/output/Run${RUN}/pass0/rf_time_offset_vars.txt
 
 # update CCDB
-ccdb add /PHOTON_BEAM/RF/time_offset -v calib_pass0 -r ${RUN}-${RUN} rf_fine_time_offsets.txt #"fine time offsets"
-ccdb add /PHOTON_BEAM/RF/time_offset_var -v calib_pass0 -r ${RUN}-${RUN} rf_time_offset_vars.txt #"time offset variances"
+if ( $?CALIB_SUBMIT_CONSTANTS ) then
+    ccdb add /PHOTON_BEAM/RF/time_offset -v calib_pass0 -r ${RUN}-${RUN} rf_fine_time_offsets.txt #"fine time offsets"
+    ccdb add /PHOTON_BEAM/RF/time_offset_var -v calib_pass0 -r ${RUN}-${RUN} rf_time_offset_vars.txt #"time offset variances"
+endif
 
 ##################
 ## Cleanup
