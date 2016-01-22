@@ -33,22 +33,13 @@ echo ==summing ROOT files==
 #hadd -f -k -v 0 $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1_*.root
 hadd -f -k  $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1_*.root
 
-# configure files for HLDetectorTiming
-set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
-set HLTIMING_DIR=Run${RUNNUM}/
-set HLTIMING_CONST_DIR=Run${RUNNUM}/constants/TDCADCTiming/
-mkdir -p $HLTIMING_DIR
-mkdir -p $HLTIMING_CONST_DIR
-cp -v $RUN_OUTPUT_FILENAME $HLTIMING_DIR/TDCADCTiming.root
-
-#echo ==ls -lR before running scripts==
-#ls -lRh
-
 # process the results
+set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+
 echo ==first pass calibrations==
 #python run_calib_pass1.py $RUN_OUTPUT_FILENAME
 echo Running: HLDetectorTiming, ExtractTDCADCTiming.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(${RUNNUM}\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"calib_pass1\"\)
 echo Running: PS_timing, fits.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/fits.C\(\"${RUN_OUTPUT_FILENAME}\",true\)
 echo Running: PS_timing, offsets.C

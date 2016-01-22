@@ -28,22 +28,12 @@ setenv RUN_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}.root
 echo ==summing ROOT files==
 hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass2_*.root
 
-# configure files for HLDetectorTiming
-set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
-set HLTIMING_DIR=Run${RUNNUM}/
-set HLTIMING_CONST_DIR=Run${RUNNUM}/constants/TrackBasedTiming/
-set HLTIMING_PASS1_CONST_DIR=Run${RUNNUM}/constants/TDCADCTiming/
-mkdir -p $HLTIMING_DIR
-mkdir -p $HLTIMING_CONST_DIR
-mkdir -p $HLTIMING_PASS1_CONST_DIR
-cp $RUN_OUTPUT_FILENAME $HLTIMING_DIR/TrackBasedTiming.root
-# setup constans from previous pass - we should find a better way to do this
-cp ${BASEDIR}/output/Run${RUN}/pass1/*.txt ${HLTIMING_PASS1_CONST_DIR}
-
 # process the results
+set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+
 echo ==first pass calibrations==
 echo Running: HLDetectorTiming, ExtractTrackBasedTiming.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTrackBasedTiming.C\(${RUNNUM}\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTrackBasedTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"calib_pass1\"\)
 echo Running: BCAL_TDC_Timing, ExtractTimeWalk.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 echo Running: BCAL_TDC_Timing, ExtractTimeOffsetsAndCEff.C
@@ -59,6 +49,7 @@ python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_E_calib
 # update CCDB
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
     echo ==update CCDB==
+
     ccdb add /BCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_base_time.txt
     ccdb add /CDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/cdc_base_time.txt
     ccdb add /FCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_base_time.txt

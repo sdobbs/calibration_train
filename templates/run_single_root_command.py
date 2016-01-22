@@ -3,10 +3,12 @@
 import os,sys
 from optparse import OptionParser
 import hdmon_root_utils
-from ROOT import TFile,gPad
+from ROOT import TFile,gPad,gROOT
 
 if __name__ == "__main__":
     parser = OptionParser(usage = "process_new_offline_data.py [root_command]")
+    parser.add_option("-d","--debug", dest="debug", action="store_true",
+                      help="Run ROOT commands with debug options.")
     parser.add_option("-F","--input_file", dest="input_file", 
                       help="Input ROOT file to open.")
     parser.add_option("-O","--output_file", dest="output_image_filename", 
@@ -23,6 +25,11 @@ if __name__ == "__main__":
         print ""
         #parser.print_help()
         sys.exit(1)
+
+        #gROOT.ProcessLine(".T")
+    if options.debug:
+        # debug options - trace enable
+        gROOT.ProcessLine(".T")
 
     # extract the command to run
     #root_command = args[1]
@@ -47,7 +54,9 @@ if __name__ == "__main__":
 
     # save canvas
     if options.output_image_filename:
+        #if gPad is not None:   # check error management later
         the_canvas = gPad.GetCanvas()
+        #    if the_canvas is not None:
         the_canvas.Print(options.output_image_filename+"."+image_suffix)
 
     # cleanup

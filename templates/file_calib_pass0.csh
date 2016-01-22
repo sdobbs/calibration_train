@@ -3,7 +3,7 @@
 
 # initialize CCDB before running
 cp ${BASEDIR}/ccdb_start.sqlite ccdb.sqlite
-setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLit
+setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
@@ -150,7 +150,8 @@ echo ==run calibrations==
 # error check?
 
 echo Running: RF_online, RFMacro_FineTimeOffsets.C
-python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib_pass0\"\)
+#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib_pass0\"\)
+python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib\"\)  # hack until ccdb command line tool has fallbacks fixed
 
 #        hdmon_root_utils.run_calib_script(input_file, 
 #                                          [".x $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C(%d,\"%s\")"%(int(os.environ["RUN"]),"calib_pass0")], 
