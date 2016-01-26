@@ -5,7 +5,8 @@
 cp ${BASEDIR}/ccdb_pass1.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+    setenv CCDB_CONNECTION $JANA_CALIB_URL
+    #setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif

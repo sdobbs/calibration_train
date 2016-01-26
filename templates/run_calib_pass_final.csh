@@ -5,7 +5,8 @@
 cp ${BASEDIR}/ccdb_pass3.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE )
-    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+    setenv CCDB_CONNECTION $JANA_CALIB_URL
+#    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
@@ -74,7 +75,8 @@ swif outfile final_HLDT_TrackMatchedTiming.png file:${BASEDIR}/output/Run${RUN}/
 # generate CCDB SQLite for the next pass
 ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_final.sqlite
+    cp ccdb.sqlite ${BASEDIR}/ccdb_final.sqlite
+    #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_final.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_final.sqlite
     cp ccdb_final.sqlite ${BASEDIR}/ccdb_final.sqlite

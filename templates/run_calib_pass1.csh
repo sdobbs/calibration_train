@@ -5,7 +5,8 @@
 cp ${BASEDIR}/ccdb_pass0.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+    setenv CCDB_CONNECTION $JANA_CALIB_URL
+    #setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
@@ -106,7 +107,8 @@ swif outfile offsets/adc_timing_offsets_ps.txt file:${BASEDIR}/output/Run${RUN}/
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass1.sqlite
+    cp ccdb.sqlite ${BASEDIR}/ccdb_pass1.sqlite
+    #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass1.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass1.sqlite
     cp ccdb_pass1.sqlite ${BASEDIR}/ccdb_pass1.sqlite

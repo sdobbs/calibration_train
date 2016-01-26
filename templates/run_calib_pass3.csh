@@ -5,7 +5,8 @@
 cp ${BASEDIR}/ccdb_pass2.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+    setenv CCDB_CONNECTION $JANA_CALIB_URL
+    #setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
@@ -69,7 +70,8 @@ cp -a fits_timewalk ${BASEDIR}/output/Run${RUN}/pass3/fits_timewalk
 # generate CCDB SQLite for the next pass
 ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass3.sqlite
+    cp ccdb.sqlite ${BASEDIR}/ccdb_pass3.sqlite
+    #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass3.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass3.sqlite
     cp ccdb_pass3.sqlite ${BASEDIR}/ccdb_pass3.sqlite

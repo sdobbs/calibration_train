@@ -5,7 +5,8 @@
 cp ${BASEDIR}/ccdb_pass2.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+    setenv CCDB_CONNECTION $JANA_CALIB_URL
+    #setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
@@ -16,7 +17,7 @@ mv data.evio data_link.evio
 cp -v data_link.evio data.evio
 
 # config
-set CALIB_PLUGINS=BCAL_attenlength_gainratio,TAGH_timewalk   # TAGM_timewalk,PS energies
+set CALIB_PLUGINS=BCAL_attenlength_gainratio,TAGH_timewalk,TAGM_timewalk
 set CALIB_OPTIONS="-PRF:SOURCE_SYSTEM=PSC"
 set PASS3_OUTPUT_FILENAME=hd_calib_pass3_Run${RUN}_${FILE}.root
 
