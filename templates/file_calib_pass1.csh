@@ -12,6 +12,8 @@ else
 endif
 setenv JANA_CALIB_CONTEXT "variation=calib_pass1" 
 
+set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+
 # copy input file to local disk - SWIF only sets up a symbolic link to it
 mv data.evio data_link.evio
 cp -v data_link.evio data.evio
@@ -23,7 +25,7 @@ set PASS1_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}_${FILE}.root
 # run
 echo ==first pass==
 echo Running these plugins: $CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS  -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS1_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
+hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS1_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
 set retval=$?
 
 # save results

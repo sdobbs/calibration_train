@@ -18,10 +18,6 @@ if ( $?CALIB_DEBUG ) then
     python cat_ccdb_tables.py ccdb_tables_pass1
 endif
 
-# copy input file to local disk - SWIF only sets up a symbolic link to it
-mv data.evio data_link.evio
-cp -v data_link.evio data.evio
-
 ###################################################
 
 # set some general variables

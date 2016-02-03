@@ -10,7 +10,7 @@ if ( $?CALIB_CCDB_SQLITE_FILE ) then
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
-setenv JANA_CALIB_CONTEXT "variation=calib_pass0" 
+setenv JANA_CALIB_CONTEXT "variation=calib_pass0"
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
 #mv data.evio data_link.evio
@@ -28,7 +28,7 @@ set PASS0_OUTPUT_FILENAME=hd_calib_pass0.1_Run${RUN}.root
 # run
 echo ==zeroth pass, first step==
 echo Running these plugins: $ZEROTH_CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
+hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
 set retval=$?
 
 # save results
@@ -85,7 +85,7 @@ set PASS0_OUTPUT_FILENAME=hd_calib_pass0.2_Run${RUN}.root
 # run
 echo ==zeroth pass, second step==
 echo Running these plugins: $ZEROTH_CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
+hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
 set retval=$?
 
 # save results
@@ -135,7 +135,7 @@ set PASS0_OUTPUT_FILENAME=hd_calib_pass0.3_Run${RUN}.root
 # run
 echo ==zeroth pass, third step==
 echo Running these plugins: $ZEROTH_CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS -PJANA:BATCH_MODE=1 --PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
+hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 --PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
 set retval=$?
 
 # save results
