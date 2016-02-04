@@ -70,7 +70,7 @@ else
     echo "DONE:FAILURE"
 endif
 
-echo ==ls after all processing==
-ls -lh
+echo ==ls -lhR after all processing==
+ls -lhR
 
 exit $retval

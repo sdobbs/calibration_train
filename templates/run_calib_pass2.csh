@@ -51,24 +51,24 @@ python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_E_calib
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
     echo ==update CCDB==
 
-    ccdb add /BCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_base_time.txt
-    ccdb add /CDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/cdc_base_time.txt
-    ccdb add /FCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_base_time.txt
-    #ccdb add /FDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fdc_base_time.txt
-    ccdb add /START_COUNTER/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_base_time.txt
-    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_base_time.txt
-    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_base_time.txt
-    ccdb add /TOF/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tof_base_time.txt
-    #ccdb add /BCAL/ADC_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_adc_timing_offsets.txt
-    #ccdb add /BCAL/TDC_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/bcal_tdc_timing_offsets.txt
-    #ccdb add /FCAL/timing_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/fcal_adc_timing_offsets.txt
-    ccdb add /START_COUNTER/adc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_adc_timing_offsets.txt
-    ccdb add /START_COUNTER/tdc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/sc_tdc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagm_tdc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tagh_tdc_timing_offsets.txt
-    #ccdb add /TOF/adc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} ${HLTIMING_CONST_DIR}/tof_adc_timing_offsets.txt
+    ccdb add /BCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} bcal_base_time.txt
+    ccdb add /CDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} cdc_base_time.txt
+    ccdb add /FCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} fcal_base_time.txt
+    #ccdb add /FDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} fdc_base_time.txt
+    ccdb add /START_COUNTER/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} sc_base_time.txt
+    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} tagh_base_time.txt
+    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} tagm_base_time.txt
+    ccdb add /TOF/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} tof_base_time.txt
+    #ccdb add /BCAL/ADC_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} bcal_adc_timing_offsets.txt
+    #ccdb add /BCAL/TDC_offsets -v calib_pass2 -r ${RUN}-${RUN} bcal_tdc_timing_offsets.txt
+    #ccdb add /FCAL/timing_offsets -v calib_pass2 -r ${RUN}-${RUN} fcal_adc_timing_offsets.txt
+    ccdb add /START_COUNTER/adc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} sc_adc_timing_offsets.txt
+    ccdb add /START_COUNTER/tdc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} sc_tdc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagm_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagm_tdc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagh_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagh_tdc_timing_offsets.txt
+    #ccdb add /TOF/adc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} tof_adc_timing_offsets.txt
     ccdb add /BCAL/timewalk_tdc -v calib_pass2 -r ${RUN}-${RUN} TimewalkBCAL.txt
     ccdb add /BCAL/channel_global_offset -v calib_pass2 -r ${RUN}-${RUN} channel_global_offset_BCAL.txt
     ccdb add /BCAL/tdiff_u_d -v calib_pass2 -r ${RUN}-${RUN} tdiff_u_d_BCAL.txt
@@ -80,24 +80,24 @@ endif
 echo ==register output files to SWIF==
 swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 mkdir -p ${BASEDIR}/output/Run${RUN}/pass2/
-swif outfile ${HLTIMING_CONST_DIR}/bcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/bcal_base_time.txt
-swif outfile ${HLTIMING_CONST_DIR}/cdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/cdc_base_time.txt
-swif outfile ${HLTIMING_CONST_DIR}/fcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/fcal_base_time.txt
-#swif outfile ${HLTIMING_CONST_DIR}/fdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/fdc_base_time.txt
-swif outfile ${HLTIMING_CONST_DIR}/sc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/sc_base_time.txt
-swif outfile ${HLTIMING_CONST_DIR}/tagh_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagh_base_time.txt
-swif outfile ${HLTIMING_CONST_DIR}/tagm_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagm_base_time.txt
-swif outfile ${HLTIMING_CONST_DIR}/tof_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/tof_base_time.txt
-#swif outfile ${HLTIMING_CONST_DIR}/bcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/bcal_adc_timing_offsets.txt
-#swif outfile ${HLTIMING_CONST_DIR}/bcal_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/bcal_tdc_timing_offsets.txt
-#swif outfile ${HLTIMING_CONST_DIR}/fcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/fcal_adc_timing_offsets.txt
-swif outfile ${HLTIMING_CONST_DIR}/sc_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/sc_adc_timing_offsets.txt
-swif outfile ${HLTIMING_CONST_DIR}/sc_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/sc_tdc_timing_offsets.txt
-swif outfile ${HLTIMING_CONST_DIR}/tagm_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagm_adc_timing_offsets.txt
-swif outfile ${HLTIMING_CONST_DIR}/tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagm_tdc_timing_offsets.txt
-swif outfile ${HLTIMING_CONST_DIR}/tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagh_adc_timing_offsets.txt
-swif outfile ${HLTIMING_CONST_DIR}/tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagh_tdc_timing_offsets.txt
-#swif outfile ${HLTIMING_CONST_DIR}/tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tof_adc_timing_offsets.txt
+swif outfile bcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/bcal_base_time.txt
+swif outfile cdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/cdc_base_time.txt
+swif outfile fcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/fcal_base_time.txt
+#swif outfile fdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/fdc_base_time.txt
+swif outfile sc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/sc_base_time.txt
+swif outfile tagh_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagh_base_time.txt
+swif outfile tagm_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagm_base_time.txt
+swif outfile tof_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass2/tof_base_time.txt
+#swif outfile bcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/bcal_adc_timing_offsets.txt
+#swif outfile bcal_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/bcal_tdc_timing_offsets.txt
+#swif outfile fcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/fcal_adc_timing_offsets.txt
+swif outfile sc_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/sc_adc_timing_offsets.txt
+swif outfile sc_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/sc_tdc_timing_offsets.txt
+swif outfile tagm_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagm_adc_timing_offsets.txt
+swif outfile tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagm_tdc_timing_offsets.txt
+swif outfile tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagh_adc_timing_offsets.txt
+swif outfile tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tagh_tdc_timing_offsets.txt
+#swif outfile tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass2/tof_adc_timing_offsets.txt
 swif outfile BCALTimewalk_Results.root file:${BASEDIR}/output/Run${RUN}/pass2/BCALTimewalk_Results.root
 swif outfile TimewalkBCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/TimewalkBCAL.txt
 swif outfile channel_global_offset_BCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/channel_global_offset_BCAL.txt
