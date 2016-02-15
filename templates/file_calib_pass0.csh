@@ -133,6 +133,13 @@ endif
 ##########################################################################
 ## STEP 3: fine RF calibration, time_offset_var
 
+# switch to calib variation
+if ( $?CALIB_CHALLENGE ) then
+    setenv VARIATION calib_pass0
+else
+    setenv VARIATION calib
+endif
+
 # config
 set NEVENTS_ZEROTH_PASS=100000
 set ZEROTH_CALIB_PLUGINS=RF_online

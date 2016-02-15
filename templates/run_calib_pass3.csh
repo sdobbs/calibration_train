@@ -13,7 +13,7 @@ endif
 if ( $?CALIB_CHALLENGE ) then
     setenv VARIATION calib_pass3
 else
-    setenv VARIATION default
+    setenv VARIATION calib
 endif
 setenv JANA_CALIB_CONTEXT "variation=$VARIATION" 
 
