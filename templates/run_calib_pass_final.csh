@@ -10,7 +10,12 @@ if ( $?CALIB_CCDB_SQLITE_FILE )
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
-setenv JANA_CALIB_CONTEXT "variation=calib_pass3" 
+if ( $?CALIB_CHALLENGE ) then
+    setenv VARIATION calib_pass3
+else
+    setenv VARIATION default
+endif
+
 
 ###################################################
 

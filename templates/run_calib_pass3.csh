@@ -10,7 +10,12 @@ if ( $?CALIB_CCDB_SQLITE_FILE ) then
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
-setenv JANA_CALIB_CONTEXT "variation=calib_pass3" 
+if ( $?CALIB_CHALLENGE ) then
+    setenv VARIATION calib_pass3
+else
+    setenv VARIATION default
+endif
+setenv JANA_CALIB_CONTEXT "variation=$VARIATION" 
 
 # Debug info
 if ( $?CALIB_DEBUG ) then 
@@ -41,8 +46,8 @@ python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGM_TW/tw
 # update CCDB
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
     echo ==update CCDB==
-    ccdb add /PHOTON_BEAM/hodoscope/tdc_timewalk -v calib_pass3 -r ${RUN}-${RUN} tdc_timewalk.txt
-    ccdb add /PHOTON_BEAM/microscope/tdc_timewalk_corrections -v calib_pass3 -r ${RUN}-${RUN} tagm_tw_parms.out
+    ccdb add /PHOTON_BEAM/hodoscope/tdc_timewalk -v $VARIATION -r ${RUN}-${RUN} tdc_timewalk.txt
+    ccdb add /PHOTON_BEAM/microscope/tdc_timewalk_corrections -v $VARIATION -r ${RUN}-${RUN} tagm_tw_parms.out
 endif
 
 # register output

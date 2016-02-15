@@ -10,7 +10,12 @@ if ( $?CALIB_CCDB_SQLITE_FILE ) then
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
-setenv JANA_CALIB_CONTEXT "variation=calib_pass0"
+if ( $?CALIB_CHALLENGE ) then
+    setenv VARIATION calib_pass0
+else
+    setenv VARIATION default
+endif
+setenv JANA_CALIB_CONTEXT "variation=$VARIATION"
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
 #mv data.evio data_link.evio
@@ -121,8 +126,8 @@ swif outfile rf_time_resolution_sq.txt file:${BASEDIR}/output/Run${RUN}/pass0/rf
 
 # update CCDB for next step
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
-    ccdb add /PHOTON_BEAM/RF/time_offset -v calib_pass0 -r ${RUN}-${RUN} rf_coarse_time_offsets.txt #"coarse time offsets"
-    ccdb add /PHOTON_BEAM/RF/time_resolution_sq -v calib_pass0 -r ${RUN}-${RUN} rf_time_resolution_sq.txt #"time resolution squared"
+    ccdb add /PHOTON_BEAM/RF/time_offset -v $VARIATION -r ${RUN}-${RUN} rf_coarse_time_offsets.txt #"coarse time offsets"
+    ccdb add /PHOTON_BEAM/RF/time_resolution_sq -v $VARIATION -r ${RUN}-${RUN} rf_time_resolution_sq.txt #"time resolution squared"
 endif
 
 ##########################################################################
@@ -165,8 +170,8 @@ swif outfile rf_time_offset_vars.txt file:${BASEDIR}/output/Run${RUN}/pass0/rf_t
 
 # update CCDB
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
-    ccdb add /PHOTON_BEAM/RF/time_offset -v calib_pass0 -r ${RUN}-${RUN} rf_fine_time_offsets.txt #"fine time offsets"
-    ccdb add /PHOTON_BEAM/RF/time_offset_var -v calib_pass0 -r ${RUN}-${RUN} rf_time_offset_vars.txt #"time offset variances"
+    ccdb add /PHOTON_BEAM/RF/time_offset -v $VARIATION -r ${RUN}-${RUN} rf_fine_time_offsets.txt #"fine time offsets"
+    ccdb add /PHOTON_BEAM/RF/time_offset_var -v $VARIATION -r ${RUN}-${RUN} rf_time_offset_vars.txt #"time offset variances"
 endif
 
 ##################

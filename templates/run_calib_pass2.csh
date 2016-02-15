@@ -10,7 +10,12 @@ if ( $?CALIB_CCDB_SQLITE_FILE ) then
 else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
-setenv JANA_CALIB_CONTEXT "variation=calib_pass2" 
+if ( $?CALIB_CHALLENGE ) then
+    setenv VARIATION calib_pass2
+else
+    setenv VARIATION default
+endif
+setenv JANA_CALIB_CONTEXT "variation=$VARIATION" 
 
 # Debug info
 if ( $?CALIB_DEBUG ) then 
@@ -50,30 +55,30 @@ python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_E_calib
 # update CCDB
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
     echo ==update CCDB==
-
-    ccdb add /BCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} bcal_base_time.txt
-    ccdb add /CDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} cdc_base_time.txt
-    ccdb add /FCAL/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} fcal_base_time.txt
-    #ccdb add /FDC/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} fdc_base_time.txt
-    ccdb add /START_COUNTER/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} sc_base_time.txt
-    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} tagh_base_time.txt
-    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} tagm_base_time.txt
-    ccdb add /TOF/base_time_offset -v calib_pass2 -r ${RUN}-${RUN} tof_base_time.txt
-    #ccdb add /BCAL/ADC_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} bcal_adc_timing_offsets.txt
-    #ccdb add /BCAL/TDC_offsets -v calib_pass2 -r ${RUN}-${RUN} bcal_tdc_timing_offsets.txt
-    #ccdb add /FCAL/timing_offsets -v calib_pass2 -r ${RUN}-${RUN} fcal_adc_timing_offsets.txt
-    ccdb add /START_COUNTER/adc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} sc_adc_timing_offsets.txt
-    ccdb add /START_COUNTER/tdc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} sc_tdc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagm_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagm_tdc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagh_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v calib_pass2 -r ${RUN}-${RUN} tagh_tdc_timing_offsets.txt
-    #ccdb add /TOF/adc_timing_offsets -v calib_pass2 -r ${RUN}-${RUN} tof_adc_timing_offsets.txt
-    ccdb add /BCAL/timewalk_tdc -v calib_pass2 -r ${RUN}-${RUN} TimewalkBCAL.txt
-    ccdb add /BCAL/channel_global_offset -v calib_pass2 -r ${RUN}-${RUN} channel_global_offset_BCAL.txt
-    ccdb add /BCAL/tdiff_u_d -v calib_pass2 -r ${RUN}-${RUN} tdiff_u_d_BCAL.txt
-    ccdb add /PHOTON_BEAM/pair_spectrometer/tdc_timewalk_corrections -v calib_pass2 -r ${RUN}-${RUN} psc_tw_parms.out
-    ccdb add /PHOTON_BEAM/pair_spectrometer/fine/energy_corrections -v calib_pass2 -r ${RUN}-${RUN} Eparms-TAGM.out
+    ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUN}-${RUN} bcal_base_time.txt
+    ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUN}-${RUN} cdc_base_time.txt
+    ccdb add /FCAL/base_time_offset -v $VARIATION -r ${RUN}-${RUN} fcal_base_time.txt
+    #ccdb add /FDC/base_time_offset -v $VARIATION -r ${RUN}-${RUN} fdc_base_time.txt
+    ccdb add /START_COUNTER/base_time_offset -v $VARIATION -r ${RUN}-${RUN} sc_base_time.txt
+    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v $VARIATION -r ${RUN}-${RUN} tagh_base_time.txt
+    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v $VARIATION -r ${RUN}-${RUN} tagm_base_time.txt
+    ccdb add /TOF/base_time_offset -v $VARIATION -r ${RUN}-${RUN} tof_base_time.txt
+    #ccdb add /BCAL/ADC_timing_offsets -v $VARIATION -r ${RUN}-${RUN} bcal_adc_timing_offsets.txt
+    #ccdb add /BCAL/TDC_offsets -v $VARIATION -r ${RUN}-${RUN} bcal_tdc_timing_offsets.txt
+    #ccdb add /FCAL/timing_offsets -v $VARIATION -r ${RUN}-${RUN} fcal_adc_timing_offsets.txt
+    ccdb add /START_COUNTER/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} sc_adc_timing_offsets.txt
+    ccdb add /START_COUNTER/tdc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} sc_tdc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagm_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagm_tdc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagh_adc_timing_offsets.txt
+    ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagh_tdc_timing_offsets.txt
+    #ccdb add /TOF/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} tof_adc_timing_offsets.txt
+    ccdb add /BCAL/timewalk_tdc -v $VARIATION -r ${RUN}-${RUN} TimewalkBCAL.txt
+    ccdb add /BCAL/channel_global_offset -v $VARIATION -r ${RUN}-${RUN} channel_global_offset_BCAL.txt
+    ccdb add /BCAL/tdiff_u_d -v $VARIATION -r ${RUN}-${RUN} tdiff_u_d_BCAL.txt
+    ccdb add /START_COUNTER/timewalk_parms_v2 -v $VARIATION -r ${RUN}-${RUN} st_timewalks.txt
+    ccdb add /PHOTON_BEAM/pair_spectrometer/tdc_timewalk_corrections -v $VARIATION -r ${RUN}-${RUN} psc_tw_parms.out
+    ccdb add /PHOTON_BEAM/pair_spectrometer/fine/energy_corrections -v $VARIATION -r ${RUN}-${RUN} Eparms-TAGM.out
 endif
 
 # register output
@@ -103,7 +108,7 @@ swif outfile TimewalkBCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/TimewalkBCA
 swif outfile channel_global_offset_BCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/channel_global_offset_BCAL.txt
 swif outfile tdiff_u_d_BCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/tdiff_u_d_BCAL.txt
 #swif outfile  file:${BASEDIR}/output/Run${RUN}/pass2/
-swif outfile results.txt file:${BASEDIR}/output/Run${RUN}/pass2/st_timewalks.txt
+swif outfile st_timewalks.txt file:${BASEDIR}/output/Run${RUN}/pass2/st_timewalks.txt
 swif outfile psc_tw_parms.out file:${BASEDIR}/output/Run${RUN}/pass2/psc_tw_parms.txt
 swif outfile sigmas.out  file:${BASEDIR}/output/Run${RUN}/pass2/psc_tw_sigmas.txt
 swif outfile Eparms-TAGM.out file:${BASEDIR}/output/Run${RUN}/pass2/ps_ecalib.txt
