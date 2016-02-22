@@ -9,7 +9,9 @@ def GetRunPeriodFromRun(run):
         "RunPeriod-2014-10" : (  630, 2439 ),
         "RunPeriod-2015-01" : ( 2440, 2606 ),
         "RunPeriod-2015-03" : ( 2607, 3385 ),
-        "RunPeriod-2015-06" : ( 3386, 9999999 ) 
+        "RunPeriod-2015-06" : ( 3386, 3938 ), 
+        "RunPeriod-2015-12" : ( 3939, 9999 ),
+        "RunPeriod-2016-02" : ( 10000, 9999999 ) 
         }
 
     # perform a linear search through the mapping

@@ -4,6 +4,7 @@
 
 import os
 from subprocess import Popen, PIPE, call
+import json
 
 import HDJobUtils
 
@@ -152,6 +153,14 @@ class HDJobSubmitterSWIF:
             retval = os.system(cmd)
             if retval != 0:
                 raise RuntimeError("Error running SWIF command: %s"%cmd)
+        else:
+            # update phase information from SWIF
+            p = Popen("swif status -workflow %s -display json"%(self.workflow),stdout=PIPE,shell=True)
+            (stdout,stderr) = p.communicate()
+            workflow_info = json.loads(stdout)
+            if workflow_info["summary"]["phase"] is not None:
+                self.current_phase  = workflow_info["summary"]["phase"]
+
 
         # allow for only running some passes
         passes_to_run = []
@@ -165,13 +174,15 @@ class HDJobSubmitterSWIF:
             "Build CCDB SQLite file ..."
         if not os.path.exists(self.basedir):
             raise RuntimeError("Base directory does not exist: %s"%self.basedir)
-        #os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],self.basedir))
-        # hack - can't do anything with SQLite on Lustre file systems right now, 
-        # so build the CCDB SQLite file on the scratch disk and move it over
-        scratch_dir = "/scratch/%s"%os.environ['USER']
-        os.system("rm -f %s/ccdb_start.sqlite"%scratch_dir)
-        os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],scratch_dir))
-        os.system("cp -v %s/ccdb_start.sqlite %s/ccdb_start.sqlite"%(scratch_dir,self.basedir))
+
+        if "pass0" in passes_to_run:
+            #os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],self.basedir))
+            # hack - can't do anything with SQLite on Lustre file systems right now, 
+            # so build the CCDB SQLite file on the scratch disk and move it over
+            scratch_dir = "/scratch/%s"%os.environ['USER']
+            os.system("rm -f %s/ccdb_start.sqlite"%scratch_dir)
+            os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],scratch_dir))
+            os.system("cp -v %s/ccdb_start.sqlite %s/ccdb_start.sqlite"%(scratch_dir,self.basedir))
 
         # PASS 0: run over first file to calibrate the RF signal
         if "pass0" in passes_to_run:

@@ -52,7 +52,7 @@ setenv CALIB_LIBDIR /work/halld/home/sdobbs/calib_lib
 #setenv CALIB_CCDB_SQLITE_FILE   # use local SQLite files
 #setenv CALIB_CCDB_SQLITE_FILE /home/gxproj3/calib_challenge/ccdb.sqlite
 #setenv CALIB_DEBUG
-#setenv CALIB_SUBMIT_CONSTANTS
+setenv CALIB_SUBMIT_CONSTANTS
 #setenv CALIB_CHALLENGE
 
 echo ==printing environment==
