@@ -25,7 +25,7 @@ mv data.evio data_link.evio
 cp -v data_link.evio data.evio
 
 # config
-set CALIB_PLUGINS=HLDetectorTiming,RF_online,TAGH_timewalk,BCAL_gainmatrix,FCALgains,FCALpedestals,ST_Tresolution
+set CALIB_PLUGINS=HLDetectorTiming,PSC_TW,BCAL_gainmatrix,FCALgains,FCALpedestals,ST_Tresolution,ST_Propagation_Time,p2gamma_hists,imaging,pedestal_online,BCAL_LEDonline,TOF_calib
 set CALIB_OPTIONS=""
 set PASSFINAL_OUTPUT_FILENAME=hd_calib_passfinal_Run${RUN}_${FILE}.root
 # run

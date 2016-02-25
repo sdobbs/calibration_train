@@ -41,11 +41,7 @@ set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 echo ==first pass calibrations==
 #python run_calib_pass1.py $RUN_OUTPUT_FILENAME
 echo Running: HLDetectorTiming, ExtractTDCADCTiming.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"calib_pass1\"\)
-echo Running: PS_timing, fits.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/fits.C\(\"${RUN_OUTPUT_FILENAME}\",true\)
-echo Running: PS_timing, offsets.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/scripts/offsets.C\(\"fits-csv\"\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
 
 # update CCDB
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
@@ -68,10 +64,6 @@ if ( $?CALIB_SUBMIT_CONSTANTS ) then
     ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagh_adc_timing_offsets.txt
     ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagh_tdc_timing_offsets.txt
     ccdb add /TOF/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} tof_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/pair_spectrometer/base_time_offset -v $VARIATION -r ${RUN}-${RUN} offsets/base_time_offset.txt
-    ccdb add /PHOTON_BEAM/pair_spectrometer/coarse/tdc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} offsets/tdc_timing_offsets_psc.txt
-    ccdb add /PHOTON_BEAM/pair_spectrometer/coarse/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} offsets/adc_timing_offsets_psc.txt
-    ccdb add /PHOTON_BEAM/pair_spectrometer/fine/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} offsets/adc_timing_offsets_ps.txt
 endif
 
 # register output
@@ -96,10 +88,6 @@ swif outfile tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/
 swif outfile tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_adc_timing_offsets.txt
 swif outfile tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_tdc_timing_offsets.txt
 swif outfile tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tof_adc_timing_offsets.txt
-swif outfile offsets/base_time_offset.txt file:${BASEDIR}/output/Run${RUN}/pass1/ps_base_time_offset.txt
-swif outfile offsets/tdc_timing_offsets_psc.txt file:${BASEDIR}/output/Run${RUN}/pass1/psc_tdc_timing_offsets.txt
-swif outfile offsets/adc_timing_offsets_psc.txt file:${BASEDIR}/output/Run${RUN}/pass1/psc_adc_timing_offsets.txt
-swif outfile offsets/adc_timing_offsets_ps.txt file:${BASEDIR}/output/Run${RUN}/pass1/ps_adc_timing_offsets.txt
 
 
 ###################################################

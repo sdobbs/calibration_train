@@ -20,12 +20,12 @@ setenv JANA_CALIB_CONTEXT "variation=$VARIATION"
 set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
-mv data.evio data_link.evio
-cp -v data_link.evio data.evio
+#mv data.evio data_link.evio
+#cp -v data_link.evio data.evio
 
 # config
-set CALIB_PLUGINS=HLDetectorTiming,PSC_TW,BCAL_TDC_Timing,st_tw_corr_auto,PS_E_calib
-set CALIB_OPTIONS="-PHLDETECTORTIMING:DO_TRACK_BASED=1 -PPID:OUT_OF_TIME_CUT=1000 -PTRKFIT:MASS_HYPOTHESES_POSITIVE=0.14 -PTRKFIT:MASS_HYPOTHESES_NEGATIVE=0.14 -PSC:USE_TIMEWALK_CORRECTION=0 -PSC:HIT_TIME_WINDOW=5000. -PSC:DELTA_T_ADC_TDC_MAX=5000. "
+set CALIB_PLUGINS=HLDetectorTiming,BCAL_TDC_Timing
+set CALIB_OPTIONS="-PHLDETECTORTIMING:DO_TRACK_BASED=1 -PPID:OUT_OF_TIME_CUT=1000 -PTRKFIT:MASS_HYPOTHESES_POSITIVE=0.14 -PTRKFIT:MASS_HYPOTHESES_NEGATIVE=0.14"
 set PASS2_OUTPUT_FILENAME=hd_calib_pass2_Run${RUN}_${FILE}.root
 # run
 echo ==second pass==

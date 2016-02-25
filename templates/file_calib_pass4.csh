@@ -1,8 +1,8 @@
 #!/bin/tcsh
-# Do a second pass of calibrations on an EVIO file
+# Do a third pass of calibrations on an EVIO file
 
 # initialize CCDB before running
-cp ${BASEDIR}/ccdb_pass1.sqlite ccdb.sqlite
+cp ${BASEDIR}/ccdb_pass2.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -11,7 +11,7 @@ else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
 if ( $?CALIB_CHALLENGE ) then
-    setenv VARIATION calib_pass2
+    setenv VARIATION calib_pass0
 else
     setenv VARIATION calib
 endif
@@ -24,16 +24,17 @@ mv data.evio data_link.evio
 cp -v data_link.evio data.evio
 
 # config
-set CALIB_PLUGINS=PS_timing,TAGH_timewalk,BCAL_attenlength_gainratio,BCAL_TDC_Timing
-set CALIB_OPTIONS="-PBCAL:USE_TDC=1"
-set PASS2_OUTPUT_FILENAME=hd_calib_pass2_Run${RUN}_${FILE}.root
+set CALIB_PLUGINS=BCAL_attenlength_gainratio,TAGH_timewalk,TAGM_timewalk
+set CALIB_OPTIONS="-PRF:SOURCE_SYSTEM=PSC"
+set PASS3_OUTPUT_FILENAME=hd_calib_pass3_Run${RUN}_${FILE}.root
+
 # run
-echo ==second pass==
+echo ==third pass==
 echo Running these plugins: $CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS2_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
+hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS3_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
 set retval=$?
 
 # save results
-swif outfile $PASS2_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}/$PASS2_OUTPUT_FILENAME
+swif outfile $PASS3_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}/$PASS3_OUTPUT_FILENAME
 
 exit $retval
