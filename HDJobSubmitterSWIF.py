@@ -29,7 +29,8 @@ class HDJobSubmitterSWIF:
         self.mem_requested = None
         self.time_limit = None
 
-        self.list_of_passes = ["pass0","pass1","pass2","pass3","final"]
+        #self.list_of_passes = ["pass0","pass1","pass2","pass3","final"]
+        self.list_of_passes = ["pass1","pass2","final"]
 
     def DoesWorkflowExist(self, in_workflow):
         """
@@ -184,35 +185,16 @@ class HDJobSubmitterSWIF:
             os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],scratch_dir))
             os.system("cp -v %s/ccdb_start.sqlite %s/ccdb_start.sqlite"%(scratch_dir,self.basedir))
 
-        # PASS 0: run over first file to calibrate the RF signal
-        if "pass0" in passes_to_run:
+        # PASS 1: Do what calibrations we can with a single file
+        if "pass1" in passes_to_run:
             for run in sorted(runfile_mapping.keys()):
                 if self.VERBOSE>0:
                     print "submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
 
-                self.AddEVIOJobToSWIF(run,0,"pass0","file_calib_pass0.csh")
-
-        # PASS 1: 
-        # Generate jobs for the full pass over the data
-        if "pass1" in passes_to_run:
-            self.current_phase += 1
-            for run in sorted(runfile_mapping.keys()):
-                if self.VERBOSE>0:
-                    print "PASS 1: submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
-
-                # best practice is one job per EVIO file (Hall D std. size of 20 GB)
-                for filenum in runfile_mapping[run]:
-                    self.AddEVIOJobToSWIF(run,filenum,"pass1","file_calib_pass1.csh")
-
-            # Now submit jobs to process all of the results for a given run
-            self.current_phase += 1
-            for run in sorted(runfile_mapping.keys()):
-                if self.VERBOSE>1:
-                    print "PASS 1:   phase %d ..."%(self.current_phase)
-                self.AddJobToSWIF(run,0,"pass1","run_calib_pass1.csh","fullrun")
+                self.AddEVIOJobToSWIF(run,0,"pass1","calib_job1.csh")
 
         # PASS 2: 
-        # Generate jobs for the full pass over the data
+        # Generate jobs for a full pass over the data
         if "pass2" in passes_to_run:
             self.current_phase += 1
             for run in sorted(runfile_mapping.keys()):
@@ -221,35 +203,14 @@ class HDJobSubmitterSWIF:
 
                 # best practice is one job per EVIO file (Hall D std. size of 20 GB)
                 for filenum in runfile_mapping[run]:
-                    self.AddEVIOJobToSWIF(run,filenum,"pass2","file_calib_pass2.csh")
+                    self.AddEVIOJobToSWIF(run,filenum,"pass2","file_calib_pass3.csh")
 
             # Now submit jobs to process all of the results for a given run
             self.current_phase += 1
             for run in sorted(runfile_mapping.keys()):
                 if self.VERBOSE>1:
-                    print "PASS 2:   phase %d ..."%(self.current_phase)
-                self.AddJobToSWIF(run,0,"pass2","run_calib_pass2.csh","fullrun")
-
-
-        # PASS 3: 
-        # Generate jobs for the full pass over the data
-        if "pass3" in passes_to_run:
-            self.current_phase += 1
-            for run in sorted(runfile_mapping.keys()):
-                if self.VERBOSE>0:
-                    print "PASS 3: submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
-
-                # best practice is one job per EVIO file (Hall D std. size of 20 GB)
-                for filenum in runfile_mapping[run]:
-                    self.AddEVIOJobToSWIF(run,filenum,"pass3","file_calib_pass3.csh")
-
-            # Now submit jobs to process all of the results for a given run
-            self.current_phase += 1
-            for run in sorted(runfile_mapping.keys()):
-                if self.VERBOSE>1:
-                    print "PASS 3:   phase %d ..."%(self.current_phase)
-                self.AddJobToSWIF(run,0,"pass3","run_calib_pass3.csh","fullrun")
-
+                    print "PASS 1:   phase %d ..."%(self.current_phase)
+                self.AddJobToSWIF(run,0,"pass2","run_calib_pass3.csh","fullrun")
 
         # FINAL PASS: 
         # Generate jobs for the full pass over the data
