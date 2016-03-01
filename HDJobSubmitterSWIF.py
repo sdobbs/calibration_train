@@ -194,7 +194,7 @@ class HDJobSubmitterSWIF:
                 self.AddEVIOJobToSWIF(run,0,"pass1","calib_job1.csh")
 
         # PASS 2: 
-        # Generate jobs for a full pass over the data
+        # Generate jobs for a partial pass over the data
         if "pass2" in passes_to_run:
             self.current_phase += 1
             for run in sorted(runfile_mapping.keys()):
@@ -202,14 +202,16 @@ class HDJobSubmitterSWIF:
                     print "PASS 2: submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
 
                 # best practice is one job per EVIO file (Hall D std. size of 20 GB)
-                for filenum in runfile_mapping[run]:
+                for filenum in sorted(runfile_mapping[run]):
+                    if int(filenum)>=10:   # max run over the first 10 files
+                        break
                     self.AddEVIOJobToSWIF(run,filenum,"pass2","file_calib_pass3.csh")
 
             # Now submit jobs to process all of the results for a given run
             self.current_phase += 1
             for run in sorted(runfile_mapping.keys()):
                 if self.VERBOSE>1:
-                    print "PASS 1:   phase %d ..."%(self.current_phase)
+                    print "PASS 2:   phase %d ..."%(self.current_phase)
                 self.AddJobToSWIF(run,0,"pass2","run_calib_pass3.csh","fullrun")
 
         # FINAL PASS: 
