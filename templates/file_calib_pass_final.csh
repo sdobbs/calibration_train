@@ -3,7 +3,7 @@
 # Do validations and generate outputs for others
 
 # initialize CCDB before running
-cp ${BASEDIR}/ccdb_pass3.sqlite ccdb.sqlite
+cp ${BASEDIR}/sqlite_ccdb/ccdb_pass3.${RUN}.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL

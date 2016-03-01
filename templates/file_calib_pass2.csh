@@ -2,7 +2,7 @@
 # Do a second pass of calibrations on an EVIO file
 
 # initialize CCDB before running
-cp ${BASEDIR}/ccdb_pass1.sqlite ccdb.sqlite
+cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL

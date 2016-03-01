@@ -13,13 +13,16 @@ endif
 if ( $?CALIB_CHALLENGE ) then
     setenv VARIATION calib_pass0
 else
-    setenv VARIATION default
+    setenv VARIATION default  # hack around bad CCDB settings in calib var that need to be fixed
 endif
 setenv JANA_CALIB_CONTEXT "variation=$VARIATION"
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
-#mv data.evio data_link.evio
-#cp -v data_link.evio data.evio
+echo ==copy in file==
+mv data.evio data_link.evio
+cp -v data_link.evio data.evio
+ls -lh data.evio
+
 
 set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
@@ -57,7 +60,7 @@ python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_BeamBunc
 
 # register output from python script
 mkdir -p ${BASEDIR}/output/Run${RUN}/pass0/
-swif outfile pass0_RF_ROCTITimes.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_ROCTITimes.png
+#swif outfile pass0_RF_ROCTITimes.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_ROCTITimes.png
 swif outfile pass0_RF_TDCConversion.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_TDCConversion.png
 swif outfile pass0_RF_SignalPeriod.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_SignalPeriod.png
 swif outfile pass0_RF_BeamBunchPeriod.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_BeamBunchPeriod.png
@@ -110,7 +113,7 @@ endif
 if ( $?CALIB_CHALLENGE ) then
     setenv VARIATION calib_pass0
 else
-    setenv VARIATION calib
+    setenv VARIATION default   # still hacking, need to figure this out
 endif
 
 # config
@@ -137,7 +140,7 @@ echo ==run calibrations==
 
 echo Running: RF_online, RFMacro_FineTimeOffsets.C
 #python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib_pass0\"\)
-python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib\"\)  # hack until ccdb command line tool has fallbacks fixed
+python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"${VARIATION}\"\) 
 
 # register output
 swif outfile pass0_RF_FineTimeOffsets.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_FineTimeOffsets.png
@@ -155,11 +158,11 @@ endif
 
 # generate CCDB SQLite for the next pass
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp ccdb.sqlite ${BASEDIR}/ccdb_pass0.sqlite
+    cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass0.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass0.sqlite
-    cp ccdb_pass0.sqlite ${BASEDIR}/ccdb_pass0.sqlite
+    cp ccdb_pass0.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite
 endif
 
 # DEBUG 

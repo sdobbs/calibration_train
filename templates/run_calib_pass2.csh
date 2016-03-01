@@ -2,7 +2,7 @@
 # Do a first pass of calibrations for a given run
 
 # initialize CCDB before running
-cp ${BASEDIR}/ccdb_pass1.sqlite ccdb.sqlite
+cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLit
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -32,19 +32,29 @@ set RUNDIR=${BASEDIR}/output/Run${RUN}
 #setenv PASS2_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}_${FILE}.root
 setenv RUN_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}.root
 echo ==summing ROOT files==
-hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass2_*.root
+#hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass2_*.root
+# ONE JOB!
+cp -v hd_calib_pass2_Run${RUN}_${FILE}.root hd_calib_pass2_Run${RUN}.root
 
 # process the results
 set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
 echo ==second pass calibrations==
 echo Running: HLDetectorTiming, ExtractTrackBasedTiming.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTrackBasedTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"calib_pass1\"\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTrackBasedTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
 echo Running: BCAL_TDC_Timing, ExtractTimeWalk.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 #echo Running: PS_E_calib, PSEcorr.C
 #python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_E_calib/PSEcorr.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 #python run_calib_pass2.py $RUN_OUTPUT_FILENAME
+
+echo ==make monitoring output==
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_CalorimeterTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_CalorimeterTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_PIDSystemTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_PIDSystemTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackMatchedTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackMatchedTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
 
 # update CCDB
 if ( $?CALIB_SUBMIT_CONSTANTS ) then
@@ -97,6 +107,13 @@ swif outfile BCALTimewalk_Results.root file:${BASEDIR}/output/Run${RUN}/pass2/BC
 swif outfile TimewalkBCAL.txt file:${BASEDIR}/output/Run${RUN}/pass2/TimewalkBCAL.txt
 #swif outfile  file:${BASEDIR}/output/Run${RUN}/pass2/
 #swif outfile Eparms-TAGM.out file:${BASEDIR}/output/Run${RUN}/pass2/ps_ecalib.txt
+swif outfile pass2_CalorimeterTiming.png file:${BASEDIR}/output/Run${RUN}/pass2/pass2_CalorimeterTiming.png
+swif outfile pass2_PIDSystemTiming.png file:${BASEDIR}/output/Run${RUN}/pass2/pass2_PIDSystemTiming.png
+swif outfile pass2_TrackMatchedTiming.png file:${BASEDIR}/output/Run${RUN}/pass2/pass2_TrackMatchedTiming.png
+swif outfile pass2_TaggerTiming.png file:${BASEDIR}/output/Run${RUN}/pass2/pass2_TaggerTiming.png
+swif outfile pass2_TaggerRFAlignment.png file:${BASEDIR}/output/Run${RUN}/pass2/pass2_TaggerRFAlignment.png
+swif outfile pass2_TaggerSCAlignment.png file:${BASEDIR}/output/Run${RUN}/pass2/pass2_TaggerSCAlignment.png
+
 
 echo ==DEBUG==
 ls -lhR
@@ -107,11 +124,11 @@ ls -lhR
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp ccdb.sqlite ${BASEDIR}/ccdb_pass2.sqlite
+    cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass2.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass2.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass2.sqlite
-    cp ccdb_pass2.sqlite ${BASEDIR}/ccdb_pass2.sqlite
+    cp ccdb_pass2.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass2.${RUN}.sqlite
 endif
 
 # Debug info

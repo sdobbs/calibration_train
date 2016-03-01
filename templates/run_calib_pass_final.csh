@@ -2,7 +2,7 @@
 # Do a first pass of calibrations for a given run
 
 # initialize CCDB before running
-cp ${BASEDIR}/ccdb_pass3.sqlite ccdb.sqlite
+cp ${BASEDIR}/sqlite_ccdb/ccdb_pass3.${RUN}.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE )
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -72,9 +72,9 @@ ls -lhR
 # generate CCDB SQLite for the next pass
 ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp ccdb.sqlite ${BASEDIR}/ccdb_final.sqlite
+    cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_final.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_final.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_final.sqlite
-    cp ccdb_final.sqlite ${BASEDIR}/ccdb_final.sqlite
+    cp ccdb_final.sqlite ${BASEDIR}/ccdb_final.${RUN}.sqlite
 endif

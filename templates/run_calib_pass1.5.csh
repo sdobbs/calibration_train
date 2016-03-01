@@ -2,7 +2,7 @@
 # Do a first pass of calibrations for a given run
 
 # initialize CCDB before running
-cp ${BASEDIR}/ccdb_pass1.sqlite ccdb.sqlite
+cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -33,7 +33,9 @@ set RUNDIR=${BASEDIR}/output/Run${RUN}
 setenv RUN_OUTPUT_FILENAME hd_calib_pass1.5_Run${RUN}.root
 echo ==summing ROOT files==
 #hadd -f -k -v 0 $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1_*.root
-hadd -f -k  $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1.5_*.root
+#hadd -f -k  $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1.5_*.root
+# ONE JOB!
+cp -v hd_calib_pass1.5_Run${RUN}_${FILE}.root hd_calib_pass1.5_Run${RUN}.root
 
 # process the results
 set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
@@ -93,11 +95,12 @@ swif outfile stt_tw_plot_30.png file:${BASEDIR}/output/Run${RUN}/pass1/sc_tw_cha
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp ccdb.sqlite ${BASEDIR}/ccdb_pass1.sqlite
+    cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass1.sqlite
 else
+    rm -f ccdb_pass1.sqlite
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass1.sqlite
-    cp ccdb_pass1.sqlite ${BASEDIR}/ccdb_pass1.sqlite
+    cp ccdb_pass1.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
 endif
 
 # Debug info
