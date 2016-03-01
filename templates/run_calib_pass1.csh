@@ -90,7 +90,7 @@ swif outfile tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/
 swif outfile tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_adc_timing_offsets.txt
 swif outfile tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_tdc_timing_offsets.txt
 swif outfile tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tof_adc_timing_offsets.txt
-
+swif outfile TOF_TDC_shift_${RUN}.txt file:${BASEDIR}/output/Run${RUN}/pass1/TOF_TDC_shift.txt
 
 ###################################################
 ## Cleanup
