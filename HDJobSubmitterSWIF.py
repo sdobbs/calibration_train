@@ -22,7 +22,8 @@ class HDJobSubmitterSWIF:
         self.project = "gluex"         # natch (for now?)
         self.track = "reconstruction"  # calibration jobs fall under this track
         # job defaults
-        self.nthreads = 1        # default to 1 thread
+        self.nthreads = 1          # default to 1 thread
+        self.swif_nthreads = 24    # set this to always run on the exclusive nodes
         # the following variables should be set by the calling functions
         self.workflow = None
         self.disk_space = None
@@ -66,8 +67,9 @@ class HDJobSubmitterSWIF:
         cmd += " -input data.evio mss:%s"%inputfile   
         cmd += " -stdout file:%s/log/log_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
         cmd += " -stderr file:%s/log/err_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
-        if self.nthreads:
-            cmd += " -cores %d"%int(self.nthreads)
+        cmd += " -cores %d"%int(self.swif_nthreads)  # run on exclusive nodes
+        #if self.nthreads:
+        #    cmd += " -cores %d"%int(self.nthreads)
         if self.disk_space:
             cmd += " -disk %dGB"%int(self.disk_space)
         if self.mem_requested:
