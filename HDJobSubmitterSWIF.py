@@ -187,13 +187,17 @@ class HDJobSubmitterSWIF:
             os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],scratch_dir))
             os.system("cp -v %s/ccdb_start.sqlite %s/ccdb_start.sqlite"%(scratch_dir,self.basedir))
 
-        # PASS 1: Do what calibrations we can with a single file
+        # PASS 1: Do what calibrations we can with a single file 
         if "pass1" in passes_to_run:
             for run in sorted(runfile_mapping.keys()):
                 if self.VERBOSE>0:
                     print "submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
 
-                self.AddEVIOJobToSWIF(run,0,"pass1","calib_job1.csh")
+                # pick a file from in the middle of the run
+                if len(runfile_mapping[run]) > 1:
+                    self.AddEVIOJobToSWIF(run,1,"pass1","calib_job1.csh")
+                else:
+                    self.AddEVIOJobToSWIF(run,0,"pass1","calib_job1.csh")
 
         # PASS 2: 
         # Generate jobs for a partial pass over the data
