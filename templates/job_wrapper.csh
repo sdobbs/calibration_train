@@ -55,6 +55,8 @@ setenv CALIB_LIBDIR /work/halld/home/sdobbs/calib_lib
 #setenv CALIB_SUBMIT_CONSTANTS
 #setenv CALIB_CHALLENGE
 
+setenv WORKFLOW GlueX-CalibRun-2016-03-18  # hack for now
+
 echo ==printing environment==
 env
 
