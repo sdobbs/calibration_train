@@ -85,6 +85,7 @@ class HDJobManager:
         script_dir = os.path.join(job_dir,"scripts")
         os.system("mkdir -p %s"%(script_dir))
         os.system("mkdir -p %s"%(os.path.join(job_dir,"output")))
+        os.system("mkdir -p %s"%(os.path.join(job_dir,"sqlite_ccdb")))
 
         # copy files over
         os.system("cp -R templates/* "+script_dir)

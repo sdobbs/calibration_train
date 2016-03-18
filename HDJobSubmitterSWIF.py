@@ -23,7 +23,7 @@ class HDJobSubmitterSWIF:
         self.track = "reconstruction"  # calibration jobs fall under this track
         # job defaults
         self.nthreads = 1          # default to 1 thread
-        self.swif_nthreads = 24    # set this to always run on the exclusive nodes
+        #self.swif_nthreads = 24    # set this to always run on the exclusive nodes
         # the following variables should be set by the calling functions
         self.workflow = None
         self.disk_space = None
@@ -32,6 +32,9 @@ class HDJobSubmitterSWIF:
 
         #self.list_of_passes = ["pass0","pass1","pass2","pass3","final"]
         self.list_of_passes = ["pass1","pass2","final"]
+
+        # for redirecting output to /dev/null
+        self.DEVNULL = open(os.devnull, 'wb')
 
     def DoesWorkflowExist(self, in_workflow):
         """
@@ -67,7 +70,7 @@ class HDJobSubmitterSWIF:
         cmd += " -input data.evio mss:%s"%inputfile   
         cmd += " -stdout file:%s/log/log_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
         cmd += " -stderr file:%s/log/err_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
-        cmd += " -cores %d"%int(self.swif_nthreads)  # run on exclusive nodes
+        cmd += " -cores %d"%int(self.nthreads)  
         #if self.nthreads:
         #    cmd += " -cores %d"%int(self.nthreads)
         if self.disk_space:
@@ -87,9 +90,26 @@ class HDJobSubmitterSWIF:
         if self.VERBOSE>1:
             print "Running command: %s"%cmd
         #retval = os.system(cmd)
-        retval = call(cmd, shell=True, stdout=None)
-        if retval != 0:
-            raise RuntimeError("Error running SWIF command: %s"%cmd)
+        #retval = call(cmd, shell=True, stdout=None)
+        #if retval != 0:
+        #    raise RuntimeError("Error running SWIF command: %s"%cmd)
+        proc = Popen(cmd, shell=True, stdout=PIPE)
+        for line in proc.stdout:
+            #try:
+            tokens = line.strip().split()
+            if len(tokens)<3:
+                continue
+            key = tokens[0]
+            value = tokens[2]
+            # set some useful tags on each job
+            if key == 'name':
+                print "tag"
+                call("swif tag-job -workflow %s -name %s -tag run %d"%(self.workflow,value,run), shell=True, stdout=self.DEVNULL)
+                call("swif tag-job -workflow %s -name %s -tag file %d"%(self.workflow,value,filenum), shell=True, stdout=self.DEVNULL)
+                call("swif tag-job -workflow %s -name %s -tag pass %s"%(self.workflow,value,the_pass), shell=True, stdout=self.DEVNULL)
+            #except:
+            #    pass
+        # check return value
 
     def AddJobToSWIF(self,run,filenum,the_pass,command_to_run,log_suffix="calib"):
         """
@@ -127,10 +147,21 @@ class HDJobSubmitterSWIF:
         if self.VERBOSE>1:
             print "Running command: %s"%cmd
         #retval = os.system(cmd)
-        retval = call(cmd, shell=True, stdout=None)
-        if retval != 0:
-            raise RuntimeError("Error running SWIF command: %s"%cmd)
-
+        #retval = call(cmd, shell=True, stdout=None)
+        #if retval != 0:
+        #    raise RuntimeError("Error running SWIF command: %s"%cmd)
+        proc = Popen(cmd, shell=True, stdout=PIPE)
+        for line in proc.stdout:
+            #try:
+            tokens = line.strip().split()
+            if len(tokens)<3:
+                continue
+            key = tokens[0]
+            value = tokens[2]
+            # set some useful tags on each job
+            if key == 'name':
+                call("swif tag-job -workflow %s -name %s -tag run %d"%(self.workflow,value,run), shell=True, stdout=self.DEVNULL)
+                call("swif tag-job -workflow %s -name %s -tag file %s"%(self.workflow,value,"all"), shell=True, stdout=self.DEVNULL)
 
     def CreateJobs(self, runfile_mapping, passes_to_run_str="all"):
         """
@@ -178,7 +209,7 @@ class HDJobSubmitterSWIF:
         if not os.path.exists(self.basedir):
             raise RuntimeError("Base directory does not exist: %s"%self.basedir)
 
-        if "pass0" in passes_to_run:
+        if "pass1" in passes_to_run:
             #os.system("%s/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 %s/ccdb_start.sqlite"%(os.environ['CCDB_HOME'],self.basedir))
             # hack - can't do anything with SQLite on Lustre file systems right now, 
             # so build the CCDB SQLite file on the scratch disk and move it over
@@ -208,10 +239,15 @@ class HDJobSubmitterSWIF:
                     print "PASS 2: submiting jobs for run %d, phase %d ..."%(int(run),self.current_phase)
 
                 # best practice is one job per EVIO file (Hall D std. size of 20 GB)
-                for filenum in sorted(runfile_mapping[run]):
-                    if int(filenum)>=10:   # max run over the first 10 files
-                        break
-                    self.AddEVIOJobToSWIF(run,filenum,"pass2","file_calib_pass3.csh")
+                #for filenum in sorted(runfile_mapping[run]):
+                #if int(filenum)>=2:   # max run over the first 10 files
+                #break
+                #self.AddEVIOJobToSWIF(run,filenum,"pass2","file_calib_pass3.csh")
+                # pick a file from in the middle of the run
+                if len(runfile_mapping[run]) > 1:
+                    self.AddEVIOJobToSWIF(run,1,"pass2","calib_job2.csh")
+                else:
+                    self.AddEVIOJobToSWIF(run,0,"pass2","calib_job2.csh")
 
             # Now submit jobs to process all of the results for a given run
             self.current_phase += 1
