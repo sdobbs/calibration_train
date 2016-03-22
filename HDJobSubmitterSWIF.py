@@ -250,11 +250,11 @@ class HDJobSubmitterSWIF:
                     self.AddEVIOJobToSWIF(run,0,"pass2","calib_job2.csh")
 
             # Now submit jobs to process all of the results for a given run
-            self.current_phase += 1
-            for run in sorted(runfile_mapping.keys()):
-                if self.VERBOSE>1:
-                    print "PASS 2:   phase %d ..."%(self.current_phase)
-                self.AddJobToSWIF(run,0,"pass2","run_calib_pass3.csh","fullrun")
+            #self.current_phase += 1
+            #for run in sorted(runfile_mapping.keys()):
+            #    if self.VERBOSE>1:
+            #        print "PASS 2:   phase %d ..."%(self.current_phase)
+            #    self.AddJobToSWIF(run,0,"pass2","run_calib_pass3.csh","fullrun")
 
         # FINAL PASS: 
         # Generate jobs for the full pass over the data
