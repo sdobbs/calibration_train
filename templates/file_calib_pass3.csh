@@ -26,14 +26,14 @@ cp -v data_link.evio data.evio
 # config
 set CALIB_PLUGINS=PS_timing,TAGH_timewalk,BCAL_attenlength_gainratio,BCAL_TDC_Timing
 set CALIB_OPTIONS="-PBCAL:USE_TDC=1"
-set PASS2_OUTPUT_FILENAME=hd_calib_pass2_Run${RUN}_${FILE}.root
+set PASS3_OUTPUT_FILENAME=hd_calib_pass3_Run${RUN}_${FILE}.root
 # run
 echo ==second pass==
 echo Running these plugins: $CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS2_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
+hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS3_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
 set retval=$?
 
 # save results
-swif outfile $PASS2_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}/$PASS2_OUTPUT_FILENAME
+swif outfile $PASS3_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}/$PASS3_OUTPUT_FILENAME
 
 exit $retval

@@ -11,7 +11,7 @@ else
     setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 endif
 if ( $?CALIB_CHALLENGE ) then
-    setenv VARIATION calib_pass0
+    setenv VARIATION calib_pass2
 else
     setenv VARIATION calib
 endif
@@ -26,10 +26,10 @@ cp -v data_link.evio data.evio
 # config
 set CALIB_PLUGINS=BCAL_attenlength_gainratio,TAGH_timewalk,TAGM_timewalk
 set CALIB_OPTIONS="-PRF:SOURCE_SYSTEM=PSC"
-set PASS3_OUTPUT_FILENAME=hd_calib_pass3_Run${RUN}_${FILE}.root
+set PASS3_OUTPUT_FILENAME=hd_calib_pass4_Run${RUN}_${FILE}.root
 
 # run
-echo ==third pass==
+echo ==fourth pass==
 echo Running these plugins: $CALIB_PLUGINS
 hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS3_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data.evio
 set retval=$?

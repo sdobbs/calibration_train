@@ -40,6 +40,19 @@ python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/ST_Propaga
 echo Running: ST_Propagation_Time, st_prop_time_corr_v1.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/ST_Propagation_Time/macros/st_prop_time_corr_v1.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 
+echo ==make monitoring output==
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_CalorimeterTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_CalorimeterTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_PIDSystemTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_PIDSystemTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_TrackMatchedTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackMatchedTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_TaggerTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_TaggerRFAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_TaggerSCAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_BCAL_pi0mass $HALLD_HOME/src/plugins/monitoring/BCAL_inv_mass/bcal_inv_mass.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_BCAL-FCAL_pi0mass $HALLD_HOME/src/plugins/monitoring/BCAL_inv_mass/bcal__fcal_inv_mass.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p2pi_preco $HALLD_HOME/src/plugins/monitoring/p2pi_hists/HistMacro_p2pi_preco1.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_FCAL-BCAL $HALLD_HOME/src/plugins/monitoring/p3pi_hists/HistMacro_p3pi_preco_FCAL-BCAL.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_2FCAL $HALLD_HOME/src/plugins/monitoring/p3pi_hists/HistMacro_p3pi_preco_2FCAL.C
+
 
 # update CCDB
 echo ==update CCDB==
@@ -63,6 +76,18 @@ swif outfile psc_tw_parms.out file:${BASEDIR}/output/Run${RUN}/final/psc_tw_parm
 swif outfile sigmas.out  file:${BASEDIR}/output/Run${RUN}/final/psc_tw_sigmas.txt
 swif outfile st_time_res.txt  file:${BASEDIR}/output/Run${RUN}/final/st_time_resolution.txt
 swif outfile st_prop_timeCorr.txt  file:${BASEDIR}/output/Run${RUN}/final/st_propogation_time_corrections.txt
+swif outfile final_CalorimeterTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_CalorimeterTiming.png
+swif outfile final_PIDSystemTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_PIDSystemTiming.png
+swif outfile final_TrackMatchedTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_TrackMatchedTiming.png
+swif outfile final_TaggerTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_TaggerTiming.png
+swif outfile final_TaggerRFAlignment.png file:${BASEDIR}/output/Run${RUN}/final/final_TaggerRFAlignment.png
+swif outfile final_TaggerSCAlignment.png file:${BASEDIR}/output/Run${RUN}/final/final_TaggerSCAlignment.png
+swif outfile final_BCAL_pi0mass.png file:${BASEDIR}/output/Run${RUN}/final/final_BCAL_pi0mass.png
+swif outfile final_BCAL-FCAL_pi0mass.png file:${BASEDIR}/output/Run${RUN}/final/final_BCAL-FCAL_pi0mass.png
+swif outfile final_p2pi_preco1.png file:${BASEDIR}/output/Run${RUN}/final/final_p2pi_preco1.png
+swif outfile final_p3pi_preco_2FCAL.png file:${BASEDIR}/output/Run${RUN}/final/final_p3pi_preco_2FCAL.png
+swif outfile final_p3pi_preco_FCAL-BCAL.png file:${BASEDIR}/output/Run${RUN}/final/final_p3pi_preco_FCAL-BCAL.png
+
 
 ## Cleanup
 echo ==DEBUG==

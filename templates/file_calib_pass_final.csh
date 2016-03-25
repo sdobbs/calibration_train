@@ -25,7 +25,7 @@ mv data.evio data_link.evio
 cp -v data_link.evio data.evio
 
 # config
-set CALIB_PLUGINS=HLDetectorTiming,PSC_TW,BCAL_gainmatrix,FCALgains,FCALpedestals,ST_Tresolution,ST_Propagation_Time,p2gamma_hists,imaging,pedestal_online,BCAL_LEDonline,TOF_calib,PS_timing,pi0fcalskim,pi0fcalskim,ps_skim
+set CALIB_PLUGINS=evio_writer,HLDetectorTiming,PSC_TW,BCAL_gainmatrix,FCALgains,FCALpedestals,ST_Tresolution,ST_Propagation_Time,p2gamma_hists,imaging,pedestal_online,BCAL_LEDonline,TOF_calib,PS_timing,pi0fcalskim,pi0bcalskim,ps_skim,BCAL_inv_mass,p2pi_hists,p3pi_hists
 set CALIB_OPTIONS=""
 set PASSFINAL_OUTPUT_FILENAME=hd_calib_passfinal_Run${RUN}_${FILE}.root
 # run
@@ -39,9 +39,10 @@ swif outfile $PASSFINAL_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}
 # skims
 set SKIM_DIR=/cache/halld/home/gxproj3/calib/${WORKFLOW}/Run${RUN}
 mkdir -p $SKIM_DIR
-swif outfile hd_rawdata_${RUN}_${FILE}.pi0bcalskim.evio file:${SKIM_DIR}/hd_rawdata_${RUN}_${FILE}.pi0bcalskim.evio
-swif outfile hd_rawdata_${RUN}_${FILE}.pi0fcalskim.evio file:${SKIM_DIR}/hd_rawdata_${RUN}_${FILE}.pi0fcalskim.evio
-swif outfile hd_rawdata_${RUN}_${FILE}.ps.evio file:${SKIM_DIR}/hd_rawdata_${RUN}_${FILE}.ps.evio
+swif outfile data.pi0bcalskim.evio file:${SKIM_DIR}/hd_rawdata_${RUN}_${FILE}.pi0bcalskim.evio
+swif outfile data.pi0fcalskim.evio file:${SKIM_DIR}/hd_rawdata_${RUN}_${FILE}.pi0fcalskim.evio
+swif outfile data.ps.evio file:${SKIM_DIR}/hd_rawdata_${RUN}_${FILE}.ps.evio
 swif outfile hd_root_tofcalib.root file:${SKIM_DIR}/hd_root_tofcalib_${RUN}_${FILE}.root
+swif outfile tree_p2gamma_hists.root file:${SKIM_DIR}/tree_p2gamma_hists_${RUN}_${FILE}.root
 
 exit $retval

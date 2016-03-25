@@ -32,7 +32,9 @@ set RUNDIR=${BASEDIR}/output/Run${RUN}
 #setenv PASS2_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}_${FILE}.root
 setenv RUN_OUTPUT_FILENAME hd_calib_pass3_Run${RUN}.root
 echo ==summing ROOT files==
-hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass3_*.root
+#hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass3_*.root
+# ONE JOB!
+cp -v hd_calib_pass3_Run${RUN}_${FILE}.root hd_calib_pass3_Run${RUN}.root
 
 # process the results
 set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
@@ -50,7 +52,7 @@ python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_timing/
 echo Running: TAGH_timewalk, gaussian_fits.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/gaussian_fits.C\(\"${RUN_OUTPUT_FILENAME}\",true\)
 echo Running: TAGH_timewalk, timewalk_fits.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/timewalk_fits.C\(gaussian-fits-csv\)
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/TAGH_timewalk/scripts/timewalk_fits.C\(\"gaussian-fits-csv\"\)
 # run some for BCAL_attenlength_gainratio
 
 # update CCDB
@@ -71,32 +73,37 @@ endif
 echo ==register output files to SWIF==
 swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 mkdir -p ${BASEDIR}/output/Run${RUN}/pass3/
-swif outfile bcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/bcal_base_time.txt
-swif outfile cdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/cdc_base_time.txt
-swif outfile fcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/fcal_base_time.txt
-#swif outfile fdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/fdc_base_time.txt
-swif outfile sc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/sc_base_time.txt
-swif outfile tagh_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_base_time.txt
-swif outfile tagm_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagm_base_time.txt
-swif outfile tof_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/tof_base_time.txt
-#swif outfile bcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/bcal_adc_timing_offsets.txt
-#swif outfile bcal_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/bcal_tdc_timing_offsets.txt
-#swif outfile fcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/fcal_adc_timing_offsets.txt
-swif outfile sc_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/sc_adc_timing_offsets.txt
-swif outfile sc_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/sc_tdc_timing_offsets.txt
-swif outfile tagm_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagm_adc_timing_offsets.txt
-swif outfile tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagm_tdc_timing_offsets.txt
-swif outfile tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_adc_timing_offsets.txt
-swif outfile tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_tdc_timing_offsets.txt
-#swif outfile tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tof_adc_timing_offsets.txt
+#swif outfile bcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/bcal_base_time.txt
+#swif outfile cdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/cdc_base_time.txt
+#swif outfile fcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/fcal_base_time.txt
+##swif outfile fdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/fdc_base_time.txt
+#swif outfile sc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/sc_base_time.txt
+#swif outfile tagh_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_base_time.txt
+#swif outfile tagm_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagm_base_time.txt
+#swif outfile tof_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass3/tof_base_time.txt
+##swif outfile bcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/bcal_adc_timing_offsets.txt
+##swif outfile bcal_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/bcal_tdc_timing_offsets.txt
+##swif outfile fcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/fcal_adc_timing_offsets.txt
+#swif outfile sc_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/sc_adc_timing_offsets.txt
+#swif outfile sc_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/sc_tdc_timing_offsets.txt
+#swif outfile tagm_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagm_adc_timing_offsets.txt
+#swif outfile tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagm_tdc_timing_offsets.txt
+#swif outfile tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_adc_timing_offsets.txt
+#swif outfile tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tagh_tdc_timing_offsets.txt
+##swif outfile tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass3/tof_adc_timing_offsets.txt
 swif outfile channel_global_offset_BCAL.txt file:${BASEDIR}/output/Run${RUN}/pass3/channel_global_offset_BCAL.txt
 swif outfile tdiff_u_d_BCAL.txt file:${BASEDIR}/output/Run${RUN}/pass3/tdiff_u_d_BCAL.txt
 #swif outfile  file:${BASEDIR}/output/Run${RUN}/pass3/
 #swif outfile Eparms-TAGM.out file:${BASEDIR}/output/Run${RUN}/pass3/ps_ecalib.txt
-swif outfile offsets/base_time_offset.txt file:${BASEDIR}/output/Run${RUN}/pass1/ps_base_time_offset.txt
-swif outfile offsets/tdc_timing_offsets_psc.txt file:${BASEDIR}/output/Run${RUN}/pass1/psc_tdc_timing_offsets.txt
-swif outfile offsets/adc_timing_offsets_psc.txt file:${BASEDIR}/output/Run${RUN}/pass1/psc_adc_timing_offsets.txt
-swif outfile offsets/adc_timing_offsets_ps.txt file:${BASEDIR}/output/Run${RUN}/pass1/ps_adc_timing_offsets.txt
+swif outfile offsets/base_time_offset.txt file:${BASEDIR}/output/Run${RUN}/pass3/ps_base_time_offset.txt
+swif outfile offsets/tdc_timing_offsets_psc.txt file:${BASEDIR}/output/Run${RUN}/pass3/psc_tdc_timing_offsets.txt
+swif outfile offsets/adc_timing_offsets_psc.txt file:${BASEDIR}/output/Run${RUN}/pass3/psc_adc_timing_offsets.txt
+swif outfile offsets/adc_timing_offsets_ps.txt file:${BASEDIR}/output/Run${RUN}/pass3/ps_adc_timing_offsets.txt
+# save fit outputs
+rm -rf ${BASEDIR}/output/Run${RUN}/pass3/TAGH_gaus_fits
+cp -R fits_gaussian ${BASEDIR}/output/Run${RUN}/pass3/TAGH_gaus_fits
+rm -rf ${BASEDIR}/output/Run${RUN}/pass3/TAGH_timewalk_fits
+cp -R fits_timewalk ${BASEDIR}/output/Run${RUN}/pass3/TAGH_timewalk_fits
 
 echo ==DEBUG==
 ls -lhR
