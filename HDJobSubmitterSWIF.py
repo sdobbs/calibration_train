@@ -195,7 +195,6 @@ class HDJobSubmitterSWIF:
             if workflow_info["summary"]["phase"] is not None:
                 self.current_phase  = workflow_info["summary"]["phase"]
 
-
         # allow for only running some passes
         passes_to_run = []
         if passes_to_run_str == "all":
@@ -267,13 +266,12 @@ class HDJobSubmitterSWIF:
                 # best practice is one job per EVIO file (Hall D std. size of 20 GB)
                 for filenum in runfile_mapping[run]:
                     self.AddEVIOJobToSWIF(run,filenum,"pass_final","file_calib_pass_final.csh")
-
+            
             # Now submit jobs to process all of the results for a given run
             self.current_phase += 1
+            if self.VERBOSE>0:
+                print "PASS FINAL:   phase %d ..."%(self.current_phase)
             for run in sorted(runfile_mapping.keys()):
-                self.current_phase += 1
-                if self.VERBOSE>1:
-                    print "PASS FINAL:   phase %d ..."%(self.current_phase)
                 self.AddJobToSWIF(run,0,"pass_final","run_calib_pass_final.csh","fullrun")
 
 
