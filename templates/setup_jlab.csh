@@ -45,7 +45,7 @@ setenv HDDS_HOME   ${GLUEX_TOP}/hdds/hdds
 # svn co https://phys12svn.jlab.org/repos/trunk/ccdb
 #setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb_1.05
 setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb.git
-setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.4p2/$BMS_OSNAME
+setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.5p1/$BMS_OSNAME
 
 #------------------------------------------------------------#
 #                Check that all directories exist            #

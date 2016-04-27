@@ -27,7 +27,7 @@ cp -v data_link.evio data.evio
 # config
 set CALIB_PLUGINS=evio_writer,HLDetectorTiming,PSC_TW,BCAL_gainmatrix,FCALgains,FCALpedestals,ST_Tresolution,ST_Propagation_Time,p2gamma_hists,imaging,pedestal_online,BCAL_LEDonline,TOF_calib,PS_timing,pi0fcalskim,pi0bcalskim,ps_skim,BCAL_inv_mass,p2pi_hists,p3pi_hists
 set CALIB_OPTIONS=""
-set PASSFINAL_OUTPUT_FILENAME=hd_calib_passfinal_Run${RUN}_${FILE}.root
+set PASSFINAL_OUTPUT_FILENAME=hd_calib_final_Run${RUN}_${FILE}.root
 # run
 echo ==validation pass==
 echo Running these plugins: $CALIB_PLUGINS

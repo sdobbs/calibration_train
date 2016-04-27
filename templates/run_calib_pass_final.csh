@@ -3,8 +3,8 @@
 
 # initialize CCDB before running
 cp ${BASEDIR}/sqlite_ccdb/ccdb_pass3.${RUN}.sqlite ccdb.sqlite
-setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if ( $?CALIB_CCDB_SQLITE_FILE )
+setenv JANA_CALIB_URL sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
+if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
 #    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
@@ -26,7 +26,8 @@ set RUNDIR=${BASEDIR}/output/Run${RUN}
 set FINAL_OUTPUT_FILENAME=hd_calib_final_Run${RUN}_${FILE}.root
 set RUN_OUTPUT_FILENAME=hd_calib_final_Run${RUN}.root
 echo ==summing ROOT files==
-hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_final_*.root
+#hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_final_*.root
+hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_passfinal_*.root
 
 
 # process the results
@@ -49,9 +50,9 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_TaggerRFAlign
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_TaggerSCAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_BCAL_pi0mass $HALLD_HOME/src/plugins/monitoring/BCAL_inv_mass/bcal_inv_mass.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_BCAL-FCAL_pi0mass $HALLD_HOME/src/plugins/monitoring/BCAL_inv_mass/bcal__fcal_inv_mass.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p2pi_preco $HALLD_HOME/src/plugins/monitoring/p2pi_hists/HistMacro_p2pi_preco1.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_FCAL-BCAL $HALLD_HOME/src/plugins/monitoring/p3pi_hists/HistMacro_p3pi_preco_FCAL-BCAL.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_2FCAL $HALLD_HOME/src/plugins/monitoring/p3pi_hists/HistMacro_p3pi_preco_2FCAL.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p2pi_preco $HALLD_HOME/src/plugins/Analysis/p2pi_hists/HistMacro_p2pi_preco1.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_FCAL-BCAL $HALLD_HOME/src/plugins/Analysis/p3pi_hists/HistMacro_p3pi_preco_FCAL-BCAL.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_2FCAL $HALLD_HOME/src/plugins/Analysis/p3pi_hists/HistMacro_p3pi_preco_2FCAL.C
 
 
 # update CCDB
@@ -65,13 +66,13 @@ endif
 echo ==register output files to SWIF==
 swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 mkdir -p ${BASEDIR}/output/Run${RUN}/final/
-swif outfile final_RF_TaggerComparison.png file:${BASEDIR}/output/Run${RUN}/final/final_RF_TaggerComparison.png
-swif outfile final_HLDT_CalorimeterTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_CalorimeterTiming.png
-swif outfile final_HLDT_PIDSystemTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_PIDSystemTiming.png
-swif outfile final_HLDT_TaggerRFAlignment.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TaggerRFAlignment.png
-swif outfile final_HLDT_TaggerSCAlignment.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TaggerSCAlignment.png
-swif outfile final_HLDT_TaggerTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TaggerTiming.png
-swif outfile final_HLDT_TrackMatchedTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TrackMatchedTiming.png
+#swif outfile final_RF_TaggerComparison.png file:${BASEDIR}/output/Run${RUN}/final/final_RF_TaggerComparison.png
+#swif outfile final_HLDT_CalorimeterTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_CalorimeterTiming.png
+#swif outfile final_HLDT_PIDSystemTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_PIDSystemTiming.png
+#swif outfile final_HLDT_TaggerRFAlignment.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TaggerRFAlignment.png
+#swif outfile final_HLDT_TaggerSCAlignment.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TaggerSCAlignment.png
+#swif outfile final_HLDT_TaggerTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TaggerTiming.png
+#swif outfile final_HLDT_TrackMatchedTiming.png file:${BASEDIR}/output/Run${RUN}/final/final_HLDT_TrackMatchedTiming.png
 swif outfile psc_tw_parms.out file:${BASEDIR}/output/Run${RUN}/final/psc_tw_parms.txt
 swif outfile sigmas.out  file:${BASEDIR}/output/Run${RUN}/final/psc_tw_sigmas.txt
 swif outfile st_time_res.txt  file:${BASEDIR}/output/Run${RUN}/final/st_time_resolution.txt
@@ -95,11 +96,11 @@ ls -lhR
 
 
 # generate CCDB SQLite for the next pass
-==regenerate CCDB SQLite file==
+echo ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_final.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_final.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_final.sqlite
-    cp ccdb_final.sqlite ${BASEDIR}/ccdb_final.${RUN}.sqlite
+    cp ccdb_final.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_final.${RUN}.sqlite
 endif

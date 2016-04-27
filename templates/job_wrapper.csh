@@ -27,9 +27,15 @@ if( $FILE == "" ) then
     exit 1
 endif
 
-setenv NTHREADS $5
+setenv WORKFLOW $5
+if( $WORKFLOW == "" ) then
+    echo Need to pass file number as fourth argument!
+    exit 1
+endif
+
+setenv NTHREADS $6
 if( $NTHREADS == "" ) then
-    set NTHREADS 1
+    setenv NTHREADS 1
 endif
 
 # copy files over
@@ -55,7 +61,7 @@ setenv CALIB_LIBDIR /work/halld/home/sdobbs/calib_lib
 #setenv CALIB_SUBMIT_CONSTANTS
 #setenv CALIB_CHALLENGE
 
-setenv WORKFLOW GlueX-CalibRun-2016-03-18  # hack for now
+#setenv WORKFLOW GlueX-CalibRun-2016-03-18  # hack for now
 
 echo ==printing environment==
 env

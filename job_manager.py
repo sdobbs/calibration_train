@@ -31,7 +31,7 @@ class HDJobManager:
         # Job definitions are stored in a configuration file
         self.config_mgr = None
         # Directory to store job conditions and output
-        self.basedir = "/volatile/halld/home/gxproj3/calib_jobs"    # set this by hand for now
+        self.basedir = "/volatile/halld/home/gxproj3/calib_jobs/"     # set this by hand for now
         #self.basedir = "/group/halld/Users/sdobbs/calib_jobs"    # set this by hand for now, counting house
         # Where the auto-generated CCDB SQLite file lives
         self.ccdb_dir = "/group/halld/www/halldweb/html/dist"
@@ -94,6 +94,9 @@ class HDJobManager:
         # set up link to output in web area
         # web content available at  https://halldweb.jlab.org/calib_challenge
         os.system("ln -s %s/%s/output /group/halld/www/halldweb/html/calib_challenge/%s"%(self.basedir,self.jobname,self.jobname))
+
+        # set up link to skims location
+        os.system("ln -s /cache/halld/home/gxproj3/calib/%s %s/%s/skims"%(self.jobname,self.basedir,self.jobname))
 
         # save configuration
         jc = HDJobConfig.HDJobConfig(os.path.join(job_dir,"config","version.xml"), os.path.join(script_dir,"setup_jlab.csh"))

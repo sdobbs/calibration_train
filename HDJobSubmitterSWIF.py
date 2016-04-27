@@ -71,6 +71,9 @@ class HDJobSubmitterSWIF:
         cmd += " -stdout file:%s/log/log_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
         cmd += " -stderr file:%s/log/err_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
         cmd += " -cores %d"%int(self.nthreads)  
+        cmd += " -tag run %d"%(run)
+        cmd += " -tag file %d"%(filenum)
+        cmd += " -tag pass %s"%(the_pass)
         #if self.nthreads:
         #    cmd += " -cores %d"%int(self.nthreads)
         if self.disk_space:
@@ -82,33 +85,17 @@ class HDJobSubmitterSWIF:
 
         # add command to execute
         if self.nthreads:
-            cmd += " %s/scripts/%s %s %s %06d %03d %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,int(self.nthreads))
+            cmd += " %s/scripts/%s %s %s %06d %03d %s %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow,int(self.nthreads))
         else:
-            cmd += " %s/scripts/%s %s %s %06d %03d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum)
+            cmd += " %s/scripts/%s %s %s %06d %03d %s "%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow)
 
         # submit job
         if self.VERBOSE>1:
             print "Running command: %s"%cmd
         #retval = os.system(cmd)
-        #retval = call(cmd, shell=True, stdout=None)
-        #if retval != 0:
-        #    raise RuntimeError("Error running SWIF command: %s"%cmd)
-        proc = Popen(cmd, shell=True, stdout=PIPE)
-        for line in proc.stdout:
-            #try:
-            tokens = line.strip().split()
-            if len(tokens)<3:
-                continue
-            key = tokens[0]
-            value = tokens[2]
-            # set some useful tags on each job
-            if key == 'name':
-                print "tag"
-                call("swif tag-job -workflow %s -name %s -tag run %d"%(self.workflow,value,run), shell=True, stdout=self.DEVNULL)
-                call("swif tag-job -workflow %s -name %s -tag file %d"%(self.workflow,value,filenum), shell=True, stdout=self.DEVNULL)
-                call("swif tag-job -workflow %s -name %s -tag pass %s"%(self.workflow,value,the_pass), shell=True, stdout=self.DEVNULL)
-            #except:
-            #    pass
+        retval = call(cmd, shell=True, stdout=None)
+        if retval != 0:
+            raise RuntimeError("Error running SWIF command: %s"%cmd)
         # check return value
 
     def AddJobToSWIF(self,run,filenum,the_pass,command_to_run,log_suffix="calib"):
@@ -127,6 +114,9 @@ class HDJobSubmitterSWIF:
         #cmd += " -input data.evio mss:%s"%inputfile   
         cmd += " -stdout file:%s/log/log_%s_%06d_%03d_%s"%(self.basedir,the_pass,run,filenum,log_suffix)
         cmd += " -stderr file:%s/log/err_%s_%06d_%03d_%s"%(self.basedir,the_pass,run,filenum,log_suffix)
+        cmd += " -tag run %d"%(run)
+        cmd += " -tag file %s"%("all")
+        cmd += " -tag pass %s"%(the_pass)
         # keep these jobs single-threaded for now
         #if self.nthreads:
         #    cmd += " -cores %d"%int(self.nthreads)
@@ -139,29 +129,17 @@ class HDJobSubmitterSWIF:
 
         # add command to execute
         if self.nthreads:
-            cmd += " %s/scripts/%s %s %s %06d %03d %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,int(self.nthreads))
+            cmd += " %s/scripts/%s %s %s %06d %03d %s %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow,int(self.nthreads))
         else:
-            cmd += " %s/scripts/%s %s %s %06d %03d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum)
+            cmd += " %s/scripts/%s %s %s %06d %03d %s"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow)
 
         # submit job
         if self.VERBOSE>1:
             print "Running command: %s"%cmd
         #retval = os.system(cmd)
-        #retval = call(cmd, shell=True, stdout=None)
-        #if retval != 0:
-        #    raise RuntimeError("Error running SWIF command: %s"%cmd)
-        proc = Popen(cmd, shell=True, stdout=PIPE)
-        for line in proc.stdout:
-            #try:
-            tokens = line.strip().split()
-            if len(tokens)<3:
-                continue
-            key = tokens[0]
-            value = tokens[2]
-            # set some useful tags on each job
-            if key == 'name':
-                call("swif tag-job -workflow %s -name %s -tag run %d"%(self.workflow,value,run), shell=True, stdout=self.DEVNULL)
-                call("swif tag-job -workflow %s -name %s -tag file %s"%(self.workflow,value,"all"), shell=True, stdout=self.DEVNULL)
+        retval = call(cmd, shell=True, stdout=None)
+        if retval != 0:
+            raise RuntimeError("Error running SWIF command: %s"%cmd)
 
     def CreateJobs(self, runfile_mapping, passes_to_run_str="all"):
         """
@@ -194,6 +172,7 @@ class HDJobSubmitterSWIF:
             workflow_info = json.loads(stdout)
             if workflow_info["summary"]["phase"] is not None:
                 self.current_phase  = workflow_info["summary"]["phase"]
+
 
         # allow for only running some passes
         passes_to_run = []
@@ -266,7 +245,7 @@ class HDJobSubmitterSWIF:
                 # best practice is one job per EVIO file (Hall D std. size of 20 GB)
                 for filenum in runfile_mapping[run]:
                     self.AddEVIOJobToSWIF(run,filenum,"pass_final","file_calib_pass_final.csh")
-            
+
             # Now submit jobs to process all of the results for a given run
             self.current_phase += 1
             if self.VERBOSE>0:
