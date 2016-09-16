@@ -17,16 +17,36 @@
 # be used to modify PATH and LD_LIBRARY_PATH when
 # $BUILD_SCRIPTS/gluex_env.csh is sourced.
 #
+#module load gcc_4.9.2
+
+
+# SET /apps/bin AT FRONT OF PATH (to use working version of git)
+setenv PATH /apps/bin:$PATH
+
+# SETUP gcc 4.9.2
+setenv PATH /apps/gcc/4.9.2/bin:${PATH}
+if (! $?MANPATH) then
+        setenv MANPATH
+endif
+setenv MANPATH /apps/gcc/4.9.2/share/man:${MANPATH}
+if (! $?LD_LIBRARY_PATH) then
+        setenv LD_LIBRARY_PATH
+endif
+setenv LD_LIBRARY_PATH /apps/gcc/4.9.2/lib64:/apps/gcc/4.9.2/lib:${LD_LIBRARY_PATH}
+
 # Use common build for these
 setenv BUILD_SCRIPTS /group/halld/Software/build_scripts
 setenv BMS_OSNAME `$BUILD_SCRIPTS/osrelease.pl`
-setenv ROOTSYS     /group/halld/Software/builds/$BMS_OSNAME/root/root_5.34.26
+#setenv ROOTSYS     /group/halld/Software/builds/$BMS_OSNAME/root/root_5.34.34
+setenv ROOTSYS     /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/root/root_6.06.04
 setenv EVIOROOT    /group/halld/Software/builds/$BMS_OSNAME/evio/evio-4.3.1/Linux-x86_64
-setenv XERCESCROOT /group/halld/Software/builds/$BMS_OSNAME/xerces-c/xerces-c-3.1.1
+setenv XERCESCROOT /group/halld/Software/builds/$BMS_OSNAME/xerces-c/xerces-c-3.1.2
 
 # `$BUILD_SCRIPTS/cue_root.pl`
-setenv CERN_CUE `$BUILD_SCRIPTS/cue_cernlib.pl`
-setenv CERN `$BUILD_SCRIPTS/cue_cernlib.pl`
+#setenv CERN_CUE `$BUILD_SCRIPTS/cue_cernlib.pl`
+#setenv CERN `$BUILD_SCRIPTS/cue_cernlib.pl`
+setenv CERN /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/cernlib
+setenv CERN_CUE /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/cernlib
 setenv CERN_LEVEL 2005
 
 # We will have our own versions of
@@ -44,8 +64,13 @@ setenv HDDS_HOME   ${GLUEX_TOP}/hdds/hdds
 # To get CCDB via svn, use
 # svn co https://phys12svn.jlab.org/repos/trunk/ccdb
 #setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb_1.05
-setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb.git
-setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.5p1/$BMS_OSNAME
+#setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb.git
+#setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.5p2/$BMS_OSNAME
+
+setenv RCDB_HOME  /group/halld/Software/builds/$BMS_OSNAME/rcdb/rcdb_0.00
+setenv CCDB_HOME  /group/halld/Software/builds/$BMS_OSNAME/ccdb/ccdb_1.06.01
+#setenv JANA_HOME  /group/halld/Software/builds/$BMS_OSNAME/jana/jana_0.7.5p2/$BMS_O
+setenv JANA_HOME /group/halld/Software/builds/$BMS_OSNAME/jana/jana_0.7.5p2^root6/$BMS_OSNAME/
 
 #------------------------------------------------------------#
 #                Check that all directories exist            #
@@ -93,7 +118,9 @@ source $BUILD_SCRIPTS/gluex_env.csh
 
 # configure ROOT python bindings
 setenv PYTHONPATH $ROOTSYS/lib:$PYTHONPATH
-
+setenv PYTHONPATH $HALLD_HOME/$BMS_OSNAME/lib:$PYTHONPATH
+# python for sim-recon
+setenv PYTHONPATH $HALLD_HOME/$BMS_OSNAME/python2:$PYTHONPATH
 # Add 
 # setenv LD_LIBRARY_PATH $EVIOROOT/lib:$LD_LIBRARY_PATH
 

@@ -94,7 +94,6 @@ swif outfile final_p3pi_preco_FCAL-BCAL.png file:${BASEDIR}/output/Run${RUN}/fin
 echo ==DEBUG==
 ls -lhR
 
-
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
@@ -104,3 +103,7 @@ else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_final.sqlite
     cp ccdb_final.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_final.${RUN}.sqlite
 endif
+
+# copy results to be web-accessible
+rsync -avx --exclude=log --exclude="*.root" --exclude="*.sqlite" ${BASEDIR}/ /work/halld2/data_monitoring/calibrations/${WORKFLOW}/
+
