@@ -17,60 +17,61 @@
 # be used to modify PATH and LD_LIBRARY_PATH when
 # $BUILD_SCRIPTS/gluex_env.csh is sourced.
 #
-#module load gcc_4.9.2
-
+# We should move to standard gluex environement scripts at some point....
 
 # SET /apps/bin AT FRONT OF PATH (to use working version of git)
-setenv PATH /apps/bin:$PATH
+#setenv PATH /apps/bin:$PATH
 
 # SETUP gcc 4.9.2
-setenv PATH /apps/gcc/4.9.2/bin:${PATH}
-if (! $?MANPATH) then
-        setenv MANPATH
-endif
-setenv MANPATH /apps/gcc/4.9.2/share/man:${MANPATH}
-if (! $?LD_LIBRARY_PATH) then
-        setenv LD_LIBRARY_PATH
-endif
-setenv LD_LIBRARY_PATH /apps/gcc/4.9.2/lib64:/apps/gcc/4.9.2/lib:${LD_LIBRARY_PATH}
+#setenv PATH /apps/gcc/4.9.2/bin:${PATH}
+#if (! $?MANPATH) then
+#        setenv MANPATH
+#endif
+#setenv MANPATH /apps/gcc/4.9.2/share/man:${MANPATH}
+#if (! $?LD_LIBRARY_PATH) then
+#        setenv LD_LIBRARY_PATH
+#endif
+#setenv LD_LIBRARY_PATH /apps/gcc/4.9.2/lib64:/apps/gcc/4.9.2/lib:${LD_LIBRARY_PATH}
 
 # Use common build for these
 setenv BUILD_SCRIPTS /group/halld/Software/build_scripts
 setenv BMS_OSNAME `$BUILD_SCRIPTS/osrelease.pl`
-#setenv ROOTSYS     /group/halld/Software/builds/$BMS_OSNAME/root/root_5.34.34
-setenv ROOTSYS     /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/root/root_6.06.04
+
+# SETUP gcc 4.9.2 for CentOS6
+if ( $BMS_OSNAME =~ *CentOS6* || $BMS_OSNAME =~ *RHEL6* ) then
+    set GCC_HOME=/apps/gcc/4.9.2
+    setenv PATH ${GCC_HOME}/bin:${PATH}
+    setenv LD_LIBRARY_PATH ${GCC_HOME}/lib64:${GCC_HOME}/lib
+    setenv BMS_OSNAME `$BUILD_SCRIPTS/osrelease.pl`
+endif
+
+
+setenv ROOTSYS     /group/halld/Software/builds/$BMS_OSNAME/root/root-6.06.08
+#setenv ROOTSYS     /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/root/root-6.06.08
 setenv EVIOROOT    /group/halld/Software/builds/$BMS_OSNAME/evio/evio-4.3.1/Linux-x86_64
 setenv XERCESCROOT /group/halld/Software/builds/$BMS_OSNAME/xerces-c/xerces-c-3.1.2
 
-# `$BUILD_SCRIPTS/cue_root.pl`
-#setenv CERN_CUE `$BUILD_SCRIPTS/cue_cernlib.pl`
-#setenv CERN `$BUILD_SCRIPTS/cue_cernlib.pl`
-setenv CERN /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/cernlib
-setenv CERN_CUE /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/cernlib
+#setenv CERN /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/cernlib
+#setenv CERN_CUE /group/halld/Software/builds/Linux_CentOS6-x86_64-gcc4.9.2/cernlib
+setenv CERN /group/halld/Software/builds/$BMS_OSNAME/cernlib
+setenv CERN_CUE /group/halld/Software/builds/$BMS_OSNAME/cernlib
 setenv CERN_LEVEL 2005
-
-# We will have our own versions of
-# - sim-recon
-# - hdds
-# - ccdb
-# - jana
 
 # Top level directory
 setenv GLUEX_TOP /work/halld2/home/gxproj3/Calibration/Software/
 
+setenv RCDB_HOME  /group/halld/Software/builds/$BMS_OSNAME/rcdb/rcdb_0.00
+setenv CCDB_HOME  /group/halld/Software/builds/$BMS_OSNAME/ccdb/ccdb_1.06.01
+setenv JANA_HOME /group/halld/Software/builds/$BMS_OSNAME/jana/jana_0.7.5p2^root6.06.08/$BMS_OSNAME/
+
+# Just build our own sim-recon and hdds versions
 setenv HALLD_HOME  ${GLUEX_TOP}/sim-recon/sim-recon
 setenv HDDS_HOME   ${GLUEX_TOP}/hdds/hdds
 # CCDB must be built before JANA
-# To get CCDB via svn, use
-# svn co https://phys12svn.jlab.org/repos/trunk/ccdb
 #setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb_1.05
 #setenv CCDB_HOME   ${GLUEX_TOP}/ccdb/ccdb.git
 #setenv JANA_HOME   ${GLUEX_TOP}/jana/jana_0.7.5p2/$BMS_OSNAME
 
-setenv RCDB_HOME  /group/halld/Software/builds/$BMS_OSNAME/rcdb/rcdb_0.00
-setenv CCDB_HOME  /group/halld/Software/builds/$BMS_OSNAME/ccdb/ccdb_1.06.01
-#setenv JANA_HOME  /group/halld/Software/builds/$BMS_OSNAME/jana/jana_0.7.5p2/$BMS_O
-setenv JANA_HOME /group/halld/Software/builds/$BMS_OSNAME/jana/jana_0.7.5p2^root6/$BMS_OSNAME/
 
 #------------------------------------------------------------#
 #                Check that all directories exist            #
@@ -121,8 +122,6 @@ setenv PYTHONPATH $ROOTSYS/lib:$PYTHONPATH
 setenv PYTHONPATH $HALLD_HOME/$BMS_OSNAME/lib:$PYTHONPATH
 # python for sim-recon
 setenv PYTHONPATH $HALLD_HOME/$BMS_OSNAME/python2:$PYTHONPATH
-# Add 
-# setenv LD_LIBRARY_PATH $EVIOROOT/lib:$LD_LIBRARY_PATH
 
 # make sure to set the correct calibtime - FIX
 #setenv JANA_CALIB_URL  sqlite:///${GLUEX_TOP}/ccdb.sqlite # mysql://ccdb_user@hallddb.jlab.org/ccdb
@@ -136,9 +135,12 @@ if ( ! $?JANA_PLUGIN_PATH ) then
 endif
 setenv JANA_PLUGIN_PATH ${HALLD_HOME}/${BMS_OSNAME}/plugins\:${JANA_HOME}/plugins:${JANA_PLUGIN_PATH}
 
-# python2.7 needed for CCDB command line tool
-setenv PATH /apps/python/PRO/bin\:$PATH
-setenv LD_LIBRARY_PATH /apps/python/PRO/lib\:$LD_LIBRARY_PATH
+# python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
+setenv PATH /apps/python/2.7.12/bin:$PATH
+setenv LD_LIBRARY_PATH /apps/python/2.7.12/lib:$LD_LIBRARY_PATH
+#setenv PATH /apps/python/PRO/bin\:$PATH
+#setenv LD_LIBRARY_PATH /apps/python/PRO/lib\:$LD_LIBRARY_PATH
+
 
 #------------------------------------------------------------#
 #              Print out environment variables               #

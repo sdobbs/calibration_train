@@ -29,10 +29,17 @@ endif
 
 setenv WORKFLOW $5
 if( $WORKFLOW == "" ) then
-    echo Need to pass file number as fourth argument!
+    echo Need to pass workflow as fifth argument!
     exit 1
 endif
 
+#setenv RUNPERIOD $6
+#if( $WORKFLOW == "" ) then
+#    echo Need to pass run period as sixth argument!
+#    exit 1
+#endif
+
+#setenv NTHREADS $7
 setenv NTHREADS $6
 if( $NTHREADS == "" ) then
     setenv NTHREADS 1
@@ -47,24 +54,32 @@ echo ==initial files==
 ls -lh
 
 # setup standard environment
-source setup_jlab.csh
+source ./setup_jlab.csh
 
 # setup calibration configuration inside in each job
 unsetenv CCDB_CONNECTION
 unsetenv JANA_CALIB_URL
 unsetenv JANA_CALIB_CONTEXT
 # 
-setenv CALIB_LIBDIR /work/halld/home/sdobbs/calib_lib
+setenv RUNPERIOD RunPeriod-2016-10
+# ROOT files
+#setenv OUTPUTDIR         /cache/halld/${RUNPERIOD}/calib/${WORKFLOW}/
+setenv OUTPUTDIR         /cache/halld/${RUNPERIOD}/calib/
+setenv SMALL_OUTPUTDIR   /work/halld2/home/${USER}/calib_jobs/${WORKFLOW}/
+setenv SQLITEDIR         /volatile/halld/home/${USER}/calib_jobs/${WORKFLOW}/
+#
+setenv CALIB_LIBDIR /work/halld/home/${USER}/calib_lib
 #setenv CALIB_CCDB_SQLITE_FILE   # use local SQLite files
 #setenv CALIB_CCDB_SQLITE_FILE /home/gxproj3/calib_challenge/ccdb.sqlite
 #setenv CALIB_DEBUG
-#setenv CALIB_SUBMIT_CONSTANTS
+setenv CALIB_SUBMIT_CONSTANTS
 #setenv CALIB_CHALLENGE
-
-#setenv WORKFLOW GlueX-CalibRun-2016-03-18  # hack for now
 
 echo ==printing environment==
 env
+
+echo ==check python version==
+which python
 
 # do the work
 echo ==running command: $CALIB_COMMAND==

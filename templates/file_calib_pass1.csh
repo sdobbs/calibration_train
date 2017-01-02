@@ -2,7 +2,8 @@
 # Do a first pass of calibrations on an EVIO file
 
 # initialize CCDB before running
-cp ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite ccdb.sqlite
+#cp ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite ccdb.sqlite
+cp -v ccdb_pass0.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -34,6 +35,6 @@ hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -P
 set retval=$?
 
 # save results
-swif outfile $PASS1_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}/$PASS1_OUTPUT_FILENAME
+swif outfile $PASS1_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/${RUN}/${PASS1_OUTPUT_FILENAME}
 
 exit $retval

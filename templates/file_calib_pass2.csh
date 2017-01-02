@@ -2,7 +2,8 @@
 # Do a second pass of calibrations on an EVIO file
 
 # initialize CCDB before running
-cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
+#cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
+cp -v ccdb_pass1.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -24,7 +25,7 @@ set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 #cp -v data_link.evio data.evio
 
 # config
-set CALIB_PLUGINS=HLDetectorTiming,BCAL_TDC_Timing
+set CALIB_PLUGINS=HLDetectorTiming,BCAL_TDC_Timing,CDC_amp
 set CALIB_OPTIONS="-PHLDETECTORTIMING:DO_TRACK_BASED=1 -PPID:OUT_OF_TIME_CUT=1000 -PTRKFIT:HYPOTHESES_POSITIVE=8 -PTRKFIT:HYPOTHESES_NEGATIVE=9"
 set PASS2_OUTPUT_FILENAME=hd_calib_pass2_Run${RUN}_${FILE}.root
 # run
@@ -34,6 +35,6 @@ hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -P
 set retval=$?
 
 # save results
-swif outfile $PASS2_OUTPUT_FILENAME file:${BASEDIR}/output/Run${RUN}/${FILE}/$PASS2_OUTPUT_FILENAME
+swif outfile $PASS2_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/${RUN}/${PASS2_OUTPUT_FILENAME}
 
 exit $retval

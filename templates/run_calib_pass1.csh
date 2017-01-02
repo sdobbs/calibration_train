@@ -1,8 +1,13 @@
 #!/bin/tcsh
 # Do a first pass of calibrations for a given run
 
+# python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
+setenv PATH /apps/python/2.7.12/bin:$PATH
+setenv LD_LIBRARY_PATH /apps/python/2.7.12/lib:$LD_LIBRARY_PATH
+
+
 # initialize CCDB before running
-cp ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite ccdb.sqlite
+#cp ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite ccdb.sqlite
 setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
     setenv CCDB_CONNECTION $JANA_CALIB_URL
@@ -26,7 +31,8 @@ endif
 ###################################################
 
 # set some general variables
-set RUNDIR=${BASEDIR}/output/Run${RUN}
+#set RUNDIR=${BASEDIR}/output/Run${RUN}
+set RUNDIR=${OUTPUTDIR}/hists/${RUN}/
 
 # merge results of per-file processing
 #set PASS1_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}_${FILE}.root
@@ -70,27 +76,29 @@ endif
 
 # register output
 echo ==register output files to SWIF==
-swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
-mkdir -p ${BASEDIR}/output/Run${RUN}/pass1/
-swif outfile bcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/bcal_base_time.txt
-swif outfile cdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/cdc_base_time.txt
-#swif outfile fcal_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/fcal_base_time.txt
-swif outfile fdc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/fdc_base_time.txt
-swif outfile sc_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/sc_base_time.txt
-swif outfile tagh_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_base_time.txt
-swif outfile tagm_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagm_base_time.txt
-swif outfile tof_base_time.txt file:${BASEDIR}/output/Run${RUN}/pass1/tof_base_time.txt
-#swif outfile bcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/bcal_adc_timing_offsets.txt
-swif outfile bcal_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/bcal_tdc_timing_offsets.txt
-#swif outfile fcal_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/fcal_adc_timing_offsets.txt
-swif outfile sc_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/sc_adc_timing_offsets.txt
-#swif outfile sc_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/sc_tdc_timing_offsets.txt
-swif outfile tagm_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagm_adc_timing_offsets.txt
-swif outfile tagm_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagm_tdc_timing_offsets.txt
-swif outfile tagh_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_adc_timing_offsets.txt
-swif outfile tagh_tdc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tagh_tdc_timing_offsets.txt
-swif outfile tof_adc_timing_offsets.txt file:${BASEDIR}/output/Run${RUN}/pass1/tof_adc_timing_offsets.txt
-swif outfile TOF_TDC_shift_${RUN}.txt file:${BASEDIR}/output/Run${RUN}/pass1/TOF_TDC_shift.txt
+#swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
+mkdir -p ${OUTPUTDIR}/hists/Run${RUN}/
+cp $RUN_OUTPUT_FILENAME ${OUTPUTDIR}/hists/Run${RUN}/$RUN_OUTPUT_FILENAME
+mkdir -p ${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/
+swif outfile bcal_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/bcal_base_time.txt
+swif outfile cdc_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/cdc_base_time.txt
+#swif outfile fcal_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/fcal_base_time.txt
+swif outfile fdc_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/fdc_base_time.txt
+swif outfile sc_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_base_time.txt
+swif outfile tagh_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tagh_base_time.txt
+swif outfile tagm_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tagm_base_time.txt
+swif outfile tof_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tof_base_time.txt
+#swif outfile bcal_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/bcal_adc_timing_offsets.txt
+swif outfile bcal_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/bcal_tdc_timing_offsets.txt
+#swif outfile fcal_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/fcal_adc_timing_offsets.txt
+swif outfile sc_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_adc_timing_offsets.txt
+#swif outfile sc_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tdc_timing_offsets.txt
+swif outfile tagm_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tagm_adc_timing_offsets.txt
+swif outfile tagm_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tagm_tdc_timing_offsets.txt
+swif outfile tagh_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tagh_adc_timing_offsets.txt
+swif outfile tagh_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tagh_tdc_timing_offsets.txt
+swif outfile tof_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/tof_adc_timing_offsets.txt
+swif outfile TOF_TDC_shift_${RUN}.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/TOF_TDC_shift.txt
 
 ###################################################
 ## Cleanup
@@ -98,11 +106,11 @@ swif outfile TOF_TDC_shift_${RUN}.txt file:${BASEDIR}/output/Run${RUN}/pass1/TOF
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
 if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
+    cp ccdb.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass1.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass1.sqlite
-    cp ccdb_pass1.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
+    #cp ccdb_pass1.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
 endif
 
 # Debug info
