@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# copy input file to local disk - SWIF only sets up a symbolic link to it
+echo ==copy in file==
+mv data.evio data_link.evio
+cp -v data_link.evio data.evio
+ls -lh data.evio
+
 ./file_calib_pass0.sh
 ./file_calib_pass1.sh
 ./run_calib_pass1.sh

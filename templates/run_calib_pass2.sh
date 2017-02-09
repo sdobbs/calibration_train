@@ -1,49 +1,49 @@
-#!/bin/tcsh
+#!/bin/bash
 # Do a first pass of calibrations for a given run
 
 # python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
-setenv PATH /apps/python/2.7.12/bin:$PATH
-setenv LD_LIBRARY_PATH /apps/python/2.7.12/lib:$LD_LIBRARY_PATH
+export PATH=/apps/python/2.7.12/bin:$PATH
+export LD_LIBRARY_PATH=/apps/python/2.7.12/lib:$LD_LIBRARY_PATH
 
 
 # initialize CCDB before running
 cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
-setenv JANA_CALIB_URL sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION $JANA_CALIB_URL
-    #setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
+if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+    export CCDB_CONNECTION=$JANA_CALIB_URL
+    #export CCDB_CONNECTION=sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
-    setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
-endif
-if ( $?CALIB_CHALLENGE ) then
-    setenv VARIATION calib_pass2
+    export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
+fi
+if [ -z "$CALIB_CHALLENGE" ]; then
+    export VARIATION=calib_pass2
 else
-    setenv VARIATION calib
-endif
-setenv JANA_CALIB_CONTEXT "variation=$VARIATION" 
+    export VARIATION=calib
+fi
+export JANA_CALIB_CONTEXT="variation=$VARIATION" 
 
 # Debug info
-if ( $?CALIB_DEBUG ) then 
+if [ -z "$CALIB_DEBUG" ]; then 
     echo ==starting CCDB info==
     python cat_ccdb_tables.py ccdb_tables_pass2
-endif
+fi
 
 ###################################################
 
 # set some general variables
 #set RUNDIR=${BASEDIR}/output/Run${RUN}
-set RUNDIR=${OUTPUTDIR}/hists/${RUN}/
+RUNDIR=${OUTPUTDIR}/hists/${RUN}/
 
 # merge results of per-file processing
-#setenv PASS2_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}_${FILE}.root
-setenv RUN_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}.root
+#export PASS2_OUTPUT_FILENAME hd_calib_pass2_Run${RUN}_${FILE}.root
+export RUN_OUTPUT_FILENAME=hd_calib_pass2_Run${RUN}.root
 echo ==summing ROOT files==
 #hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass2_*.root
 # ONE JOB!
 cp -v hd_calib_pass2_Run${RUN}_${FILE}.root hd_calib_pass2_Run${RUN}.root
 
 # process the results
-set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
 echo ==second pass calibrations==
 echo Running: HLDetectorTiming, ExtractTrackBasedTiming.C
@@ -65,7 +65,7 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlign
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
 
 # update CCDB
-if ( $?CALIB_SUBMIT_CONSTANTS ) then
+if [ -z "$CALIB_SUBMIT_CONSTANTS" ]; then
     echo ==update CCDB==
     ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUN}-${RUN} bcal_base_time.txt
     ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUN}-${RUN} cdc_base_time.txt
@@ -88,7 +88,7 @@ if ( $?CALIB_SUBMIT_CONSTANTS ) then
     ccdb add /BCAL/timewalk_tdc -v $VARIATION -r ${RUN}-${RUN} TimewalkBCAL.txt
 #    ccdb add /PHOTON_BEAM/pair_spectrometer/fine/energy_corrections -v $VARIATION -r ${RUN}-${RUN} Eparms-TAGM.out
     ccdb add /CDC/digi_scales -v $VARIATION -r ${RUN}-${RUN} cdc_new_ascale.txt
-endif
+fi
 
 # register output
 echo ==register output files to SWIF==
@@ -136,16 +136,16 @@ ls -lhR
 
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
-if ( $?CALIB_CCDB_SQLITE_FILE ) then
+if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     cp ccdb.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass2.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass2.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass2.sqlite
     #cp ccdb_pass2.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass2.${RUN}.sqlite
-endif
+fi
 
 # Debug info
-if ( $?CALIB_DEBUG ) then 
+if [ -z "$CALIB_DEBUG" ]; then 
     echo ==ending CCDB info==
     python cat_ccdb_tables.py ccdb_tables_pass2
-endif
+fi

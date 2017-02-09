@@ -1,43 +1,43 @@
-#!/bin/tcsh
+#!/bin/bash
 # Do a first pass of calibrations for a given run
 
 # python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
-setenv PATH /apps/python/2.7.12/bin:$PATH
-setenv LD_LIBRARY_PATH /apps/python/2.7.12/lib:$LD_LIBRARY_PATH
+export PATH=/apps/python/2.7.12/bin:$PATH
+export LD_LIBRARY_PATH=/apps/python/2.7.12/lib:$LD_LIBRARY_PATH
 
 
 # initialize CCDB before running
 cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
-setenv JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION $JANA_CALIB_URL
-    #setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
+if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+    export CCDB_CONNECTION=$JANA_CALIB_URL
+    #export CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
-    setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
-endif
-if ( $?CALIB_CHALLENGE ) then
-    setenv VARIATION calib_pass1
+    export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
+fi
+if [ -z "$CALIB_CHALLENGE" ]; then
+    export VARIATION=calib_pass1
 else
-#    setenv VARIATION calib
-    setenv VARIATION calib_study
-endif
-setenv JANA_CALIB_CONTEXT "variation=$VARIATION" 
+    export VARIATION=calib
+#    export VARIATION=calib_study
+fi
+export JANA_CALIB_CONTEXT="variation=$VARIATION" 
 
 # Debug info
-if ( $?CALIB_DEBUG ) then 
+if [ -z "$CALIB_DEBUG" ]; then 
     echo ==starting CCDB info==
     python cat_ccdb_tables.py ccdb_tables_pass1
-endif
+fi
 
 ###################################################
 
 # set some general variables
 #set RUNDIR=${BASEDIR}/output/Run${RUN}
-set RUNDIR=${OUTPUTDIR}/hists/${RUN}/
+RUNDIR=${OUTPUTDIR}/hists/${RUN}/
 
 # merge results of per-file processing
 #set PASS1_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}_${FILE}.root
-setenv RUN_OUTPUT_FILENAME hd_calib_pass1.5_Run${RUN}.root
+export RUN_OUTPUT_FILENAME=hd_calib_pass1.5_Run${RUN}.root
 echo ==summing ROOT files==
 #hadd -f -k -v 0 $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1_*.root
 #hadd -f -k  $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_pass1.5_*.root
@@ -45,7 +45,7 @@ echo ==summing ROOT files==
 cp -v hd_calib_pass1.5_Run${RUN}_${FILE}.root hd_calib_pass1.5_Run${RUN}.root
 
 # process the results
-set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
 echo ==first pass calibrations==
 #python run_calib_pass1.py $RUN_OUTPUT_FILENAME
@@ -103,18 +103,18 @@ swif outfile stt_tw_plot_30.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/s
 
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
-if ( $?CALIB_CCDB_SQLITE_FILE ) then
+if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     cp ccdb.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass1.sqlite
 #else
 #    rm -f ccdb_pass1.sqlite
 #    $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass1.sqlite
 #    cp ccdb_pass1.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
-endif
+fi
 
 # Debug info
-if ( $?CALIB_DEBUG ) then 
+if [ -z "$CALIB_DEBUG" ]; then 
     echo ==ending CCDB info==
     python cat_ccdb_tables.py ccdb_tables_pass1.5
-endif
+fi
 

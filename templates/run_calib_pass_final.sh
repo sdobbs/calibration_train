@@ -1,33 +1,33 @@
-#!/bin/tcsh
+#!/bin/bash
 # Do a first pass of calibrations for a given run
 
 # initialize CCDB before running
 #cp ${BASEDIR}/sqlite_ccdb/ccdb_pass3.${RUN}.sqlite ccdb.sqlite
 cp -v ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
-setenv JANA_CALIB_URL sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if ( $?CALIB_CCDB_SQLITE_FILE ) then
-    setenv CCDB_CONNECTION $JANA_CALIB_URL
-#    setenv CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
+export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
+if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+    export CCDB_CONNECTION=$JANA_CALIB_URL
+#    export CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
-    setenv CCDB_CONNECTION mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
-endif
-if ( $?CALIB_CHALLENGE ) then
-    setenv VARIATION calib_pass3
+    export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
+fi
+if [ -z "$CALIB_CHALLENGE" ]; then
+    export VARIATION=calib_pass3
 else
-    setenv VARIATION calib
-endif
+    export VARIATION=calib
+fi
 
 
 ###################################################
 
 # set some general variables
-set RUNDIR=${OUTPUTDIR}/hists/${RUN}/
-set SUMMEDDIR=${OUTPUTDIR}/hists/summed/
+RUNDIR=${OUTPUTDIR}/hists/${RUN}/
+SUMMEDDIR=${OUTPUTDIR}/hists/summed/
 mkdir -p $SUMMEDDIR
 
 # merge results of per-file processing
-set FINAL_OUTPUT_FILENAME=hd_calib_final_Run${RUN}_${FILE}.root
-set RUN_OUTPUT_FILENAME=hd_calib_final_Run${RUN}.root
+FINAL_OUTPUT_FILENAME=hd_calib_final_Run${RUN}_${FILE}.root
+RUN_OUTPUT_FILENAME=hd_calib_final_Run${RUN}.root
 echo ==summing ROOT files==
 #hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/*/hd_calib_final_*.root
 hadd -f -k $RUN_OUTPUT_FILENAME  ${RUNDIR}/hd_calib_passfinal_*.root
@@ -80,17 +80,15 @@ swif outfile final_p3pi_preco_FCAL-BCAL.png file:${SMALL_OUTPUTDIR}/output/Run${
 echo ==DEBUG==
 ls -lhR
 
-exit 69
-
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
-if ( $?CALIB_CCDB_SQLITE_FILE ) then
+if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     cp ccdb.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_final.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_final.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_final.sqlite
     cp ccdb_final.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_final.${RUN}.sqlite
-endif
+fi
 
 # copy results to be web-accessible
 #rsync -avx --exclude=log --exclude="*.root" --exclude="*.sqlite" ${BASEDIR}/ /work/halld2/data_monitoring/calibrations/${WORKFLOW}/
