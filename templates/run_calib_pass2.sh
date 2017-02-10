@@ -31,7 +31,7 @@ fi
 ###################################################
 
 # set some general variables
-#set RUNDIR=${BASEDIR}/output/Run${RUN}
+#set RUNDIR=${BASEDIR}/Run${RUN}
 RUNDIR=${OUTPUTDIR}/hists/${RUN}/
 
 # merge results of per-file processing
@@ -95,38 +95,38 @@ echo ==register output files to SWIF==
 #swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 mkdir -p ${OUTPUTDIR}/hists/Run${RUN}/
 cp $RUN_OUTPUT_FILENAME ${OUTPUTDIR}/hists/Run${RUN}/$RUN_OUTPUT_FILENAME
-mkdir -p ${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/
-swif outfile bcal_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/bcal_base_time.txt
-swif outfile cdc_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/cdc_base_time.txt
-swif outfile fcal_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/fcal_base_time.txt
-#swif outfile fdc_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/fdc_base_time.txt
-swif outfile sc_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/sc_base_time.txt
-swif outfile tagh_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tagh_base_time.txt
-swif outfile tagm_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tagm_base_time.txt
-swif outfile tof_base_time.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tof_base_time.txt
-#swif outfile bcal_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/bcal_adc_timing_offsets.txt
-#swif outfile bcal_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/bcal_tdc_timing_offsets.txt
-#swif outfile fcal_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/fcal_adc_timing_offsets.txt
-swif outfile sc_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/sc_adc_timing_offsets.txt
-swif outfile sc_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/sc_tdc_timing_offsets.txt
-swif outfile tagm_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tagm_adc_timing_offsets.txt
-swif outfile tagm_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tagm_tdc_timing_offsets.txt
-swif outfile tagh_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tagh_adc_timing_offsets.txt
-swif outfile tagh_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tagh_tdc_timing_offsets.txt
-#swif outfile tof_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/tof_adc_timing_offsets.txt
-swif outfile BCALTimewalk_Results.root file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/BCALTimewalk_Results.root
-swif outfile TimewalkBCAL.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/TimewalkBCAL.txt
-#swif outfile  file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/
-#swif outfile Eparms-TAGM.out file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/ps_ecalib.txt
-swif outfile pass2_CalorimeterTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/pass2_CalorimeterTiming.png
-swif outfile pass2_PIDSystemTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/pass2_PIDSystemTiming.png
-swif outfile pass2_TrackMatchedTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/pass2_TrackMatchedTiming.png
-swif outfile pass2_TaggerTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/pass2_TaggerTiming.png
-swif outfile pass2_TaggerRFAlignment.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/pass2_TaggerRFAlignment.png
-swif outfile pass2_TaggerSCAlignment.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/pass2_TaggerSCAlignment.png
-swif outfile cdc_new_ascale.txt  file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/cdc_new_ascale.txt
-swif outfile cdc_amphistos.root  file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/cdc_amphistos.root
-#swif outfile   file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass2/
+mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/pass2/
+swif outfile bcal_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/bcal_base_time.txt
+swif outfile cdc_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/cdc_base_time.txt
+swif outfile fcal_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/fcal_base_time.txt
+#swif outfile fdc_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/fdc_base_time.txt
+swif outfile sc_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/sc_base_time.txt
+swif outfile tagh_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tagh_base_time.txt
+swif outfile tagm_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tagm_base_time.txt
+swif outfile tof_base_time.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tof_base_time.txt
+#swif outfile bcal_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/bcal_adc_timing_offsets.txt
+#swif outfile bcal_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/bcal_tdc_timing_offsets.txt
+#swif outfile fcal_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/fcal_adc_timing_offsets.txt
+swif outfile sc_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/sc_adc_timing_offsets.txt
+swif outfile sc_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/sc_tdc_timing_offsets.txt
+swif outfile tagm_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tagm_adc_timing_offsets.txt
+swif outfile tagm_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tagm_tdc_timing_offsets.txt
+swif outfile tagh_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tagh_adc_timing_offsets.txt
+swif outfile tagh_tdc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tagh_tdc_timing_offsets.txt
+#swif outfile tof_adc_timing_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/tof_adc_timing_offsets.txt
+swif outfile BCALTimewalk_Results.root file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/BCALTimewalk_Results.root
+swif outfile TimewalkBCAL.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/TimewalkBCAL.txt
+#swif outfile  file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/
+#swif outfile Eparms-TAGM.out file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/ps_ecalib.txt
+swif outfile pass2_CalorimeterTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_CalorimeterTiming.png
+swif outfile pass2_PIDSystemTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_PIDSystemTiming.png
+swif outfile pass2_TrackMatchedTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TrackMatchedTiming.png
+swif outfile pass2_TaggerTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TaggerTiming.png
+swif outfile pass2_TaggerRFAlignment.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TaggerRFAlignment.png
+swif outfile pass2_TaggerSCAlignment.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TaggerSCAlignment.png
+swif outfile cdc_new_ascale.txt  file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/cdc_new_ascale.txt
+swif outfile cdc_amphistos.root  file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/cdc_amphistos.root
+#swif outfile   file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/
 
 echo ==DEBUG==
 ls -lhR

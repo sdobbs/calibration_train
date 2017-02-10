@@ -26,8 +26,8 @@ mv data.evio data_link.evio
 cp -v data_link.evio data.evio
 
 # config
-CALIB_PLUGINS=evio_writer,HLDetectorTiming,BCAL_attenlength_gainratio,CDC_amp,CDC_TimeToDistance,FCALpedestals,ST_Propagation_Time,imaging,pedestals,BCAL_LED,FCAL_TimingOffsets,FCALpulsepeak,pi0fcalskim,pi0bcalskim,ps_skim,BCAL_inv_mass,p2pi_hists,p3pi_hists,trigger_skims,TOF_calib,BCAL_calib_point,BCAL_TDC_Timing
-CALIB_OPTIONS=" |=-PHLDETECTORTIMING:DO_VERIFY=1 "
+CALIB_PLUGINS=evio_writer,HLDetectorTiming,BCAL_attenlength_gainratio,CDC_amp,CDC_TimeToDistance,FCALpedestals,ST_Propagation_Time,imaging,pedestals,BCAL_LED,FCAL_TimingOffsets,FCALpulsepeak,pi0fcalskim,pi0bcalskim,ps_skim,BCAL_inv_mass,p2pi_hists,p3pi_hists,trigger_skims,TOF_calib,BCAL_calib_point,BCAL_TDC_Timing,TrackingPulls
+CALIB_OPTIONS=" -PHLDETECTORTIMING:DO_VERIFY=1 "
 PASSFINAL_OUTPUT_FILENAME=hd_calib_final_Run${RUN}_${FILE}.root
 # run
 echo ==validation pass==
@@ -36,28 +36,29 @@ hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -P
 retval=$?
 
 # save results
-swif outfile $PASSFINAL_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/${RUN}/$PASSFINAL_OUTPUT_FILENAME
+swif outfile $PASSFINAL_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/Run${RUN}/$PASSFINAL_OUTPUT_FILENAME
 # skims
 #set SKIM_DIR=/cache/halld/${RUNPERIOD}/calib/${WORKFLOW}/
-SKIM_DIR=/cache/halld/${RUNPERIOD}/calib/pass2/  ## FIX
+#SKIM_DIR=/cache/halld/${RUNPERIOD}/calib/pass2/  ## FIX
+SKIM_DIR=$OUTPUTDIR
 mkdir -p $SKIM_DIR
 #
-mkdir -p ${SKIM_DIR}/BCAL_pi0/${RUN}
-swif outfile data.pi0bcalskim.evio file:${SKIM_DIR}/BCAL_pi0/${RUN}/hd_rawdata_${RUN}_${FILE}.pi0bcalskim.evio
-mkdir -p ${SKIM_DIR}/FCAL_pi0/${RUN}
-swif outfile data.pi0fcalskim.evio file:${SKIM_DIR}/FCAL_pi0/${RUN}/hd_rawdata_${RUN}_${FILE}.pi0fcalskim.evio
-mkdir -p ${SKIM_DIR}/PS/${RUN}
-swif outfile data.ps.evio file:${SKIM_DIR}/PS/${RUN}/hd_rawdata_${RUN}_${FILE}.ps.evio
-mkdir -p ${SKIM_DIR}/TOF/${RUN}
-swif outfile hd_root_tofcalib.root file:${SKIM_DIR}/TOF/${RUN}/hd_root_tofcalib_${RUN}_${FILE}.root
-mkdir -p ${SKIM_DIR}/BCAL-LED/${RUN}
-swif outfile data.BCAL-LED.evio file:${SKIM_DIR}/BCAL-LED/${RUN}/hd_rawdata_${RUN}_${FILE}.BCAL-LED.evio
-mkdir -p ${SKIM_DIR}/FCAL-LED/${RUN}
-swif outfile data.FCAL-LED.evio file:${SKIM_DIR}/FCAL-LED/${RUN}/hd_rawdata_${RUN}_${FILE}.FCAL-LED.evio
-mkdir -p ${SKIM_DIR}/sync/${RUN}
-swif outfile data.sync.evio file:${SKIM_DIR}/sync/${RUN}/hd_rawdata_${RUN}_${FILE}.sync.evio
-mkdir -p ${SKIM_DIR}/random/${RUN}
-swif outfile data.random.evio file:${SKIM_DIR}/random/${RUN}/hd_rawdata_${RUN}_${FILE}.random.evio
+mkdir -p ${SKIM_DIR}/BCAL_pi0/Run${RUN}
+swif outfile data.pi0bcalskim.evio file:${SKIM_DIR}/BCAL_pi0/Run${RUN}/hd_rawdata_${RUN}_${FILE}.pi0bcalskim.evio
+mkdir -p ${SKIM_DIR}/FCAL_pi0/Run${RUN}
+swif outfile data.pi0fcalskim.evio file:${SKIM_DIR}/FCAL_pi0/Run${RUN}/hd_rawdata_${RUN}_${FILE}.pi0fcalskim.evio
+mkdir -p ${SKIM_DIR}/PS/Run${RUN}
+swif outfile data.ps.evio file:${SKIM_DIR}/PS/Run${RUN}/hd_rawdata_${RUN}_${FILE}.ps.evio
+mkdir -p ${SKIM_DIR}/TOF/Run${RUN}
+swif outfile hd_root_tofcalib.root file:${SKIM_DIR}/TOF/Run${RUN}/hd_root_tofcalib_${RUN}_${FILE}.root
+mkdir -p ${SKIM_DIR}/BCAL-LED/Run${RUN}
+swif outfile data.BCAL-LED.evio file:${SKIM_DIR}/BCAL-LED/Run${RUN}/hd_rawdata_${RUN}_${FILE}.BCAL-LED.evio
+mkdir -p ${SKIM_DIR}/FCAL-LED/Run${RUN}
+swif outfile data.FCAL-LED.evio file:${SKIM_DIR}/FCAL-LED/Run${RUN}/hd_rawdata_${RUN}_${FILE}.FCAL-LED.evio
+mkdir -p ${SKIM_DIR}/sync/Run${RUN}
+swif outfile data.sync.evio file:${SKIM_DIR}/sync/Run${RUN}/hd_rawdata_${RUN}_${FILE}.sync.evio
+mkdir -p ${SKIM_DIR}/random/Run${RUN}
+swif outfile data.random.evio file:${SKIM_DIR}/random/Run${RUN}/hd_rawdata_${RUN}_${FILE}.random.evio
 #swif outfile tree_p2gamma_hists.root file:${SKIM_DIR}/tree_p2gamma_hists_${RUN}_${FILE}.root
 
 exit $retval

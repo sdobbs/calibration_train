@@ -18,7 +18,7 @@ else
 fi
 export JANA_CALIB_CONTEXT="variation=$VARIATION" 
 
-set RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
 #mv data.evio data_link.evio
@@ -35,6 +35,6 @@ hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -P
 retval=$?
 
 # save results
-swif outfile $PASS1_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/${RUN}/${PASS1_OUTPUT_FILENAME}
+swif outfile $PASS1_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/Run${RUN}/${PASS1_OUTPUT_FILENAME}
 
 exit $retval

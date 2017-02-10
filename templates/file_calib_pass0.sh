@@ -48,10 +48,9 @@ echo ==zeroth pass, first step==
 echo Running these plugins: $ZEROTH_CALIB_PLUGINS
 hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
 retval=$?
-
 # save results
-#mkdir -p ${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/
-#swif outfile $PASS0_OUTPUT_FILENAME file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
+#mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/pass0/
+#swif outfile $PASS0_OUTPUT_FILENAME file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
 #mkdir -p ${OUTPUTDIR}/hists/Run${RUN}/pass0/
 #swif outfile $PASS0_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
 # backup
@@ -75,11 +74,11 @@ echo Running: RF_online, RFMacro_BeamBunchPeriod.C
 python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_BeamBunchPeriod $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_BeamBunchPeriod.C
 
 # register output from python script
-mkdir -p ${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/
-#swif outfile pass0_RF_ROCTITimes.png file:${BASEDIR}/output/Run${RUN}/pass0/pass0_RF_ROCTITimes.png
-swif outfile pass0_RF_TDCConversion.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/pass0_RF_TDCConversion.png
-swif outfile pass0_RF_SignalPeriod.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/pass0_RF_SignalPeriod.png
-swif outfile pass0_RF_BeamBunchPeriod.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/pass0_RF_BeamBunchPeriod.png
+mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/pass0/
+#swif outfile pass0_RF_ROCTITimes.png file:${BASEDIR}/Run${RUN}/pass0/pass0_RF_ROCTITimes.png
+swif outfile pass0_RF_TDCConversion.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/pass0_RF_TDCConversion.png
+swif outfile pass0_RF_SignalPeriod.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/pass0_RF_SignalPeriod.png
+swif outfile pass0_RF_BeamBunchPeriod.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/pass0_RF_BeamBunchPeriod.png
 
 
 ##########################################################################
@@ -96,7 +95,7 @@ hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PP
 retval=$?
 
 # save results
-#swif outfile $PASS0_OUTPUT_FILENAME file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
+#swif outfile $PASS0_OUTPUT_FILENAME file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
 cp $PASS0_OUTPUT_FILENAME ${OUTPUTDIR}/hists/Run${RUN}/$PASS0_OUTPUT_FILENAME
 
 if [ "$retval" -ne "0" ]; then
@@ -112,10 +111,10 @@ echo Running: RF_online, RFMacro_CoarseTimeOffsets.C
 python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_CoarseTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_CoarseTimeOffsets.C\(${RUNNUM}\)
 
 # register output from python script
-swif outfile pass0_RF_SelfResolution.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/pass0_RF_SelfResolution.png
-swif outfile pass0_RF_CoarseTimeOffsets.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/pass0_RF_CoarseTimeOffsets.png
-swif outfile rf_coarse_time_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/rf_coarse_time_offsets.txt
-swif outfile rf_time_resolution_sq.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/rf_time_resolution_sq.txt
+swif outfile pass0_RF_SelfResolution.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/pass0_RF_SelfResolution.png
+swif outfile pass0_RF_CoarseTimeOffsets.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/pass0_RF_CoarseTimeOffsets.png
+swif outfile rf_coarse_time_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/rf_coarse_time_offsets.txt
+swif outfile rf_time_resolution_sq.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/rf_time_resolution_sq.txt
 
 # update CCDB for next step
 if [ $?CALIB_SUBMIT_CONSTANTS ]; then
@@ -148,7 +147,7 @@ hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 --P
 retval=$?
 
 # save results
-#swif outfile $PASS0_OUTPUT_FILENAME file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
+#swif outfile $PASS0_OUTPUT_FILENAME file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/$PASS0_OUTPUT_FILENAME
 cp $PASS0_OUTPUT_FILENAME ${OUTPUTDIR}/hists/Run${RUN}/$PASS0_OUTPUT_FILENAME
 
 if [ "$retval" -ne "0" ) then
@@ -165,9 +164,9 @@ echo Running: RF_online, RFMacro_FineTimeOffsets.C
 python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"${VARIATION}\"\) 
 
 # register output
-swif outfile pass0_RF_FineTimeOffsets.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/pass0_RF_FineTimeOffsets.png
-swif outfile rf_fine_time_offsets.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/rf_fine_time_offsets.txt
-swif outfile rf_time_offset_vars.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass0/rf_time_offset_vars.txt
+swif outfile pass0_RF_FineTimeOffsets.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/pass0_RF_FineTimeOffsets.png
+swif outfile rf_fine_time_offsets.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/rf_fine_time_offsets.txt
+swif outfile rf_time_offset_vars.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass0/rf_time_offset_vars.txt
 
 # update CCDB
 if [ -z "$CALIB_SUBMIT_CONSTANTS" ]; then
@@ -189,6 +188,6 @@ else
 fi
 
 # DEBUG 
-#swif outfile ccdb.sqlite file:${BASEDIR}/output/Run${RUN}/pass0/ccdb_pass0.sqlite
+#swif outfile ccdb.sqlite file:${BASEDIR}/Run${RUN}/pass0/ccdb_pass0.sqlite
 
 echo ==done==

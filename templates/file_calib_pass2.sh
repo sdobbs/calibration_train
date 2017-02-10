@@ -35,6 +35,6 @@ hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -P
 retval=$?
 
 # save results
-swif outfile $PASS2_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/${RUN}/${PASS2_OUTPUT_FILENAME}
+swif outfile $PASS2_OUTPUT_FILENAME file:${OUTPUTDIR}/hists/Run${RUN}/${PASS2_OUTPUT_FILENAME}
 
 exit $retval

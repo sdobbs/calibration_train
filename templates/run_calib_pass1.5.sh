@@ -60,42 +60,42 @@ endif
 
 # register output
 echo ==register output files to SWIF==
-mkdir -p ${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/
+mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/pass1/
 #swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 mkdir -p ${OUTPUTDIR}/hists/Run${RUN}/
 cp $RUN_OUTPUT_FILENAME ${OUTPUTDIR}/hists/Run${RUN}/$RUN_OUTPUT_FILENAME
-swif outfile st_timewalks.txt file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/st_timewalks.txt
+swif outfile st_timewalks.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/st_timewalks.txt
 # start counter monitoring
-swif outfile stt_tw_plot_1.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan1.png
-swif outfile stt_tw_plot_2.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan2.png
-swif outfile stt_tw_plot_3.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan3.png
-swif outfile stt_tw_plot_4.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan4.png
-swif outfile stt_tw_plot_5.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan5.png
-swif outfile stt_tw_plot_6.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan6.png
-swif outfile stt_tw_plot_7.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan7.png
-swif outfile stt_tw_plot_8.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan8.png
-swif outfile stt_tw_plot_9.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan9.png
-swif outfile stt_tw_plot_10.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan10.png
-swif outfile stt_tw_plot_11.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan11.png
-swif outfile stt_tw_plot_12.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan12.png
-swif outfile stt_tw_plot_13.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan13.png
-swif outfile stt_tw_plot_14.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan14.png
-swif outfile stt_tw_plot_15.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan15.png
-swif outfile stt_tw_plot_16.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan16.png
-swif outfile stt_tw_plot_17.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan17.png
-swif outfile stt_tw_plot_18.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan18.png
-swif outfile stt_tw_plot_19.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan19.png
-swif outfile stt_tw_plot_20.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan20.png
-swif outfile stt_tw_plot_21.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan21.png
-swif outfile stt_tw_plot_22.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan22.png
-swif outfile stt_tw_plot_23.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan23.png
-swif outfile stt_tw_plot_24.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan24.png
-swif outfile stt_tw_plot_25.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan25.png
-swif outfile stt_tw_plot_26.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan26.png
-swif outfile stt_tw_plot_27.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan27.png
-swif outfile stt_tw_plot_28.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan28.png
-swif outfile stt_tw_plot_29.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan29.png
-swif outfile stt_tw_plot_30.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/pass1/sc_tw_chan30.png
+swif outfile stt_tw_plot_1.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan1.png
+swif outfile stt_tw_plot_2.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan2.png
+swif outfile stt_tw_plot_3.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan3.png
+swif outfile stt_tw_plot_4.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan4.png
+swif outfile stt_tw_plot_5.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan5.png
+swif outfile stt_tw_plot_6.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan6.png
+swif outfile stt_tw_plot_7.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan7.png
+swif outfile stt_tw_plot_8.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan8.png
+swif outfile stt_tw_plot_9.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan9.png
+swif outfile stt_tw_plot_10.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan10.png
+swif outfile stt_tw_plot_11.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan11.png
+swif outfile stt_tw_plot_12.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan12.png
+swif outfile stt_tw_plot_13.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan13.png
+swif outfile stt_tw_plot_14.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan14.png
+swif outfile stt_tw_plot_15.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan15.png
+swif outfile stt_tw_plot_16.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan16.png
+swif outfile stt_tw_plot_17.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan17.png
+swif outfile stt_tw_plot_18.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan18.png
+swif outfile stt_tw_plot_19.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan19.png
+swif outfile stt_tw_plot_20.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan20.png
+swif outfile stt_tw_plot_21.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan21.png
+swif outfile stt_tw_plot_22.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan22.png
+swif outfile stt_tw_plot_23.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan23.png
+swif outfile stt_tw_plot_24.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan24.png
+swif outfile stt_tw_plot_25.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan25.png
+swif outfile stt_tw_plot_26.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan26.png
+swif outfile stt_tw_plot_27.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan27.png
+swif outfile stt_tw_plot_28.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan28.png
+swif outfile stt_tw_plot_29.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan29.png
+swif outfile stt_tw_plot_30.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/sc_tw_chan30.png
 
 
 ###################################################

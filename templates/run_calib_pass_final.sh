@@ -21,7 +21,7 @@ fi
 ###################################################
 
 # set some general variables
-RUNDIR=${OUTPUTDIR}/hists/${RUN}/
+RUNDIR=${OUTPUTDIR}/hists/Run${RUN}/
 SUMMEDDIR=${OUTPUTDIR}/hists/summed/
 mkdir -p $SUMMEDDIR
 
@@ -58,22 +58,22 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O final_p3pi_preco_2F
 # register output
 echo ==register output files to SWIF==
 swif outfile $RUN_OUTPUT_FILENAME file:${SUMMEDDIR}/$RUN_OUTPUT_FILENAME
-mkdir -p ${SMALL_OUTPUTDIR}/output/Run${RUN}/final/
-swif outfile psc_tw_parms.out file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/psc_tw_parms.txt
-swif outfile sigmas.out  file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/psc_tw_sigmas.txt
-swif outfile st_time_res.txt  file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/st_time_resolution.txt
-swif outfile st_prop_timeCorr.txt  file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/st_propogation_time_corrections.txt
-swif outfile final_CalorimeterTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_CalorimeterTiming.png
-swif outfile final_PIDSystemTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_PIDSystemTiming.png
-swif outfile final_TrackMatchedTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_TrackMatchedTiming.png
-swif outfile final_TaggerTiming.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_TaggerTiming.png
-swif outfile final_TaggerRFAlignment.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_TaggerRFAlignment.png
-swif outfile final_TaggerSCAlignment.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_TaggerSCAlignment.png
-swif outfile final_BCAL_pi0mass.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_BCAL_pi0mass.png
-swif outfile final_BCAL-FCAL_pi0mass.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_BCAL-FCAL_pi0mass.png
-swif outfile final_p2pi_preco1.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_p2pi_preco1.png
-swif outfile final_p3pi_preco_2FCAL.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_p3pi_preco_2FCAL.png
-swif outfile final_p3pi_preco_FCAL-BCAL.png file:${SMALL_OUTPUTDIR}/output/Run${RUN}/final/final_p3pi_preco_FCAL-BCAL.png
+mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/final/
+swif outfile psc_tw_parms.out file:${SMALL_OUTPUTDIR}/Run${RUN}/final/psc_tw_parms.txt
+swif outfile sigmas.out  file:${SMALL_OUTPUTDIR}/Run${RUN}/final/psc_tw_sigmas.txt
+swif outfile st_time_res.txt  file:${SMALL_OUTPUTDIR}/Run${RUN}/final/st_time_resolution.txt
+swif outfile st_prop_timeCorr.txt  file:${SMALL_OUTPUTDIR}/Run${RUN}/final/st_propogation_time_corrections.txt
+swif outfile final_CalorimeterTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_CalorimeterTiming.png
+swif outfile final_PIDSystemTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_PIDSystemTiming.png
+swif outfile final_TrackMatchedTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_TrackMatchedTiming.png
+swif outfile final_TaggerTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_TaggerTiming.png
+swif outfile final_TaggerRFAlignment.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_TaggerRFAlignment.png
+swif outfile final_TaggerSCAlignment.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_TaggerSCAlignment.png
+swif outfile final_BCAL_pi0mass.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_BCAL_pi0mass.png
+swif outfile final_BCAL-FCAL_pi0mass.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_BCAL-FCAL_pi0mass.png
+swif outfile final_p2pi_preco1.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_p2pi_preco1.png
+swif outfile final_p3pi_preco_2FCAL.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_p3pi_preco_2FCAL.png
+swif outfile final_p3pi_preco_FCAL-BCAL.png file:${SMALL_OUTPUTDIR}/Run${RUN}/final/final_p3pi_preco_FCAL-BCAL.png
 
 
 ## Cleanup

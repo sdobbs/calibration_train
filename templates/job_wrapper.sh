@@ -54,7 +54,7 @@ echo ==initial files==
 ls -lh
 
 # setup standard environment
-source ./setup_jlab.csh
+source ./setup_jlab.sh
 
 # setup calibration configuration inside in each job
 unset CCDB_CONNECTION
@@ -63,9 +63,10 @@ unset JANA_CALIB_CONTEXT
 #
 # ROOT files
 #export OUTPUTDIR         /cache/halld/${RUNPERIOD}/calib/${WORKFLOW}/
-export OUTPUTDIR=/cache/halld/${RUNPERIOD}/calib/
-export SMALL_OUTPUTDIR=/work/halld2/home/${USER}/calib_jobs/${WORKFLOW}/
-export SQLITEDIR=/volatile/halld/home/${USER}/calib_jobs/${WORKFLOW}/
+export OUTPUTDIR=/cache/halld/${RUNPERIOD}/calib/${VERSION}
+#export SMALL_OUTPUTDIR=/work/halld2/home/${USER}/calib_jobs/${RUNPERIOD}/${VERSION}
+export SMALL_OUTPUTDIR=/work/halld2/calibration/${RUNPERIOD}/${VERSION}
+export SQLITEDIR=/volatile/halld/home/${USER}/calib_jobs/${RUNPERIOD}/${VERSION}
 #
 export CALIB_LIBDIR=/work/halld/home/${USER}/calib_lib
 #export CALIB_CCDB_SQLITE_FILE   # use local SQLite files
