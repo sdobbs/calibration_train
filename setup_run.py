@@ -52,8 +52,9 @@ class SetupRun:
         #os.system("cp %s/ccdb.sqlite %s"%(self.ccdb_dir,job_dir))
 
         # save configuration
-        jc = HDJobConfig.HDJobConfig(os.path.join(job_dir,"config","version.xml"), os.path.join(script_dir,"setup_jlab.csh"))
+        jc = HDJobConfig.HDJobConfig(os.path.join(job_dir,"config","version.xml"), os.path.join(script_dir,"setup_jlab.sh"))    
         jc.BuildConfig()
+        # NOTE: could actually just save the version.xml file now...
 
         # load other config parameters
         if 'nthreads' in self.config_mgr.config:

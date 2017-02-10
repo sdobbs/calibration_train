@@ -7,7 +7,7 @@ with open("run_lists/f16_runs.all", "r") as f:
 
         filelist = glob.glob("/mss/halld/RunPeriod-2016-10/rawdata/Run%06d/*.evio"%run)
         fnums = sorted([ int(num[-8:-5]) for num in filelist ])
-        print (fnums)
+        #print (fnums)
 
-#        for fnum in fnums:
-#            os.system("python HDSubmitCalibJobSWIF.py configs/data.config 2016-10 pass2 %d %d"%(run,fnum))
+        for fnum in fnums:
+            os.system("python HDSubmitCalibJobSWIF.py configs/data.config 2016-10 pass2 %d %d"%(run,fnum))

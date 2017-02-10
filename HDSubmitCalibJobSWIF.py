@@ -18,6 +18,7 @@ class HDSubmitCalibJobSWIF:
         self.VERBOSE = 1
         # be lazy and hardcode this
         self.basedir = "/work/halld/home/gxproj3/calib_jobs/RunPeriod-%s"%run_period
+        self.run_period = run_period
         # Auger accounting settings
         self.project = "gluex"         # natch (for now?)
         self.track = "reconstruction"  # calibration jobs fall under this track
@@ -66,7 +67,8 @@ class HDSubmitCalibJobSWIF:
         the_pass - text string describing which calibration pass this job is associated with
         command_to_run - the command that the job will execute
         """
-        inputfile="/mss/halld/%s/rawdata/Run%06d/hd_rawdata_%06d_%03d.evio"%(HDJobUtils.GetRunPeriodFromRun(run),run,run,filenum)
+        #inputfile="/mss/halld/%s/rawdata/Run%06d/hd_rawdata_%06d_%03d.evio"%(HDJobUtils.GetRunPeriodFromRun(run),run,run,filenum)
+        inputfile="/mss/halld/RunPeriod-%s/rawdata/Run%06d/hd_rawdata_%06d_%03d.evio"%(self.run_period,run,run,filenum)
         cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,self.track)
         #cmd += " -name %s_%06d_%03d_centos65"%(self.workflow,run,filenum)
         #cmd += " -os centos65 "
@@ -91,9 +93,9 @@ class HDSubmitCalibJobSWIF:
 
         # add command to execute
         if self.nthreads:
-            cmd += " %s/scripts/%s %s %s %06d %03d %s %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow,int(self.nthreads))
+            cmd += " %s/scripts/%s %s %s %06d %03d %s %d"%(self.basedir,"job_wrapper.sh",command_to_run,self.basedir,run,filenum,int(self.nthreads))
         else:
-            cmd += " %s/scripts/%s %s %s %06d %03d %s "%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow)
+            cmd += " %s/scripts/%s %s %s %06d %03d %s "%(self.basedir,"job_wrapper.sh",command_to_run,self.basedir,run,filenum)
 
         # submit job
         if self.VERBOSE>1:
@@ -137,9 +139,9 @@ class HDSubmitCalibJobSWIF:
 
         # add command to execute
         if self.nthreads:
-            cmd += " %s/scripts/%s %s %s %06d %03d %s %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow,int(self.nthreads))
+            cmd += " %s/scripts/%s %s %s %06d %03d %s %d"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,int(self.nthreads))
         else:
-            cmd += " %s/scripts/%s %s %s %06d %03d %s"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum,self.workflow)
+            cmd += " %s/scripts/%s %s %s %06d %03d %s"%(self.basedir,"job_wrapper.csh",command_to_run,self.basedir,run,filenum)
 
         # submit job
         if self.VERBOSE>1:
@@ -152,11 +154,11 @@ class HDSubmitCalibJobSWIF:
     def SubmitJob(self, run_period, the_pass, run, filenum=1):
         self.workflow = "GXCalib-%s-%s"%(run_period,the_pass)
         if the_pass == "pass1":
-            self.AddEVIOJobToSWIF(run,filenum,the_pass,"calib_job1.csh")
+            self.AddEVIOJobToSWIF(run,filenum,the_pass,"calib_job1.sh")
         elif the_pass == "pass2":
-            self.AddEVIOJobToSWIF(run,filenum,the_pass,"file_calib_pass_final.csh")
+            self.AddEVIOJobToSWIF(run,filenum,the_pass,"file_calib_pass_final.sh")
         elif the_pass == "pass2-sum":
-            self.AddJobToSWIF(run,filenum,the_pass,"run_calib_pass_final.csh")
+            self.AddJobToSWIF(run,filenum,the_pass,"run_calib_pass_final.sh")
 
 # this part gets execute when this file is run on the command line 
 if __name__ == "__main__":

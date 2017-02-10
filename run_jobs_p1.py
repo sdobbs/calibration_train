@@ -1,6 +1,9 @@
-import os
+import os,sys
 
-with open("run_lists/f16_runs.all", "r") as f:
+RUNPERIOD = sys.argv[1]
+FILENAME = sys.argv[2]
+
+with open(FILENAME, "r") as f:
     for line in f:
         run = int(line.strip())
-        os.system("python HDSubmitCalibJobSWIF.py configs/data.config 2016-10 pass1 %d 1"%run)
+        os.system("python HDSubmitCalibJobSWIF.py configs/data.config %s pass1 %d 1"%(RUNPERIOD,run))
