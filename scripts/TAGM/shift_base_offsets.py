@@ -38,13 +38,12 @@ def main():
     
     (options, args) = parser.parse_args(sys.argv)
 
-    if(len(args) < 4):
+    if(len(args) < 2):
         parser.print_help()
         sys.exit(0)
 
-    SUBDETECTOR = args[1]
-    RUN = int(args[2])
-    shift_val = float(args[3])
+    SUBDETECTOR = "/PHOTON_BEAM/microscope"
+    datafilename = args[1]
 
     if options.variation:
         VARIATION = options.variation
@@ -52,29 +51,34 @@ def main():
     # Load CCDB
     ccdb_conn = LoadCCDB()
 
-    print "===run %d, %s/base_time_offset==="%(RUN,SUBDETECTOR)
-    assignment = ccdb_conn.get_assignment("%s/base_time_offset"%SUBDETECTOR, RUN, VARIATION)
-    offsets = assignment.constant_set.data_table
+    with open(datafilename) as f:
+        for line in f:
+            (run_val, shift_val) = line.strip().split()
+            RUN = int(run_val)
+            SHIFT = float(shift_val)
+            print "===run %d, %s/base_time_offset, shift = %f==="%(RUN,SUBDETECTOR,SHIFT)
+            assignment = ccdb_conn.get_assignment("%s/base_time_offset"%SUBDETECTOR, RUN, VARIATION)
+            offsets = assignment.constant_set.data_table
 
-    if VERBOSE>0:
-        print "Before:"
-        pp.pprint(offsets)
+            if VERBOSE>0:
+                print "Before:"
+                pp.pprint(offsets)
 
-    for x in xrange(len(offsets[0])):
-        print x
-        offsets[0][x] = str(float(offsets[0][x]) + shift_val)
+            for x in xrange(len(offsets[0])):
+                #print x
+                offsets[0][x] = str(float(offsets[0][x]) - SHIFT)
     
-    if VERBOSE>0:
-        print "After:"
-        pp.pprint(offsets)
-
-    ccdb_conn.create_assignment(
-        data=offsets,
-        path="%s/base_time_offset"%SUBDETECTOR,
-        variation_name=VARIATION,
-        min_run=RUN,
-        max_run=RUN,
-        comment="shift by %6.3f"%shift_val)
+            if VERBOSE>0:
+                print "After:"
+                pp.pprint(offsets)
+                
+            ccdb_conn.create_assignment(
+                data=offsets,
+                path="%s/base_time_offset"%SUBDETECTOR,
+                variation_name=VARIATION,
+                min_run=RUN,
+                max_run=RUN,
+                comment="shift by %6.3f"%SHIFT)
 
 ## main function 
 if __name__ == "__main__":

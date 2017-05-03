@@ -2,7 +2,7 @@
 ## Author: Sean Dobbs (s-dobbs@northwestern.edu)
 
 import os,sys
-from ROOT import TFile,TTree
+from ROOT import TFile,TGraph
 import rcdb
 from optparse import OptionParser
 from array import array
@@ -16,7 +16,7 @@ def LoadCCDB():
     #sqlite_connect_str = "sqlite:////group/halld/www/halldweb/html/dist/ccdb.sqlite"
     provider = ccdb.AlchemyProvider()                        # this class has all CCDB manipulation functions
     provider.connect(sqlite_connect_str)                     # use usual connection string to connect to database
-    provider.authentication.current_user_name = "anonymous"  # to have a name in logs
+    provider.authentication.current_user_name = "sdobbs"     # to have a name in logs
 
     return provider
 
@@ -25,8 +25,8 @@ def main():
     # Defaults
     OUTPUT_FILENAME = "out.root"
     RCDB_QUERY = "@is_production and @status_approved"
-    #VARIATION = "default"
-    VARIATION = "calib"
+    VARIATION = "default"
+    #VARIATION = "calib"
     BEGINRUN = 1
     ENDRUN = 100000000
 
@@ -70,50 +70,51 @@ def main():
     
     # get run list
     runs = [ r.number for r in rcdb_conn.select_runs(RCDB_QUERY, BEGINRUN, ENDRUN) ]
-
+    runs_arr = array('f')
+    runs_arr.fromlist(runs)
 
     # Initialize output file
     fout = TFile(OUTPUT_FILENAME, "recreate")
-    T = TTree(CCDB_TABLE_ROOT, CCDB_TABLE_ROOT)
 
-    # initialize tree
-    RunNum = array('i', [0])
-    T.Branch( 'run', RunNum, "run/I" )
-
+    # initialize
     ncols = len(table.columns)
     nrows = table.rows_count
     data = []
-    print "rows = " + str(table.rows_count)
+    data_names = []
+    #print "rows = " + str(table.rows_count)
     for row in xrange(table.rows_count):
         i = 0
         for col in table.columns:
             i += 1
-            #d = array( 'f', [ 0. ] )
-            data.append( array( 'f', [ 0. ] ) )
-            print "making branch " + col.name
+            print "working on " + col.name
+            data.append( array('f') )
             if table.rows_count > 1:
                 name = col.name+"_"+str(row*ncols+i)
-                print name
-                print "%d %d %d"%(row,ncols,i)
-                T.Branch( name, data[row*ncols+i-1], name+"/F" )
+                #print name
+                #print "%d %d %d"%(row,ncols,i)
+                data_names.append(name)
             else:
-                T.Branch( col.name, data[row*ncols+i-1], col.name+"/F" )
+                data_names.append(col.name)
 
-    # Fill tree
+    # Fill data
     for run in runs:
         assignment = ccdb_conn.get_assignment(CCDB_TABLE, run, VARIATION)
-        print "===%d==="%run
-        print(assignment.constant_set.data_table)
-        RunNum[0] = run
-        print "%d %d"%(nrows,ncols)
+        #print "===%d==="%run
+        #print(assignment.constant_set.data_table)
+        #print "%d %d"%(nrows,ncols)
+        #print run,assignment.constant_set.data_table[0][0]
+        print run,assignment.constant_set.data_table
+        
         for row in xrange(nrows):
             for col in xrange(ncols):
-                print str(row*ncols+col)
-                data[row*ncols+col][0] = float(assignment.constant_set.data_table[row][col])
-        T.Fill()
+                #print str(row*ncols+col)
+                data[row*ncols+col].append(float(assignment.constant_set.data_table[row][col]) )
 
-    # cleanup
-    T.Write()
+    # write out graphs
+    for i in xrange(len(data)):
+        gr = TGraph(len(runs_arr), runs_arr, data[i])
+        gr.SetName(data_names[i])
+        gr.Write()
     fout.Close()
 
     

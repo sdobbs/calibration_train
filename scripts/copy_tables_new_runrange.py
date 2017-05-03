@@ -79,6 +79,12 @@ def main():
         DEST_VARIATION = options.dest_variation
     if options.src_variation:
         SRC_VARIATION = options.src_variation
+        
+    if options.begin_run:
+        MIN_RUN = options.begin_run
+    if options.end_run:
+        MAX_RUN = options.end_run
+
 
     # Load CCDB
     ccdb_conn = LoadCCDB()
@@ -92,7 +98,7 @@ def main():
     #print "Printing table %s"%CCDB_TABLE
     for ccdb_table in CCDB_TABLES:
         if VERBOSE>0:
-            print "==copying %s for run %d=="%(ccdb_table,run)
+            print "==copying %s from run %d=="%(ccdb_table,int(src_run))
         # get source data
         assignment = ccdb_conn.get_assignment(ccdb_table, src_run, SRC_VARIATION)
         #pp.pprint(assignment.constant_set.data_table)
