@@ -29,7 +29,8 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = "@is_production"
     VARIATION = "default"
 
     BEGINRUN = 30000
@@ -88,16 +89,17 @@ def main():
     # Print to screen
     for run in runs:
         print "===%d==="%run
-        tdc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/microscope/fadc_time_offsets", run, VARIATION)
+        tdc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/hodoscope/fadc_time_offsets", run, VARIATION)
         #pp.pprint(tdc_toff_assignment.constant_set.data_table)
         tdc_offsets = tdc_toff_assignment.constant_set.data_table
 
         # let's find the changes to make
         run_chan_errors = {}
 
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver21/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver03/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-        f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-        htagm = f.Get("/HLDetectorTiming/TAGM/TAGMHit TDC_ADC Difference")
+        f = TFile("/work/halld/home/sdobbs/calib/2018-01/hd_root.root")
+        htagm = f.Get("/HLDetectorTiming/TAGH/TAGHHit TDC_ADC Difference")
 
         try:
             n = htagm.GetNbinsX()
@@ -138,14 +140,16 @@ def main():
 
         # let's apply the offsets
         for chan,tdiff in run_chan_errors.iteritems():
-            tdc_offsets[chan][2] = str(float(tdc_offsets[chan][2]) - tdiff)
+            tdc_offsets[chan][1] = str(float(tdc_offsets[chan][1]) - tdiff)
     
         ccdb_conn.create_assignment(
                 data=tdc_offsets,
-                path="/PHOTON_BEAM/microscope/fadc_time_offsets",
+                path="/PHOTON_BEAM/hodoscope/fadc_time_offsets",
                 variation_name=VARIATION,
-                min_run=run,
-                max_run=run,
+#                min_run=run,
+#                max_run=run,
+                min_run=40785,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Fixed calibrations due to bad ADC/TDC shifts")
 
 

@@ -68,7 +68,7 @@ def main():
     # get run list
     runs = [ r.number for r in rcdb_conn.select_runs(RCDB_QUERY, BEGINRUN, ENDRUN) ]
     runs_arr = array('f')
-    runs_arr.fromlist(runs)
+    #runs_arr.fromlist(runs)
 
     #bcal_res = []
     #fcal_res = []
@@ -88,10 +88,13 @@ def main():
     fdc_mean = array('f') 
 
     # Fill data
-    for run in runs:
-        print "==%d=="%run
+    run = 30484
+    #for run in runs:
+    for fnum in xrange(135):
+        print "==%d,%d=="%(run,fnum)
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver25/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver25/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/cache/halld/offline_monitoring/RunPeriod-2017-01/ver24/hists/030484/hd_root_%06d_%03d.root"%(30484,fnum))
 
         #print "== /cache/halld/RunPeriod-2017-01/calib/ver14/hists/Run%06d/hd_calib_verify_Run%06d_001.root =="%(run,run)
 
@@ -112,6 +115,7 @@ def main():
             fdc_mean.append(0)
             continue
 
+        runs_arr.append(fnum)
 
         maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
         fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.4)
@@ -122,11 +126,14 @@ def main():
         bcal_res.append(sigma)
 
         # FCAL
-        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
-        locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
+        #locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
+        #locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
+        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsShowerE_Photon")
+        locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D")
 
         maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
-        fr = locHist.Fit("gaus", "S", "", maximum - 0.8, maximum + 0.8)
+        #fr = locHist.Fit("gaus", "S", "", maximum - 0.8, maximum + 0.8)
+        fr = locHist.Fit("gaus", "S", "", maximum - 0.5, maximum + 0.5)
         mean = fr.Parameter(1)
         sigma = fr.Parameter(2)
         

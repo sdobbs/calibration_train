@@ -18,3 +18,13 @@ export JANA_RESOURCE_DIR=/group/halld/www/halldweb/html/resources
 
 # quick fix for rootcling compilation
 unset CPLUS_INCLUDE_PATH
+
+# configure ROOT python bindings
+export PYTHONPATH=$ROOTSYS/lib:$PYTHONPATH
+export PYTHONPATH=$HALLD_HOME/$BMS_OSNAME/lib:$PYTHONPATH
+# python for sim-recon
+export PYTHONPATH=$HALLD_HOME/$BMS_OSNAME/python2:$PYTHONPATH
+
+# python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
+export PATH=/apps/python/2.7.12/bin:$PATH
+export LD_LIBRARY_PATH=/apps/python/2.7.12/lib:$LD_LIBRARY_PATH

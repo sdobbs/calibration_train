@@ -4,31 +4,31 @@
 # Parse arguments
 #
 export CALIB_COMMAND=$1
-if [ -z  $CALIB_COMMAND == "" ]; then
+if [ -z  $CALIB_COMMAND ]; then
     echo Need to pass command name as first argument!
     exit 1
 fi
 
 export BASEDIR=$2
-if [ -z  $BASEDIR == "" ]; then
+if [ -z  $BASEDIR ]; then
     echo Need to pass base directory as second argument!
     exit 1
 fi
 
 export RUN=$3
-if [ -z  $RUN == "" ]; then
+if [ -z  $RUN ]; then
     echo Need to pass run number as third argument!
     exit 1
 fi
 
 export FILE=$4
-if [ -z  $FILE == "" ]; then
+if [ -z  $FILE ]; then
     echo Need to pass file number as fourth argument!
     exit 1
 fi
 
 export NTHREADS=$5
-if [ -z  $NTHREADS == "" ]; then
+if [ -z  $NTHREADS ]; then
     export NTHREADS 1
 fi
 
@@ -41,7 +41,7 @@ fi
 ####### CONFIGURATION PARAMETERS ######
 
 export RUNPERIOD=RunPeriod-2017-01
-export VERSION=ver01
+export VERSION=ver02
 
 ######################################
 
@@ -86,7 +86,7 @@ echo ==running command: $CALIB_COMMAND==
 ./${CALIB_COMMAND}
 
 # check results
-set retval=$?
+retval=$?
 echo exit code: $retval
 if [ "$retval" -eq "0" ]; then
     echo "DONE:SUCCESS"

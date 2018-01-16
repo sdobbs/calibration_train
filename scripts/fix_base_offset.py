@@ -11,7 +11,7 @@ import math
 import ccdb
 from ccdb import Directory, TypeTable, Assignment, ConstantSet
 
-from ROOT import TFile,TH1I,TH2I,TFitResultPtr
+from ROOT import TFile,TH1I,TH2I,TFitResultPtr,TF1
 
 
 def LoadCCDB():
@@ -23,6 +23,39 @@ def LoadCCDB():
     provider.authentication.current_user_name = "sdobbs"  # to have a name in logs
 
     return provider
+
+def CalcFDCShifts(f):
+    this1DHist = f.Get("/HLDetectorTiming/FDC/FDCHit Cathode time")
+    firstBin = this1DHist.FindFirstBinAbove(1, 1)
+    for i in xrange(16):
+        if (firstBin + i) > 0:
+            this1DHist.SetBinContent((firstBin + i), 0)
+    maximum = this1DHist.GetBinCenter(this1DHist.GetMaximumBin())
+    fn = TF1("f", "gaus")
+    fn.SetParameters(100, maximum, 20)
+    fr = this1DHist.Fit(fn, "QS", "", maximum - 10., maximum + 7.)
+    mean = fr.Parameter(1)
+    FDC_ADC_Offset = mean
+
+    this1DHist = f.Get("/HLDetectorTiming/FDC/FDCHit Wire time")
+    firstBin = this1DHist.FindFirstBinAbove(1, 1)
+    for i in xrange(25):
+        if (firstBin + i) > 0:
+            this1DHist.SetBinContent((firstBin + i), 0)
+    maximum = this1DHist.GetBinCenter(this1DHist.GetMaximumBin())
+    fn = TF1("f", "gaus")
+    fn.SetParameters(100, maximum, 20)
+    fr = this1DHist.Fit(fn, "QS", "", maximum - 10., maximum + 5.)
+    mean = fr.Parameter(1)
+    FDC_TDC_Offset = mean
+
+    FDC_ADC_TDC_Offset = FDC_ADC_Offset - FDC_TDC_Offset
+
+    this1DHist = f.Get("/HLDetectorTiming/TRACKING/Earliest Flight-time Corrected FDC Time")
+    maximum = this1DHist.GetBinCenter(this1DHist.GetMaximumBin())
+    fr = this1DHist.Fit("landau", "SQ", "", maximum - 2.5, maximum + 4.)
+    MPV = fr.Parameter(1)
+    return ( MPV + FDC_ADC_TDC_Offset, MPV)
 
 
 def main():
@@ -40,16 +73,19 @@ def main():
                         "TAGM": "/PHOTON_BEAM/microscope/base_time_offset"  }
     FIT_RANGE = { "SC":   (0.3,0.3),
                   "TOF":  (0.15,0.15),
-                  "FCAL": (0.8,0.8),
+                  #"FCAL": (0.8,0.8),
+                  "FCAL": (0.5,0.5),
                   "BCAL": (0.3,0.4),
-                  "FDC":  (10.,10.),
-                  "CDC":  (10.,10.),
+                  "FDC":  (15.,10.),
+                  "CDC":  (15.,10.),
                   "TAGH": (0.3,0.3),
                   "TAGM": (0.3,0.3)   }
-    TOLERANCE = { "SC":   0.020,
+    #TOLERANCE = { "SC":   0.020,
+    TOLERANCE = { "SC":   0.040,
                   "TOF":  0.010,
                   "FCAL": 0.050,
-                  "BCAL": 0.020,
+                  #"BCAL": 0.020,
+                  "BCAL": 0.010,
                   "FDC":  1.,
                   "CDC":  1.,
                   "TAGH": 0.030,
@@ -57,7 +93,8 @@ def main():
 #                  "TAGH": 0.050,
 #                  "TAGM": 0.050  }
     
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = "@is_production"
     VARIATION = "default"
     DRY_RUN = False
 
@@ -137,10 +174,13 @@ def main():
         run_chan_errors = {}
 
         try:
-            f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver19/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-            #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver11/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver26/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver29/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver02/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-
+            f = TFile("/group/halld/Users/sdobbs/hd_root.root")
+            
             if detector == "SC":
                 locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/SC/DeltaTVsP_Pi-")
                 locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
@@ -151,35 +191,55 @@ def main():
                 locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsP_Pi-")
                 locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
             elif detector == "FCAL":
-                locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
-                locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
+                #locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
+                locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsShowerE_Photon")
+                locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D")
             elif detector == "TAGH":
                 locHist = f.Get("/HLDetectorTiming/TRACKING/Tagger - RFBunch 1D Time")
             elif detector == "TAGM":
                 locHist = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch 1D Time")
-            #elif detector == "CDC":
+            elif detector == "CDC":
+                locHist = f.Get("/HLDetectorTiming/TRACKING/Earliest CDC Time Minus Matched SC Time")
+            elif detector == "FDC":
+                locHist = f.Get("/HLDetectorTiming/FDC/FDCHit Cathode time")
 
-            maximum = locHist.GetBinCenter(locHist.GetMaximumBin());
+            maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
         except:
             print "file for run %d doesn't exit, skipping..."%run
             continue
 
         (low_limit, high_limit) = FIT_RANGE[detector]
-        fr = locHist.Fit("gaus", "SQ", "", maximum - low_limit, maximum + high_limit);
-        mean = fr.Parameter(1);
+        if detector == "FDC":
+            (adc_shift, tdc_shift) = CalcFDCShifts(f)
+            print "shift = %6.3f, %6.3f"%(adc_shift,tdc_shift)
 
-        print "shift = %6.3f"%mean
+            if DRY_RUN:
+                continue
 
-        if DRY_RUN:
-            continue
+            # fix if shifted more than a certain value
+            #if abs(adc_shift) < TOLERANCE[detector] and abs(tdc_shift) < TOLERANCE[detector]:
+            #    continue
 
-        # fix if shifted more than 20 ps
-        if abs(mean) < TOLERANCE[detector]:
-            continue
+            # let's apply the offsets
+            base_offsets[0][0] = "%7.3f"%(float(base_offsets[0][0]) - adc_shift)
+            base_offsets[0][1] = "%7.3f"%(float(base_offsets[0][1]) - tdc_shift)
+        else:
+            fr = locHist.Fit("gaus", "SQ", "", maximum - low_limit, maximum + high_limit)
+            mean = fr.Parameter(1)
+            #print "shift = %6.3f"%mean
 
-        # let's apply the offsets
-        for x in xrange(len(base_offsets[0])):
-            base_offsets[0][x] = "%7.3f"%(float(base_offsets[0][x]) - mean)
+            # fix if shifted more than a certain value
+            if abs(mean) < TOLERANCE[detector]:
+                continue
+
+            print "shift = %6.3f"%mean
+
+            if DRY_RUN:
+                continue
+
+            # let's apply the offsets
+            for x in xrange(len(base_offsets[0])):
+                base_offsets[0][x] = "%7.3f"%(float(base_offsets[0][x]) - mean)
 
         pp.pprint(base_offsets)
 
@@ -187,8 +247,10 @@ def main():
                 data=base_offsets,
                 path=ccdbtable,
                 variation_name=VARIATION,
-                min_run=run,
-                max_run=run,
+#                min_run=run,
+#                max_run=run,
+                min_run=40785,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Fixed calibrations due to bad alignment with RF")
 
 

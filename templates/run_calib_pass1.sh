@@ -9,21 +9,21 @@ export LD_LIBRARY_PATH=/apps/python/2.7.12/lib:$LD_LIBRARY_PATH
 # initialize CCDB before running
 #cp ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite ccdb.sqlite
 export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+if [ ! -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     export CCDB_CONNECTION=$JANA_CALIB_URL
     #export CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 fi
-if [ -z "$CALIB_CHALLENGE" ]; then
-    export VARIATION calib_pass1
+if [ ! -z "$CALIB_CHALLENGE" ]; then
+    export VARIATION=calib_pass1
 else
-    export VARIATION calib
+    export VARIATION=calib
 fi
 export JANA_CALIB_CONTEXT "variation=$VARIATION" 
 
 # Debug info
-if [ -z "$CALIB_DEBUG" ]; then 
+if [ ! -z "$CALIB_DEBUG" ]; then 
     echo ==starting CCDB info==
     python cat_ccdb_tables.py ccdb_tables_pass1
 fi
@@ -52,26 +52,26 @@ echo Running: HLDetectorTiming, ExtractTDCADCTiming.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTDCADCTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
 
 # update CCDB
-if [ -z "$CALIB_SUBMIT_CONSTANTS" ]; then
+if [ ! -z "$CALIB_SUBMIT_CONSTANTS" ]; then
     echo ==update CCDB==
-    ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUN}-${RUN} bcal_base_time.txt
-    ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUN}-${RUN} cdc_base_time.txt
-    #ccdb add /FCAL/base_time_offset -v $VARIATION -r ${RUN}-${RUN} fcal_base_time.txt
-    ccdb add /FDC/base_time_offset -v $VARIATION -r ${RUN}-${RUN} fdc_base_time.txt
-    ccdb add /START_COUNTER/base_time_offset -v $VARIATION -r ${RUN}-${RUN} sc_base_time.txt
-    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v $VARIATION -r ${RUN}-${RUN} tagh_base_time.txt
-    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v $VARIATION -r ${RUN}-${RUN} tagm_base_time.txt
-    ccdb add /TOF/base_time_offset -v $VARIATION -r ${RUN}-${RUN} tof_base_time.txt
-    #ccdb add /BCAL/ADC_timing_offsets -v $VARIATION -r ${RUN}-${RUN} bcal_adc_timing_offsets.txt
-    ccdb add /BCAL/TDC_offsets -v $VARIATION -r ${RUN}-${RUN} bcal_tdc_timing_offsets.txt
-    #ccdb add /FCAL/timing_offsets -v $VARIATION -r ${RUN}-${RUN} fcal_adc_timing_offsets.txt
-    ccdb add /START_COUNTER/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} sc_adc_timing_offsets.txt
-    #ccdb add /START_COUNTER/tdc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} sc_tdc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagm_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagm_tdc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagh_adc_timing_offsets.txt
-    ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v $VARIATION -r ${RUN}-${RUN} tagh_tdc_timing_offsets.txt
-    ccdb add /TOF/adc_timing_offsets -v $VARIATION -r ${RUN}-${RUN} tof_adc_timing_offsets.txt
+#    ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_base_time.txt
+#    ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_base_time.txt
+    #ccdb add /FCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} fcal_base_time.txt
+#    ccdb add /FDC/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} fdc_base_time.txt
+#    ccdb add /START_COUNTER/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} sc_base_time.txt
+#    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagh_base_time.txt
+#    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagm_base_time.txt
+#    ccdb add /TOF/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tof_base_time.txt
+    #ccdb add /BCAL/ADC_timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_adc_timing_offsets.txt
+    ccdb add /BCAL/TDC_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_tdc_timing_offsets.txt
+    #ccdb add /FCAL/timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} fcal_adc_timing_offsets.txt
+#    ccdb add /START_COUNTER/adc_timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} sc_adc_timing_offsets.txt
+    #ccdb add /START_COUNTER/tdc_timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} sc_tdc_timing_offsets.txt
+    #ccdb add /PHOTON_BEAM/microscope/fadc_time_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagm_adc_timing_offsets.txt
+    #ccdb add /PHOTON_BEAM/microscope/tdc_time_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagm_tdc_timing_offsets.txt
+    #ccdb add /PHOTON_BEAM/hodoscope/fadc_time_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagh_adc_timing_offsets.txt
+    #ccdb add /PHOTON_BEAM/hodoscope/tdc_time_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagh_tdc_timing_offsets.txt
+    ccdb add /TOF/adc_timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} tof_adc_timing_offsets.txt
 fi
 
 # register output
@@ -105,17 +105,17 @@ swif outfile TOF_TDC_shift_${RUN}.txt file:${SMALL_OUTPUTDIR}/Run${RUN}/pass1/TO
 
 # generate CCDB SQLite for the next pass
 echo ==regenerate CCDB SQLite file==
-if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+if [ ! -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     cp ccdb.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass1.sqlite
 else
     $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass1.sqlite
     #cp ccdb_pass1.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
-endif
+fi
 
 # Debug info
-if [ -z "$CALIB_DEBUG" ]; then 
+if [ ! -z "$CALIB_DEBUG" ]; then 
     echo ==ending CCDB info==
     python cat_ccdb_tables.py ccdb_tables_pass1
-endif
+fi
 

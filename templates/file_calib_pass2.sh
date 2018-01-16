@@ -5,13 +5,13 @@
 #cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
 cp -v ccdb_pass1.sqlite ccdb.sqlite
 export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+if [ ! -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     export CCDB_CONNECTION=$JANA_CALIB_URL
     #export CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 fi
-if [ -z "$CALIB_CHALLENGE" ]; then
+if [ ! -z "$CALIB_CHALLENGE" ]; then
     export VARIATION=calib_pass2
 else
     export VARIATION=calib
@@ -25,7 +25,8 @@ RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 #cp -v data_link.evio data.evio
 
 # config
-CALIB_PLUGINS=HLDetectorTiming,BCAL_TDC_Timing,CDC_amp
+#CALIB_PLUGINS=HLDetectorTiming,BCAL_TDC_Timing,CDC_amp
+CALIB_PLUGINS=HLDetectorTiming,CDC_amp
 CALIB_OPTIONS="-PHLDETECTORTIMING:DO_TRACK_BASED=1 -PPID:OUT_OF_TIME_CUT=1000 -PTRKFIT:HYPOTHESES_POSITIVE=8 -PTRKFIT:HYPOTHESES_NEGATIVE=9"
 PASS2_OUTPUT_FILENAME=hd_calib_pass2_Run${RUN}_${FILE}.root
 # run

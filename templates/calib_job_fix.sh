@@ -11,7 +11,7 @@ ls -lh data.evio
 
 # make sure that we create an SQLite file
 $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass0.sqlite
-#cp -v ccdb_pass0.sqlite ccdb_pass1.sqlite
+cp -v ccdb_pass0.sqlite ccdb_pass1.sqlite
 #cp -v ccdb_pass0.sqlite ccdb_pass2.sqlite
 
 # run the rest of the calibrations
@@ -24,5 +24,5 @@ $CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user c
 ./run_calib_verify.sh
 
 # need to debug SQLite creation
-$CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass2.sqlite
-cp ccdb_pass2.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite
+#$CCDB_HOME/scripts/mysql2sqlite/mysql2sqlite.sh -hhallddb.jlab.org -uccdb_user ccdb | sqlite3 ccdb_pass2.sqlite
+#cp ccdb_pass2.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite

@@ -99,8 +99,8 @@ def main():
         tdc_offsets = tdc_toff_assignment.constant_set.data_table
 
         print>>outf, "===%d==="%run
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver13/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver15/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver15/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
 
@@ -112,6 +112,7 @@ def main():
 
 
         # let's find the changes to make
+        known_bad_channels = [ 26, 48 ]
         run_chan_errors = {}
 
         #htagm.Print("base")
@@ -126,18 +127,20 @@ def main():
                 continue
             if i>=115 and i<=119:
                 continue
+            if i in known_bad_channels:
+                continue
 
             hy = htagm.ProjectionY("_%d"%i,i,i)
             #tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
             maximum = hy.GetBinCenter(hy.GetMaximumBin());
-            fr = hy.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.3);
+            fr = hy.Fit("gaus", "QS", "", maximum - 0.3, maximum + 0.3);
             mean = fr.Parameter(1);
             tdiff = mean
 
-            if tdiff < 16.:
+            if tdiff < -18.:
                 continue
             
-            if tdiff>1.:
+            if abs(tdiff)>1.:
                 print "bad channel = %d, shift = %5.2f"%(i,tdiff)
                 print>>outf, "bad channel = %d"%i
 

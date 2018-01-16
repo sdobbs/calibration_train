@@ -67,6 +67,7 @@ def main():
     runs_arr = array('f')
     runs_arr.fromlist(runs)
 
+    sc_tdc_run_offsets = array('f')
     sc_adc_run_offsets = array('f')
     fcal_adc_run_offsets = array('f')
     cdc_adc_run_offsets = array('f')
@@ -115,6 +116,7 @@ def main():
         #print float(sc_base_time_offsets[0][0]) - float(sc_base_time_offsets[0][1])
 
         sc_tdc_base_offset = float(sc_base_time_offsets[0][1])
+        sc_tdc_run_offsets.append( sc_tdc_base_offset )
 
         sc_adc_run_offsets.append( float(sc_base_time_offsets[0][0]) - sc_tdc_base_offset)
         fcal_adc_run_offsets.append( float(fcal_base_time_offsets[0][0]) - sc_tdc_base_offset)
@@ -137,6 +139,11 @@ def main():
 
     # Initialize output file
     fout = TFile(OUTPUT_FILENAME, "recreate")
+
+    gr15 = TGraph(len(runs_arr), runs_arr, sc_tdc_run_offsets)
+    gr15.SetName("sc_tdc_run_offsets")
+    gr15.SetTitle("SC TDC base time offsets")
+    gr15.Write()
 
     gr = TGraph(len(runs_arr), runs_arr, sc_adc_run_offsets)
     gr.SetName("sc_adc_run_offsets")

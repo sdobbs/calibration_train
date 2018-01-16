@@ -88,54 +88,47 @@ def main():
             e = sys.exc_info()[0]
             print "Could not connect to RCDB: " + str(e)
     
-    outf = open("bad_channels.txt","w")
+    #outf = open("bad_tdc_adc_channels.txt","w")
+    c1.Print("tagm_tdc_adc_all.pdf[")
+    c1.Print("tagm_t_adc_all.pdf[")
+    c1.Print("tagm_adc_rf_all.pdf[")
 
     # Print to screen
     for run in runs:
         print "===%d==="%run
-        print>>outf, "===%d==="%run
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver34/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver25/rootfiles/hd_root_%06d.root"%run)
+        f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver32/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         #f = TFile("/lustre/expphy/work/halld/home/gxproj3/hd_root.root")
-        #f = TFile("/home/gxproj3/work/TAGM/hd_root.root")
-        htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
+        htagm_adc_rf = f.Get("/TAGM_TW/adc_rf_all")
+        htagm_tdc_adc = f.Get("/TAGM_TW/tdc_adc_all")
+        htagm_t_adc = f.Get("/TAGM_TW/t_adc_all")
 
         try:
-            n = htagm.GetNbinsX()
+            n = htagm_adc_rf.GetNbinsX()
         except:
             print "file for run %d doesn't exit, skipping..."%run
             continue
 
+        
+        htagm_adc_rf.SetTitle("Run %d"%run)
+        htagm_adc_rf.Draw("COLZ")
+        c1.Print("tagm_adc_rf_all.pdf")
 
-        #htagm.Print("base")
-        pdf_fname = "/lustre/expphy/work/halld/home/gxproj3/tagm_plots/tagm_rfalign_r%d.pdf"%run
-        for i in xrange(1,htagm.GetNbinsX()+1):
-            # don't plot individual columns
-            if i>=10 and i<=14:
-                continue
-            if i>=33 and i<=37:
-                continue
-            if i>=92 and i<=96:
-                continue
-            if i>=115 and i<=119:
-                continue
+        htagm_tdc_adc.SetTitle("Run %d"%run)
+        htagm_tdc_adc.GetXaxis().SetRangeUser(-6,6)
+        htagm_tdc_adc.Draw("COLZ")
+        c1.Print("tagm_tdc_adc_all.pdf")
 
-            hy = htagm.ProjectionY("_%d"%i,i,i)
-            tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
+        htagm_t_adc.SetTitle("Run %d"%run)
+        htagm_t_adc.GetXaxis().SetRangeUser(-6,6)
+        htagm_t_adc.Draw("COLZ")
+        c1.Print("tagm_t_adc_all.pdf")
 
-            if tdiff>1.:
-                print "bad channel = %d"%i
-                print>>outf, "bad channel = %d"%i
-            hy.Draw()
-
-            if i==1:
-                c1.Print(pdf_fname+"(")
-            if i==(htagm.GetNbinsX()):
-                c1.Print(pdf_fname+")")
-            else:
-                c1.Print(pdf_fname)
             
+    c1.Print("tagm_tdc_adc_all.pdf]")
+    c1.Print("tagm_t_adc_all.pdf]")
+    c1.Print("tagm_adc_rf_all.pdf]")
 
 
 ## main function 

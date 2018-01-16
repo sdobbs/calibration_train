@@ -5,13 +5,13 @@
 #cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
 cp -v ccdb_pass1.sqlite ccdb.sqlite
 export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
-if [ -z "$CALIB_CCDB_SQLITE_FILE" ]; then
+if [ ! -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     export CCDB_CONNECTION=$JANA_CALIB_URL
     #export CCDB_CONNECTION sqlite:///$CALIB_CCDB_SQLITE_FILE
 else
     export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb    # save results in MySQL
 fi
-if [ -z "$CALIB_CHALLENGE" ]; then
+if [ ! -z "$CALIB_CHALLENGE" ]; then
     export VARIATION=calib_pass1
 else
     export VARIATION=calib
