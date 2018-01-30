@@ -5,7 +5,6 @@
 export PATH=/apps/python/2.7.12/bin:$PATH
 export LD_LIBRARY_PATH=/apps/python/2.7.12/lib:$LD_LIBRARY_PATH
 
-
 # initialize CCDB before running - should get this working at some point?
 #cp ${BASEDIR}/ccdb_start.sqlite ccdb.sqlite
 #export JANA_CALIB_URL  sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
@@ -24,8 +23,8 @@ else
 fi
 
 # Start by running over the current "default" calibrations
-export JANA_CALIB_CONTEXT="variation=$VARIATION"
-#export JANA_CALIB_CONTEXT="variation=default"
+#export JANA_CALIB_CONTEXT="variation=$VARIATION"
+export JANA_CALIB_CONTEXT="variation=default"
 
 # copy input file to local disk - SWIF only sets up a symbolic link to it
 #echo ==copy in file==
@@ -176,7 +175,7 @@ if [ ! -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     #cp ccdb_pass0.sqlite ${BASEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite
 else
     mkdir -p $SQLITEDIR
-    cp ccdb.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite
+    #cp ccdb.sqlite ${SQLITEDIR}/sqlite_ccdb/ccdb_pass0.${RUN}.sqlite    # temp disable
     #cp $CALIB_CCDB_SQLITE_FILE ${BASEDIR}/ccdb_pass0.sqlite
 fi
 

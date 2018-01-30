@@ -41,7 +41,7 @@ fi
 ####### CONFIGURATION PARAMETERS ######
 
 export RUNPERIOD=RunPeriod-2018-01
-export VERSION=ver01
+export VERSION=ver02
 
 ######################################
 

@@ -7,7 +7,7 @@ export LD_LIBRARY_PATH=/apps/python/2.7.12/lib:$LD_LIBRARY_PATH
 
 
 # initialize CCDB before running
-cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
+#cp ${BASEDIR}/sqlite_ccdb/ccdb_pass1.${RUN}.sqlite ccdb.sqlite
 export JANA_CALIB_URL=sqlite:///`pwd`/ccdb.sqlite                # run jobs off of SQLite
 if [ ! -z "$CALIB_CCDB_SQLITE_FILE" ]; then
     export CCDB_CONNECTION=$JANA_CALIB_URL
@@ -20,7 +20,8 @@ if [ ! -z "$CALIB_CHALLENGE" ]; then
 else
     export VARIATION=calib
 fi
-export JANA_CALIB_CONTEXT="variation=$VARIATION" 
+#export JANA_CALIB_CONTEXT="variation=$VARIATION" 
+export JANA_CALIB_CONTEXT="variation=default" 
 
 # Debug info
 if [ ! -z "$CALIB_DEBUG" ]; then 
@@ -46,8 +47,8 @@ cp -v hd_calib_pass2_Run${RUN}_${FILE}.root hd_calib_pass2_Run${RUN}.root
 RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
 echo ==second pass calibrations==
-echo Running: HLDetectorTiming, ExtractTrackBasedTiming.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/ExtractTrackBasedTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
+echo Running: HLDetectorTiming, AdjustTiming.C
+python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/AdjustTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
 echo Running: CDC_amp, CDC_gains.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME $HALLD_HOME/src/plugins/Calibration/CDC_amp/CDC_gains.C\(1\)
 #echo Running: BCAL_TDC_Timing, ExtractTimeWalk.C
@@ -69,13 +70,14 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlign
 # update CCDB
 if [ ! -z "$CALIB_SUBMIT_CONSTANTS" ]; then
     echo ==update CCDB==
+    add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
 #    ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_base_time.txt
 #    ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_base_time.txt
 #    ccdb add /FCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} fcal_base_time.txt
     #ccdb add /FDC/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} fdc_base_time.txt
 #    ccdb add /START_COUNTER/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} sc_base_time.txt
-    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagh_base_time.txt
-    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagm_base_time.txt
+#    ccdb add /PHOTON_BEAM/hodoscope/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagh_base_time.txt
+#    ccdb add /PHOTON_BEAM/microscope/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tagm_base_time.txt
 #    ccdb add /TOF/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} tof_base_time.txt
     #ccdb add /BCAL/ADC_timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_adc_timing_offsets.txt
     #ccdb add /BCAL/TDC_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_tdc_timing_offsets.txt
@@ -128,6 +130,7 @@ swif outfile pass2_TrackingTiming.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pa
 swif outfile pass2_TaggerRFAlignment.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TaggerRFAlignment.png
 swif outfile pass2_TaggerRFAlignment2.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TaggerRFAlignment2.png
 swif outfile pass2_TaggerSCAlignment.png file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/pass2_TaggerSCAlignment.png
+cp -v fdc_package?_wire_offsets.txt ${SMALL_OUTPUTDIR}/Run${RUN}/pass2/
 swif outfile cdc_new_ascale.txt  file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/cdc_new_ascale.txt
 swif outfile cdc_amphistos.root  file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/cdc_amphistos.root
 #swif outfile   file:${SMALL_OUTPUTDIR}/Run${RUN}/pass2/

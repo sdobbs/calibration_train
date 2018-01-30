@@ -28,8 +28,10 @@ export JANA_CALIB_CONTEXT="variation=default"
 
 
 # config
-CALIB_PLUGINS=HLDetectorTiming,monitoring_hists,PSPair_online,RF_online,TAGM_TW
+#CALIB_PLUGINS=HLDetectorTiming,monitoring_hists,PSPair_online,RF_online,TAGM_TW
+CALIB_PLUGINS=TOF_TDC_shift,PSPair_online,RF_online,TAGM_TW
 CALIB_OPTIONS=" -PEVENTS_TO_KEEP=500000 "
+#CALIB_OPTIONS=" -PEVENTS_TO_KEEP=100000 "
 #CALIB_OPTIONS=" -PHLDETECTORTIMING:DO_TRACK_BASED=1 -PPID:OUT_OF_TIME_CUT=1000 -PTRKFIT:HYPOTHESES_POSITIVE=8 -PTRKFIT:HYPOTHESES_NEGATIVE=9 "
 RUN_OUTPUT_FILENAME=hd_calib_verify_Run${RUN}_${FILE}.root
 # run
@@ -73,6 +75,7 @@ mkdir -p ${RUNDIR}
 cp -v $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 swif outfile $RUN_OUTPUT_FILENAME file:${RUNDIR}/$RUN_OUTPUT_FILENAME
 mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/verify/
+cp -v TOF_TDC_shift_${RUN}.txt ${SMALL_OUTPUTDIR}/Run${RUN}/verify/TOF_TDC_shift_${RUN}.txt
 #swif outfile psc_tw_parms.out file:${SMALL_OUTPUTDIR}/Run${RUN}/verify/psc_tw_parms.txt
 #swif outfile sigmas.out  file:${SMALL_OUTPUTDIR}/Run${RUN}/verify/psc_tw_sigmas.txt
 #swif outfile st_time_res.txt  file:${SMALL_OUTPUTDIR}/Run${RUN}/verify/st_time_resolution.txt
