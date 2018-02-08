@@ -111,6 +111,7 @@ def main():
             if VERBOSE>0:
                 print "==copying %s for run %d=="%(ccdb_table,run)
             # get source data
+                print ccdb_table, run, SRC_VARIATION
             assignment = ccdb_conn.get_assignment(ccdb_table, run, SRC_VARIATION)
             #pp.pprint(assignment.constant_set.data_table)
             # add to destination
@@ -119,7 +120,8 @@ def main():
                 path=ccdb_table,
                 variation_name=DEST_VARIATION,
                 min_run=run,
-                max_run=run,
+                #max_run=run,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Copied from variation \'%s\'"%ccdb_table)
         #print "===%d==="%run
         #pp.pprint(assignment.constant_set.data_table)

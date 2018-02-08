@@ -1,0 +1,6 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=sdobbs@jlab.org
+HOME=/home/sdobbs
+
+*/15 * * * * /home/sdobbs/work/calibration_train/online/run_online_calibrations.sh

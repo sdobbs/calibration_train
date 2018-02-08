@@ -7,6 +7,10 @@
 /CDC/digi_scales
 /FCAL/base_time_offset
 /FDC/base_time_offset
+/FDC/package1/wire_timing_offsets
+/FDC/package2/wire_timing_offsets
+/FDC/package3/wire_timing_offsets
+/FDC/package4/wire_timing_offsets
 /PHOTON_BEAM/hodoscope/base_time_offset
 /PHOTON_BEAM/hodoscope/fadc_time_offsets
 /PHOTON_BEAM/hodoscope/tdc_time_offsets
