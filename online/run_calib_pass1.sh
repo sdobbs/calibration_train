@@ -3,6 +3,12 @@
 
 RUN=$1
 
+if [ ! -z "$2" ]; then
+    echo changing working directory to $2
+    cd $2
+fi
+
+
 source setup_gluex.sh
 
 # python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
@@ -18,6 +24,10 @@ export JANA_CALIB_CONTEXT="variation=$VARIATION"
 
 # process the results
 RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
+
+echo merging...
+rm -f hd_calib_pass1_Run${RUN}.root
+hadd -k hd_calib_pass1_Run${RUN}.root hd_calib_pass1_Run${RUN}_*.root
 
 echo calculating pass1 constants ... >> message.txt
 
@@ -46,7 +56,8 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlign
 
 # update CCDB
 echo ==update CCDB==
-./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
+#./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
+./add_consts-adjust.sh ${RUNNUM} 
 #    ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_base_time.txt
 #    ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_base_time.txt
 #    ccdb add /FCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} fcal_base_time.txt
@@ -75,7 +86,7 @@ ls -lhR
 
 ###################################################
 # now, move the constants to default if it looks like they need it
-python push_tables_to_production.py -Y online_ccdb_tables_to_push -R $RUNNUM >> message.txt
+python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM >> message.txt
 
 # and send update email
 if [ -f "message.txt" ]; then

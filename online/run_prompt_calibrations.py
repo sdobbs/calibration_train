@@ -25,12 +25,54 @@ import re
 import datetime
 import time
 import subprocess
+import multiprocessing
 import glob
 from optparse import OptionParser
 import rcdb
 import ccdb
 
 
+def ProcessFilePass1(args):
+    host_mapping = { 0: "gluon105", 1: "gluon106", 2: "gluon107" }
+
+    run = args[0]
+    fnum = args[1]
+    cwd = args[2]
+
+    print "sshing to %s"%host_mapping[fnum]
+    cmd = "ssh %s 'cd %s; ./file_calib_pass1.sh %06d %03d'"%(host_mapping[fnum],cwd,run,fnum)
+    if DRY_RUN:
+        print cmd
+    else:
+        os.system(cmd)
+
+
+def LoadCCDB():
+    sqlite_connect_str = "mysql://ccdb_user@hallddb.jlab.org/ccdb"
+    #sqlite_connect_str = "sqlite:////group/halld/www/halldweb/html/dist/ccdb.sqlite"
+    provider = ccdb.AlchemyProvider()                        # this class has all CCDB manipulation functions
+    provider.connect(sqlite_connect_str)                     # use usual connection string to connect to database
+    provider.authentication.current_user_name = "hdsys"  # to have a name in logs
+
+    return provider
+
+def get_fieldmap(current):
+    if current < 30.:
+        return "NoField"
+    elif current > 1570:
+        return "solenoid_1600A_poisson_20160222"
+    else:
+        ccdb_currents =  [ 50*(i+1) for i in xrange(31) ]
+        delta = 1000000.
+        best_current = 30.
+        for el in xrange(len(ccdb_currents)):
+            if abs(current-ccdb_currents[el]) < delta:
+                best_current = ccdb_currents[el]
+                delta = abs(current-ccdb_currents[el])
+        return "solenoid_%04dA_poisson_20160222"%best_current
+
+def get_solenoid_current(rcdb_conn, run):
+    return rcdb_conn.get_condition(run, "solenoid_current").value
 
 
 # this part gets executed when this file is run on the command line 
@@ -49,7 +91,8 @@ if __name__ == "__main__":
     RUNS             = ''
     RUN_PERIOD       = 'RunPeriod-2018-01'
     RCDB_PRODUCTION_SEARCH = "@is_2018production"
-    RCDB_SEARCH_MIN  = 40000
+    #RCDB_SEARCH_MIN  = 40000
+    RCDB_SEARCH_MIN  = 41857
     RCDB_SEARCH_MAX  = 50000
 
     SCRIPT_DIR = "/gluonwork1/Users/sdobbs/calibration_train/online"
@@ -163,7 +206,7 @@ if __name__ == "__main__":
         calibdb_cursor.execute(query)
         run_info = calibdb_cursor.fetchone()
         if run_info is None or run_info[0] is None:
-            query = "INSERT INTO online_info (run,done) VALUES (%s,FALSE)"%run
+            query = "INSERT INTO online_info (run,done,rcdb_update) VALUES (%s,FALSE,FALSE)"%run
             calibdb_cursor.execute(query)
             calibdb_cnx.commit()
 
@@ -178,9 +221,43 @@ if __name__ == "__main__":
             print "Already processed this run, skipping..."
             continue
 
+        query = "SELECT rcdb_update FROM online_info WHERE run='%s'"%run 
+        calibdb_cursor.execute(query)
+        rcdb_info = calibdb_cursor.fetchone()
+        if run_info is None or run_info[0] is None:
+            print "Problem accessing DB (rcdb_update), skipping run..."
+        else:
+            if rcdb_info[0]==0:
+                # update some CCDB info
+                ccdb_conn = LoadCCDB()
+                solenoid_map_assignment = ccdb_conn.get_assignment("/Magnets/Solenoid/solenoid_map", run, "default")
+                current_solenoid_map = solenoid_map_assignment.constant_set.data_table[0][0]
+
+                solenoid_current = get_solenoid_current(rcdb_conn, run)
+                new_solenoid_map = " Magnets/Solenoid/"+get_fieldmap(solenoid_current)
+
+                print " old solenoid map = %s   new solenoid map = %s"%(current_solenoid_map,new_solenoid_map)
+
+                if not DRY_RUN and current_solenoid_map != new_solenoid_map:
+                    print "Updating solenoid map!"
+                    #ccdb_conn.create_assignment(
+                    #    data=[[new_solenoid_map]],
+                    #    path="/Magnets/Solenoid/solenoid_map",
+                    #    variation_name="default",
+                    #    min_run=run,
+                    #    max_run=ccdb.INFINITE_RUN,
+                    #    comment="Online updates based on RCDB")
+
+                    #query = "UPDATE online_info SET rcdb_update=TRUE WHERE run='%s'"%run
+                    #calibdb_cursor.execute(query)            
+                    #calibdb_cnx.commit()
+
+
         # check to make sure that the first file exists, to correctly handle the current run
         if not os.path.exists("/gluonraid2/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(RUN_PERIOD,run,run)):
             continue
+        # and I guess the other two?  we need to run multiple processes, it's easier if we are running over multiple files
+
 
         # do calibrations
         rundir = "%s/Run%06d"%(BASE_DIR,run)
@@ -201,12 +278,15 @@ if __name__ == "__main__":
 
         # run over one file, adjust timing alignments
         # plugins: HLDetectorTiming, CDC_amp, TOF_TDC_shift
-        cmd = "./file_calib_pass1.sh %06d"%run
-        if DRY_RUN:
-            print cmd
-        else:
-            os.system(cmd)
-        cmd = "./run_calib_pass1.sh %06d"%run
+        p = multiprocessing.Pool(3)
+        args = []
+        args.append( (run, 0, os.getcwd()) )
+        args.append( (run, 1, os.getcwd()) )
+        args.append( (run, 2, os.getcwd()) )
+        p.map(ProcessFilePass1, args)
+
+        # merge and run over the results
+        cmd = "./run_calib_pass1.sh %06d %s"%(run,os.getcwd())
         if DRY_RUN:
             print cmd
         else:
@@ -215,8 +295,9 @@ if __name__ == "__main__":
         # update calibration status
         if not DRY_RUN:
             query = "UPDATE online_info SET done=TRUE WHERE run='%s'"%run
+            print query
             calibdb_cursor.execute(query)
-        
+            calibdb_cnx.commit()
 
     # finish and clean up
     calibdb_cursor.close()
