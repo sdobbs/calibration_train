@@ -8,7 +8,6 @@ if [ ! -z "$2" ]; then
     cd $2
 fi
 
-
 source setup_gluex.sh
 
 # python2.7 needed for CCDB command line tool - this is the version needed for the CentOS7 nodes
@@ -56,8 +55,11 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlign
 
 # update CCDB
 echo ==update CCDB==
+#./add_consts-adjust.sh ${RUNNUM} 
+./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
+retval=$?
+
 #./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
-./add_consts-adjust.sh ${RUNNUM} 
 #    ccdb add /BCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} bcal_base_time.txt
 #    ccdb add /CDC/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_base_time.txt
 #    ccdb add /FCAL/base_time_offset -v $VARIATION -r ${RUNNUM}-${RUNNUM} fcal_base_time.txt
@@ -86,7 +88,15 @@ ls -lhR
 
 ###################################################
 # now, move the constants to default if it looks like they need it
-python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM >> message.txt
+if [ "$retval" -eq "0" ]; then
+    python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM --logentry=logbook.txt >> message.txt
+    
+    # make a logbook entry if the data is there
+    if [ -f "logbook.txt" ]; then
+	/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN
+	#/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook TLOG
+    fi
+fi
 
 # and send update email
 if [ -f "message.txt" ]; then
