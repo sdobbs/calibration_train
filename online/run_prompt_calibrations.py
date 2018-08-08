@@ -101,8 +101,9 @@ if __name__ == "__main__":
     RCDB_PRODUCTION_SEARCH = "@is_2018production"
     #RCDB_SEARCH_MIN  = 40000
     #RCDB_SEARCH_MIN  = 41857
-    RCDB_SEARCH_MIN  = 42059
-    RCDB_SEARCH_MAX  = 50000
+    RCDB_SEARCH_MIN  = 50000
+    RCDB_SEARCH_MAX  = 70000
+    GLUONRAID = "gluonraid2"
 
     SCRIPT_DIR = "/gluonwork1/Users/sdobbs/calibration_train/online"
     BASE_DIR = "/gluonwork1/Users/sdobbs/calibrations/%s"%RUN_PERIOD
@@ -250,23 +251,23 @@ if __name__ == "__main__":
 
                 if not DRY_RUN and current_solenoid_map != new_solenoid_map:
                     print "Updating solenoid map!"
-                    #ccdb_conn.create_assignment(
-                    #    data=[[new_solenoid_map]],
-                    #    path="/Magnets/Solenoid/solenoid_map",
-                    #    variation_name="default",
-                    #    min_run=run,
-                    #    max_run=ccdb.INFINITE_RUN,
-                    #    comment="Online updates based on RCDB")
+                    ccdb_conn.create_assignment(
+                        data=[[new_solenoid_map]],
+                        path="/Magnets/Solenoid/solenoid_map",
+                        variation_name="default",
+                        min_run=run,
+                        max_run=ccdb.INFINITE_RUN,
+                        comment="Online updates based on RCDB")
 
                     #if not DRY_RUN:
-                    #query = "UPDATE online_info SET rcdb_update=TRUE WHERE run='%s'"%run
-                    #calibdb_cursor.execute(query)            
-                    #calibdb_cnx.commit()
+                    query = "UPDATE online_info SET rcdb_update=TRUE WHERE run='%s'"%run
+                    calibdb_cursor.execute(query)            
+                    calibdb_cnx.commit()
 
 
         # check to make sure that the first file exists, to correctly handle the current run
-        if not os.path.exists("/gluonraid2/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(RUN_PERIOD,run,run)):
-            print "Cant't find /gluonraid2/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(RUN_PERIOD,run,run)
+        if not os.path.exists("/%s/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(GLUONRAID,RUN_PERIOD,run,run)):
+            print "Cant't find /%s/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(GLUONRAID,RUN_PERIOD,run,run)
             continue
         # and I guess the other two?  we need to run multiple processes, it's easier if we are running over multiple files
         # or maybe handle short runs?  be more smart about this
@@ -279,7 +280,7 @@ if __name__ == "__main__":
         os.system("cp -v %s/*.sh %s"%(SCRIPT_DIR,rundir))
         os.system("cp -v %s/*.py %s"%(SCRIPT_DIR,rundir))
         os.system("cp -v %s/online_ccdb_tables_to_push %s"%(SCRIPT_DIR,rundir))
-        os.system("ln -s /gluonraid2/rawdata/volatile/%s/rawdata/Run%06d ./data"%(RUN_PERIOD,run))
+        os.system("ln -s /%s/rawdata/volatile/%s/rawdata/Run%06d ./data"%(GLUONRAID,RUN_PERIOD,run))
 
         # calibrate RF
         cmd = "./file_calib_pass0.sh %06d"%run
