@@ -8,7 +8,7 @@ source setup_gluex.sh
 # run job
 if [ ! -f $LOCKFILE ]; then
     touch $LOCKFILE
-    python run_prompt_calibrations.py 41282- >& log/calib.`date +%F_%T`.log
+    python run_prompt_calibrations.py 42192- >& log/calib.`date +%F_%T`.log
     rm -f $LOCKFILE
 
     # send update email

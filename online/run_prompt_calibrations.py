@@ -46,6 +46,14 @@ def ProcessFilePass1(args):
     else:
         os.system(cmd)
 
+def ProcessTaggerCalibrations(args):
+    run = args[0]
+    
+    cmd = "do_tagger.sh %d"%(run)
+    if DRY_RUN:
+        print cmd
+    else:
+        os.system(cmd)
 
 def LoadCCDB():
     sqlite_connect_str = "mysql://ccdb_user@hallddb.jlab.org/ccdb"
@@ -92,7 +100,8 @@ if __name__ == "__main__":
     RUN_PERIOD       = 'RunPeriod-2018-01'
     RCDB_PRODUCTION_SEARCH = "@is_2018production"
     #RCDB_SEARCH_MIN  = 40000
-    RCDB_SEARCH_MIN  = 41857
+    #RCDB_SEARCH_MIN  = 41857
+    RCDB_SEARCH_MIN  = 42059
     RCDB_SEARCH_MAX  = 50000
 
     SCRIPT_DIR = "/gluonwork1/Users/sdobbs/calibration_train/online"
@@ -194,7 +203,8 @@ if __name__ == "__main__":
     #    calibdb_cnx.close()
     #    sys.exit(0)
         
-
+    tagger_threads = []
+        
     for run in RCDB_RUNS:
         print "Processing Run %d"%run
         if not run in RCDB_PRODUCTION_RUNS:
@@ -248,6 +258,7 @@ if __name__ == "__main__":
                     #    max_run=ccdb.INFINITE_RUN,
                     #    comment="Online updates based on RCDB")
 
+                    #if not DRY_RUN:
                     #query = "UPDATE online_info SET rcdb_update=TRUE WHERE run='%s'"%run
                     #calibdb_cursor.execute(query)            
                     #calibdb_cnx.commit()
@@ -255,9 +266,10 @@ if __name__ == "__main__":
 
         # check to make sure that the first file exists, to correctly handle the current run
         if not os.path.exists("/gluonraid2/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(RUN_PERIOD,run,run)):
+            print "Cant't find /gluonraid2/rawdata/volatile/%s/rawdata/Run%06d/hd_rawdata_%06d_000.evio"%(RUN_PERIOD,run,run)
             continue
         # and I guess the other two?  we need to run multiple processes, it's easier if we are running over multiple files
-
+        # or maybe handle short runs?  be more smart about this
 
         # do calibrations
         rundir = "%s/Run%06d"%(BASE_DIR,run)
@@ -275,6 +287,11 @@ if __name__ == "__main__":
             print cmd
         else:
             os.system(cmd)
+
+        # start up tagger calibrations
+        ptag = multiprocessing.Process(target=ProcessTaggerCalibrations, args=(run))
+        ptag.start()
+        tagger_threads.append(ptag)
 
         # run over one file, adjust timing alignments
         # plugins: HLDetectorTiming, CDC_amp, TOF_TDC_shift
@@ -299,6 +316,13 @@ if __name__ == "__main__":
             calibdb_cursor.execute(query)
             calibdb_cnx.commit()
 
+        # see if we should stop earlier
+        if os.path.exists("%s/force.stop"%SCRIPT_DIR):
+            print "stopping early..."
+            break
+
     # finish and clean up
     calibdb_cursor.close()
     calibdb_cnx.close()
+    for thr in tagger_threads:
+        thr.join()

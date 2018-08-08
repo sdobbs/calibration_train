@@ -26,13 +26,21 @@ def LoadCCDB():
 
 
 # assumes both are same table format
-def check_out_of_tolerance(table1,table2,tolerance,verbose=0):
+def check_out_of_tolerance(table1,table2,tolerance,verbose=0,masks=None):
+    #pp = pprint.PrettyPrinter(indent=4)
     result = False
     modified_channels = []
     max_diff = 0
     # I hope these are all non-strings...
     for row in xrange(len(table1)):
         for col in xrange(len(table1[row])):
+            #pp.pprint("check")
+            #pp.pprint( (row,col) )
+            #pp.pprint( masks )
+            if masks is not None and (row,col) in masks:
+                #print "skipping entry:  (%d,%d)"%(row,col)
+                continue
+
             #print float(table1[row][col]),float(table2[row][col])
             diff = abs(float(table1[row][col])-float(table2[row][col]))
             if diff > tolerance:
@@ -236,12 +244,17 @@ def main():
         FORCE_COMMIT = options.force_commit
     CHANNEL_MASKS = None
     if options.mask_file:
-        print "check"
+        CHANNEL_MASKS = {}
         config =  ConfigParser.ConfigParser()
         config.read(options.mask_file)
-        pp.pprint(config.sections())
-        pp.pprint(config.get(config.sections()[0], "mask"))
-        exit(0)
+        #pp.pprint(config.sections())
+        #pp.pprint(config.get(config.sections()[0], "mask"))
+        for section in config.sections():
+            CHANNEL_MASKS[section] = []
+            for pair in config.get(config.sections()[0], "mask").split(' '):
+                (row,col) = pair.split(',')
+                CHANNEL_MASKS[section].append( (int(row),int(col)) )
+        #pp.pprint(CHANNEL_MASKS)
 
     if VERBOSE>0:
         print "CCDB_TABLES:"
@@ -296,11 +309,17 @@ def main():
                 print "==checking %s for run %d=="%(ccdb_table,run)
             # get source data
             assignment = ccdb_conn.get_assignment(ccdb_table, run, SRC_VARIATION)
-            #reference_assignment = ccdb_conn.get_assignment(ccdb_table, run, DEST_VARIATION)
-            reference_assignment = ccdb_conn.get_assignment(ccdb_table, 31000, DEST_VARIATION)
+            reference_assignment = ccdb_conn.get_assignment(ccdb_table, run, DEST_VARIATION)
+            #reference_assignment = ccdb_conn.get_assignment(ccdb_table, 31000, DEST_VARIATION)
             #pp.pprint(assignment.constant_set.data_table)
 
-            (success, modified_channels) = check_out_of_tolerance(assignment.constant_set.data_table, reference_assignment.constant_set.data_table, CCDB_TOLERANCES[ccdb_table], verbose=VERBOSE)
+            channel_mask=None
+            if ccdb_table in CHANNEL_MASKS:
+                channel_mask = CHANNEL_MASKS[ccdb_table]
+                #print "set mask for " + ccdb_table
+                #pp.pprint(channel_mask)
+
+            (success, modified_channels) = check_out_of_tolerance(assignment.constant_set.data_table, reference_assignment.constant_set.data_table, CCDB_TOLERANCES[ccdb_table], verbose=VERBOSE, masks=channel_mask)
             if not success and not FORCE_COMMIT:
                 continue
                                       
