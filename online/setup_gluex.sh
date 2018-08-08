@@ -20,8 +20,7 @@ export CCDB_CONNECTION=mysql://ccdb_user@hallddb.jlab.org/ccdb
 export JANA_CALIB_URL=${CCDB_CONNECTION}
 export JANA_RESOURCE_DIR=/gluex/sim-recon/resources
 
-export HALLD_HOME=/gluonwork1/Users/sdobbs/Software/sim-recon.dev
-export HALLD_ONLINE_RELEASE=$HALLD_HOME
+export HALLD_HOME=/gluonwork1/Users/sdobbs/Software/halld_recon
 export PATH=$HALLD_ONLINE_RELEASE/${BMS_OSNAME}/bin:${PATH}
 export LD_LIBRARY_PATH=$HALLD_ONLINE_RELEASE/${BMS_OSNAME}/lib:${LD_LIBRARY_PATH}
 export JANA_PLUGIN_PATH=$HALLD_ONLINE_RELEASE/${BMS_OSNAME}/plugins:${JANA_PLUGIN_PATH}
