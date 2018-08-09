@@ -48,8 +48,10 @@ def ProcessFilePass1(args):
 
 def ProcessTaggerCalibrations(args):
     run = args[0]
+    cwd = args[1]
     
-    cmd = "do_tagger.sh %d"%(run)
+    #cmd = "do_tagger.sh %d"%(run)
+    cmd = "ssh %s 'cd %s; ./do_tagger.sh %d'"%("gluon117",cwd,run)
     if DRY_RUN:
         print cmd
     else:
@@ -290,7 +292,7 @@ if __name__ == "__main__":
             os.system(cmd)
 
         # start up tagger calibrations
-        ptag = multiprocessing.Process(target=ProcessTaggerCalibrations, args=(run))
+        ptag = multiprocessing.Process(target=ProcessTaggerCalibrations, args=(run,os.getcwd()))
         ptag.start()
         tagger_threads.append(ptag)
 
