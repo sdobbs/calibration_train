@@ -103,8 +103,9 @@ def main():
         run_chan_errors = {}
 
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver19/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2016-02/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2016-02/mon_ver15/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver25/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver13/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         htagm = f.Get("/HLDetectorTiming/TRACKING/TAGH - RFBunch Time")
 
@@ -164,7 +165,7 @@ def main():
         print "shifts = "
         pp.pprint(run_chan_errors)
 
-        #continue
+        continue
         
         # let's apply the offsets
         for chan,tdiff in run_chan_errors.iteritems():

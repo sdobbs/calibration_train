@@ -1,12 +1,17 @@
-<gversions>
-<package name="ccdb" home="/work/halld2/home/gxproj3/Calibration/Software/ccdb/ccdb.git"/>
-<package name="jana" version="/w/halld-scifs1a/home/gxproj3/Calibration/Software/jana/jana_0.7.7p1"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="version.xsl"?>
+<gversions file="version_2.16.0_jlab.xml" date="2017-09-01">
+<!--  <package name="jana" version="0.7.9" dirtag="ccdb165"/> -->
+<package name="jana" version="0.7.9p1"/>
 <package name="sim-recon" home="/work/halld2/home/gxproj3/Calibration/Software/sim-recon/sim-recon"/>
-<package name="hdds" home="/work/halld2/home/gxproj3/Calibration/Software/hdds/hdds"/>
+<package name="hdds" home="/home/gxproj3/work2/Calibration/Software/hdds/hdds"/>
 <package name="cernlib" version="2005" word_length="64-bit"/>
 <package name="xerces-c" version="3.1.4"/>
-<package name="clhep" version="2.0.4.5"/>
-<package name="root" version="6.08.00"/>
+<package name="root" version="6.08.06"/>
+<package name="ccdb" version="1.06.05"/>
 <package name="evio" version="4.4.6"/>
-<package name="rcdb" version="0.01"/>
+<package name="rcdb" version="0.02"/>
+<package name="geant4" version="10.02.p02"/>
+<package name="hd_utilities" version="1.8"/>
+<package name="amptools" version="0.9.3"/>
 </gversions>

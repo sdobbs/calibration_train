@@ -30,7 +30,8 @@ def main():
 
     # Defaults
     #RCDB_QUERY = "@is_production and @status_approved"
-    RCDB_QUERY = "@is_production"
+    #RCDB_QUERY = "@is_production"
+    RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
 
     BEGINRUN = 30000
@@ -90,14 +91,17 @@ def main():
     for run in runs:
         print "===%d==="%run
         adc_toff_assignment = ccdb_conn.get_assignment("/START_COUNTER/adc_timing_offsets", run, VARIATION)
+        #adc_toff_assignment = ccdb_conn.get_assignment("/START_COUNTER/tdc_timing_offsets", run, VARIATION)
         #pp.pprint(tdc_toff_assignment.constant_set.data_table)
         adc_offsets = adc_toff_assignment.constant_set.data_table
 
         # let's find the changes to make
         run_chan_errors = {}
         
-        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver09/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver13/rootfiles/hd_root_%06d.root"%run)
+        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver06/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver13/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver07/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         htagh = f.Get("/HLDetectorTiming/SC/SCHit TDC_ADC Difference")
         #htagh.Print("base")
@@ -114,9 +118,9 @@ def main():
             #print i,hy.GetBinLowEdge(hy.GetMaximumBin()+1)
             tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
         
-            #maximum = hy.GetBinCenter(hy.GetMaximumBin());
-            #fr = hy.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.3);
-            #tdiff = fr.Parameter(1);
+            maximum = hy.GetBinCenter(hy.GetMaximumBin());
+            fr = hy.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.3);
+            tdiff = fr.Parameter(1);
 
             # no data in these channels
             if tdiff < -38.:
@@ -149,6 +153,7 @@ def main():
         ccdb_conn.create_assignment(
                 data=adc_offsets,
                 path="/START_COUNTER/adc_timing_offsets",
+                #path="/START_COUNTER/tdc_timing_offsets",
                 variation_name=VARIATION,
                 min_run=run,
                 max_run=run,

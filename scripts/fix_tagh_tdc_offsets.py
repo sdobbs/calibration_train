@@ -29,9 +29,9 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"  
+    #RCDB_QUERY = "@is_production and @status_approved"  
     #RCDB_QUERY = "@is_production"
-    #RCDB_QUERY = "@is_2018production and status!=0"
+    RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
 
     BEGINRUN = 40000
@@ -90,16 +90,16 @@ def main():
     # Print to screen
     for run in runs:
         print "===%d==="%run
-        tdc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/hodoscope/fadc_time_offsets", run, VARIATION)
+        tdc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/hodoscope/tdc_time_offsets", run, VARIATION)
         #pp.pprint(tdc_toff_assignment.constant_set.data_table)
         tdc_offsets = tdc_toff_assignment.constant_set.data_table
 
         # let's find the changes to make
         run_chan_errors = {}
 
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver06/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver12/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver01/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver06/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/work/halld/home/sdobbs/calib/2018-01/hd_root.root")
         htagm = f.Get("/HLDetectorTiming/TAGH/TAGHHit TDC_ADC Difference")
 
@@ -126,7 +126,8 @@ def main():
 
             # only look for shifts > 1.ns in this
             #if math.fabs(tdiff) < 1.:
-            if math.fabs(tdiff) < 0.5:
+            #if math.fabs(tdiff) < 0.5:
+            if math.fabs(tdiff) < 20.:
                 continue
 
             run_chan_errors[i-1] = tdiff
@@ -146,7 +147,7 @@ def main():
     
         ccdb_conn.create_assignment(
                 data=tdc_offsets,
-                path="/PHOTON_BEAM/hodoscope/fadc_time_offsets",
+                path="/PHOTON_BEAM/hodoscope/tdc_time_offsets",
                 variation_name=VARIATION,
                 min_run=run,
                 max_run=run,

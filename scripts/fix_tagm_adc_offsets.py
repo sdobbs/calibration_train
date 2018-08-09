@@ -29,11 +29,12 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
 
-    BEGINRUN = 30000
-    ENDRUN = 39999
+    BEGINRUN = 40000
+    ENDRUN = 49999
 
     # Define command line options
     parser = OptionParser(usage = "fix_sc_offsets.py ccdb_tablename")
@@ -95,7 +96,7 @@ def main():
         # let's find the changes to make
         run_chan_errors = {}
         
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+        f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver06/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver03/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         htagm = f.Get("/HLDetectorTiming/TAGM/TAGMHit TDC_ADC Difference")
@@ -118,17 +119,17 @@ def main():
             tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
         
             # no data in these channels
-            #if tdiff < -38.:
-            if tdiff < -110.:
+            if tdiff < -38.:
+            #if tdiff < -110.:
                 continue
 
             # this channel is fine!
             if tdiff == 0.:
                 continue
 
-            # only look for shifts > 1.ns in this
+            # only look for shifts > 3.ns in this
             #if math.fabs(tdiff) < 1.:
-            if math.fabs(tdiff) < 2.:
+            if math.fabs(tdiff) < 3.:
                 continue
 
             run_chan_errors[i-1] = tdiff
@@ -140,7 +141,7 @@ def main():
         print "shifts = "
         pp.pprint(run_chan_errors)
         
-        continue
+        #continue
 
         # let's apply the offsets
         for chan,tdiff in run_chan_errors.iteritems():

@@ -47,7 +47,8 @@ def main():
 
     # Defaults
     OUTPUT_FILENAME = "out.root"
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = "@is_2018production"
     SRC_VARIATION = "calib"
     DEST_VARIATION = "default"
     BEGIN_RUN = 1
@@ -141,6 +142,7 @@ def main():
         print "no tables specified!"
         return
 
+    print runs
 
     for run in runs:
         print "===Checking run %d==="%run

@@ -67,6 +67,12 @@ class HDSubmitCalibJobSWIF:
         the_pass - text string describing which calibration pass this job is associated with
         command_to_run - the command that the job will execute
         """
+        # make directory for log
+        logdir = "%s/log/%06d"%(self.basedir,run)
+        if(not os.path.exists(logdir)):
+            os.system("mkdir -p %s"%logdir)
+
+        # prepare command
         cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,self.track)
         #cmd += " -name %s_%06d_%03d_centos65"%(self.workflow,run,filenum)
         #cmd += " -os centos65 "
@@ -74,8 +80,8 @@ class HDSubmitCalibJobSWIF:
         cmd += " -os centos7 "
         # stage file from tape
         #cmd += " -input data.evio mss:%s"%inputfile   
-        cmd += " -stdout file:%s/log/log_%s_%06d"%(self.basedir,"merge",run)
-        cmd += " -stderr file:%s/log/err_%s_%06d"%(self.basedir,"merge",run)
+        cmd += " -stdout file:%s/log/%06d/log_%s_%06d"%(self.basedir,run,"merge",run)
+        cmd += " -stderr file:%s/log/%06d/err_%s_%06d"%(self.basedir,run,"merge",run)
         cmd += " -cores %d"%int(self.nthreads)  
         cmd += " -tag run %d"%(run)
         if self.nthreads:
@@ -110,6 +116,12 @@ class HDSubmitCalibJobSWIF:
         the_pass - text string describing which calibration pass this job is associated with
         command_to_run - the command that the job will execute
         """
+        # make directory for log
+        logdir = "%s/log/%06d"%(self.basedir,run)
+        if(not os.path.exists(logdir)):
+            os.system("mkdir -p %s"%logdir)
+
+        # prepare command
         cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,self.track)
         #cmd += " -name %s_%06d_%03d_centos65"%(self.workflow,run,filenum)
         #cmd += " -os centos65 "
@@ -117,8 +129,8 @@ class HDSubmitCalibJobSWIF:
         cmd += " -os centos7 "
         # stage file from tape
         #cmd += " -input data.evio mss:%s"%inputfile   
-        cmd += " -stdout file:%s/log/log_%s_%06d-%s"%(self.basedir,"merge",run,fileprefix)
-        cmd += " -stderr file:%s/log/err_%s_%06d-%s"%(self.basedir,"merge",run,fileprefix)
+        cmd += " -stdout file:%s/log/%06d/log_%s_%06d-%s"%(self.basedir,run,"merge",run,fileprefix)
+        cmd += " -stderr file:%s/log/%06d/err_%s_%06d-%s"%(self.basedir,run,"merge",run,fileprefix)
         cmd += " -cores %d"%int(self.nthreads)  
         cmd += " -tag run %d"%(run)
         if self.nthreads:

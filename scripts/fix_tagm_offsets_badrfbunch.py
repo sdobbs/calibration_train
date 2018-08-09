@@ -29,7 +29,8 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
 
     BEGINRUN = 30000
@@ -102,11 +103,12 @@ def main():
         # let's find the changes to make
         run_chan_errors = {}
 
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver19/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver27/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver34/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver05/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver13/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-        f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/hd_root.root")
+        #f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/hd_root.root")
+        #f = TFile("/group/halld/Users/sdobbs/hd_root.root")
         htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
 
         try:
@@ -149,8 +151,11 @@ def main():
 
             maximum = hy.GetBinCenter(hy.GetMaximumBin());
             fr = hy.Fit("gaus", "QSQ", "", maximum - 0.3, maximum + 0.3);
-            tdiff = fr.Parameter(1);
-            
+            try:
+                tdiff = fr.Parameter(1);
+            except:
+                continue
+
             #print i,tdiff
 
             # no data in these channels
@@ -168,7 +173,8 @@ def main():
 
 
             # only look for shifts > 1.ns in this
-            if math.fabs(tdiff) < 1.:
+            #if math.fabs(tdiff) < 1.:
+            if math.fabs(tdiff) < 2.:
                 continue
 
             run_chan_errors[i-1] = tdiff
@@ -180,7 +186,7 @@ def main():
         print "shifts = "
         pp.pprint(run_chan_errors)
         
-        #continue
+        continue
         
         # let's apply the offsets
         for chan,tdiff in run_chan_errors.iteritems():

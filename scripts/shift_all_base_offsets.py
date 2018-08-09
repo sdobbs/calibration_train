@@ -39,13 +39,13 @@ def main():
     
     (options, args) = parser.parse_args(sys.argv)
 
-    if(len(args) < 4):
+    if(len(args) < 3):
         parser.print_help()
         sys.exit(0)
 
-    SUBDETECTOR = args[1]
-    RUN = int(args[2])
-    shift_val = float(args[3])
+    #SUBDETECTOR = args[1]
+    RUN = int(args[1])
+    shift_val = float(args[2])
 
     if options.variation:
         VARIATION = options.variation
@@ -53,30 +53,32 @@ def main():
     # Load CCDB
     ccdb_conn = LoadCCDB()
 
-    print "===run %d, %s/base_time_offset==="%(RUN,SUBDETECTOR)
-    assignment = ccdb_conn.get_assignment("/%s/base_time_offset"%SUBDETECTOR, RUN, VARIATION)
-    offsets = assignment.constant_set.data_table
+    SUBDETECTORS = [ 'BCAL', 'CDC', 'FDC', 'FCAL', 'START_COUNTER', 'TOF', 'PHOTON_BEAM/hodoscope', 'PHOTON_BEAM/microscope', 'PHOTON_BEAM/pair_spectrometer' ]
 
-    if VERBOSE>0:
-        print "Before:"
-        pp.pprint(offsets)
+    for detector in SUBDETECTORS:
+        print "===run %d, %s/base_time_offset==="%(RUN,detector)
+        assignment = ccdb_conn.get_assignment("/%s/base_time_offset"%detector, RUN, VARIATION)
+        offsets = assignment.constant_set.data_table
 
-    for x in xrange(len(offsets[0])):
-        print x
-        offsets[0][x] = str(float(offsets[0][x]) - shift_val)
+        if VERBOSE>0:
+            print "Before:"
+            pp.pprint(offsets)
+
+        for x in xrange(len(offsets[0])):
+            offsets[0][x] = str(float(offsets[0][x]) - shift_val)
     
-    if VERBOSE>0:
-        print "After:"
-        pp.pprint(offsets)
+        if VERBOSE>0:
+            print "After:"
+            pp.pprint(offsets)
 
-    ccdb_conn.create_assignment(
-        data=offsets,
-        path="/%s/base_time_offset"%SUBDETECTOR,
-        variation_name=VARIATION,
-        min_run=RUN,
-        max_run=ccdb.INFINITE_RUN,
-        #max_run=RUN,
-        comment="shift by %6.3f"%shift_val)
+        ccdb_conn.create_assignment(
+            data=offsets,
+            path="/%s/base_time_offset"%detector,
+            variation_name=VARIATION,
+            min_run=RUN,
+            max_run=ccdb.INFINITE_RUN,
+            #max_run=RUN,
+            comment="shift by %6.3f"%shift_val)
 
 ## main function 
 if __name__ == "__main__":

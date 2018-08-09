@@ -11,7 +11,7 @@ import math
 import ccdb
 from ccdb import Directory, TypeTable, Assignment, ConstantSet
 
-from ROOT import TFile,TH1I,TH2I
+from ROOT import TFile,TH1I,TH2I,TCanvas,TF1
 
 
 def LoadCCDB():
@@ -25,17 +25,29 @@ def LoadCCDB():
     return provider
 
 
+def FindFDCPackageChamber(plane):
+    package = plane / 6 + 1
+    chamber = plane % 6
+    if(chamber == 0):
+        chamber = 6
+        package -= 1
+  
+    return (package, chamber)
+
+
 def main():
     pp = pprint.PrettyPrinter(indent=4)
+    c1 = TCanvas("c1", "", 800, 600)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"  
-    #RCDB_QUERY = "@is_production"
-    #RCDB_QUERY = "@is_2018production and status!=0"
+    RCDB_QUERY = ""
+    #RCDB_QUERY = "@is_2018production and status != 0"
+    #RCDB_QUERY = "@is_2018production"
+    #RCDB_QUERY = "@is_2018production and @status_approved"
     VARIATION = "default"
 
-    BEGINRUN = 40000
-    ENDRUN = 49999
+    BEGINRUN = 30000
+    ENDRUN = 39999
 
     # Define command line options
     parser = OptionParser(usage = "fix_sc_offsets.py ccdb_tablename")
@@ -90,70 +102,51 @@ def main():
     # Print to screen
     for run in runs:
         print "===%d==="%run
-        tdc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/hodoscope/fadc_time_offsets", run, VARIATION)
-        #pp.pprint(tdc_toff_assignment.constant_set.data_table)
-        tdc_offsets = tdc_toff_assignment.constant_set.data_table
 
-        # let's find the changes to make
-        run_chan_errors = {}
-
+        # find the offset relative to the base FDC time
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver06/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver12/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-        #f = TFile("/work/halld/home/sdobbs/calib/2018-01/hd_root.root")
-        htagm = f.Get("/HLDetectorTiming/TAGH/TAGHHit TDC_ADC Difference")
+        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver03/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
+        f = TFile("/group/halld/Users/sdobbs/hd_calib_pass1_Run041989.root")
 
+        # see if the files exists
         try:
-            n = htagm.GetNbinsX()
+            hfdctdc = f.Get("HLDetectorTiming/FDC/FDCHit Wire time vs. module")
+            maximum = hfdctdc.GetBinCenter(hfdctdc.GetMaximumBin());
         except:
-            print "file for run %d doesn't exit, skipping..."%run
+            print "fail 1"
             continue
 
-        #htagm.Print("base")
-        for i in xrange(1,htagm.GetNbinsX()+1):
-            hy = htagm.ProjectionY("_%d"%i,i,i)
-            #print i,hy.GetBinCenter(hy.GetMaximumBin())
-            #print i,hy.GetBinLowEdge(hy.GetMaximumBin()+1)
-            tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
-        
-            # no data in these channels
-            if tdiff < -38.:
-                continue
+        c1.Print("out.pdf[")
 
-            # this channel is fine!
-            if tdiff == 0.:
-                continue
+        fdcTimeHist = f.Get("/HLDetectorTiming/TRACKING/Earliest Flight-time Corrected FDC Time")
+        MPV = 0;
+        try:
+            maximum = fdcTimeHist.GetBinCenter(fdcTimeHist.GetMaximumBin());
+            fr = fdcTimeHist.Fit("landau", "S", "", maximum - 3.5, maximum + 6);
+            MPV = fr.Parameter(1);
 
-            # only look for shifts > 1.ns in this
-            #if math.fabs(tdiff) < 1.:
-            if math.fabs(tdiff) < 0.5:
-                continue
+            fdcTimeHist.Draw()
+            c1.Print("out.pdf")
+        except:
+            print "fail 2"
+            pass
 
-            run_chan_errors[i-1] = tdiff
+        #c1.Print("out.pdf[")
 
-        # don't need to do anything!
-        if len(run_chan_errors) == 0:
-            continue
+        for plane in xrange(1,hfdctdc.GetNbinsX()+1):
+            projY = hfdctdc.ProjectionY("temp_%d"%plane, plane, plane);
+            maximum = projY.GetBinCenter(projY.GetMaximumBin());
+            projY.Draw()
 
-        print "shifts = "
-        pp.pprint(run_chan_errors)
+            fn = TF1("f", "gaus")
+            fn.SetParameters(100, maximum, 20)
+            projY.Fit(fn, "S", "", maximum - 10, maximum + 10)
 
-        #continue
+            c1.Print("out.pdf")
 
-        # let's apply the offsets
-        for chan,tdiff in run_chan_errors.iteritems():
-            tdc_offsets[chan][1] = str(float(tdc_offsets[chan][1]) - tdiff)
-    
-        ccdb_conn.create_assignment(
-                data=tdc_offsets,
-                path="/PHOTON_BEAM/hodoscope/fadc_time_offsets",
-                variation_name=VARIATION,
-                min_run=run,
-                max_run=run,
-#                min_run=40785,
-#                max_run=ccdb.INFINITE_RUN,
-                comment="Fixed calibrations due to bad ADC/TDC shifts")
-
+        c1.Print("out.pdf]")
 
 ## main function 
 if __name__ == "__main__":

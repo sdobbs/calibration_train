@@ -85,14 +85,16 @@ def main():
             e = sys.exc_info()[0]
             print "Could not connect to RCDB: " + str(e)
 
+    badf = open("badruns.txt","w")
+
     # Print to screen
     #for fname in glob.glob("/cache/halld/RunPeriod-2017-01/calib/ver02/hists/Run%06d/hd_calib_final_Run%06d_001.root"%(run,run))
     #for fname in glob.glob("/cache/halld/RunPeriod-2017-01/calib/ver02/hists/Run*/hd_calib_final_Run*_001.root"):
     for run in runs:
         print "===%d==="%run
 
-        if run == 30383:
-            continue
+        #if run == 30383:
+        #    continue
 
         # cat cdc_new_ascale.txt 
         # ver01: 30000 - 30621
@@ -113,7 +115,7 @@ def main():
         #f = TFile(fname)
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver12/rootfiles/hd_root_%06d.root"%run)
         #fname = "/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver13/rootfiles/hd_root_%06d.root"%run
-        fname = "/cache/halld/RunPeriod-2017-01/calib/ver13/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run)
+        fname = "/cache/halld/RunPeriod-2017-01/calib/ver23/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run)
         #fname = "/home/gxproj3/volatile/2017-01/ver12/hd_root_%06d.root"%run
 
         #os.system("python timing.py -b %s %d rf default"%(fname,run))
@@ -123,12 +125,13 @@ def main():
 
         try:
             print fname
-            #os.system("python timing.py -b %s %d rf default"%(fname,run))
-            #os.system("ccdb add PHOTON_BEAM/microscope/fadc_time_offsets -v %s -r %d-%d adc_offsets-%d.txt"%("default",run,run,run))
+            os.system("python timing.py -b %s %d rf default"%(fname,run))
+            os.system("ccdb add PHOTON_BEAM/microscope/fadc_time_offsets -v %s -r %d-%d adc_offsets-%d.txt"%("default",run,run,run))
             os.system("ccdb add PHOTON_BEAM/microscope/tdc_time_offsets -v %s -r %d-%d tdc_offsets-%d.txt"%("default",run,run,run))
 
         except:
             print "problem with run %d, skipping..."%run
+            print>>badf, "%d"%run
             continue
 
         #ccdb_conn.create_assignment(
@@ -147,6 +150,7 @@ def main():
     #gr.Write()
     #fout.Close()
 
+    badf.close()
     #outscale_file.close()
 
 ## main function 
