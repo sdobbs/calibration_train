@@ -55,6 +55,7 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlign
 
 # update CCDB
 echo ==update CCDB==
+ccdb add /CDC/digi_scales -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_new_ascale.txt
 #./add_consts-adjust.sh ${RUNNUM} 
 ./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
 retval=$?
@@ -80,7 +81,6 @@ retval=$?
     #ccdb add /TOF/adc_timing_offsets -v $VARIATION -r ${RUNNUM}-${RUNNUM} tof_adc_timing_offsets.txt
     #ccdb add /BCAL/timewalk_tdc -v $VARIATION -r ${RUNNUM}-${RUNNUM} TimewalkBCAL.txt
     #ccdb add /PHOTON_BEAM/pair_spectrometer/fine/energy_corrections -v $VARIATION -r ${RUNNUM}-${RUNNUM} Eparms-TAGM.out
-#    ccdb add /CDC/digi_scales -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_new_ascale.txt
 
 
 echo ==DEBUG==
