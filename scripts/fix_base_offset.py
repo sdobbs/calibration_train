@@ -28,7 +28,8 @@ def LoadCCDB():
 def CalcFDCShifts(f):
     this1DHist = f.Get("/HLDetectorTiming/FDC/FDCHit Cathode time")
     firstBin = this1DHist.FindFirstBinAbove(1, 1)
-    for i in xrange(16):
+    #for i in xrange(16):
+    for i in xrange(60):
         if (firstBin + i) > 0:
             this1DHist.SetBinContent((firstBin + i), 0)
     maximum = this1DHist.GetBinCenter(this1DHist.GetMaximumBin())
@@ -55,20 +56,22 @@ def CalcFDCShifts(f):
     this1DHist = f.Get("/HLDetectorTiming/TRACKING/Earliest Flight-time Corrected FDC Time")
     maximum = this1DHist.GetBinCenter(this1DHist.GetMaximumBin())
     fr = this1DHist.Fit("landau", "SQ", "", maximum - 2.5, maximum + 4.)
-    #MPV = fr.Parameter(1)
-    MPV = 0
-    #return ( MPV + FDC_ADC_TDC_Offset, MPV)
-    return (MPV + FDC_ADC_Offset, MPV + FDC_TDC_Offset)
+    MPV = fr.Parameter(1)
+    #MPV = 0
+    return ( MPV + FDC_ADC_TDC_Offset, MPV)
+    #return (MPV + FDC_ADC_Offset, MPV + FDC_TDC_Offset)
+    #return (FDC_ADC_Offset - MPV, FDC_TDC_Offset - MPV)
 
 def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    DETECTOR_SYSTEMS = [ "SC", "TOF", "FCAL", "BCAL", "FDC", "CDC", "TAGH", "TAGM", "PS" ]
+    DETECTOR_SYSTEMS = [ "SC", "TOF", "FCAL", "BCAL", "CCAL", "FDC", "CDC", "TAGH", "TAGM", "PS" ]
     CCDB_TABLE_NAME = { "SC":   "/START_COUNTER/base_time_offset",
                         "TOF":  "/TOF/base_time_offset",
                         "FCAL": "/FCAL/base_time_offset",
                         "BCAL": "/BCAL/base_time_offset",
+                        "CCAL": "/CCAL/base_time_offset",
                         "FDC":  "/FDC/base_time_offset",
                         "CDC":  "/CDC/base_time_offset",
                         "PS": "/PHOTON_BEAM/pair_spectrometer/base_time_offset",
@@ -78,6 +81,7 @@ def main():
                   "TOF":  (0.15,0.15),
                   #"FCAL": (0.8,0.8),
                   "FCAL": (0.5,0.5),
+                  "CCAL": (0.5,0.5),
                   "BCAL": (0.3,0.4),
                   "FDC":  (15.,10.),
                   "CDC":  (15.,10.),
@@ -89,21 +93,26 @@ def main():
     TOLERANCE = { "SC":   0.040,
                   "TOF":  0.010,
                   "FCAL": 0.050,
+                  "CCAL": 0.050,
                   #"BCAL": 0.020,
                   "BCAL": 0.010,
                   "FDC":  1.,
                   "CDC":  1.,
                   #"PS":  1.,
                   "PS":  0.30,
-                  "TAGH": 0.50,
-#                  "TAGH": 0.030,
+#                  "TAGH": 0.50,
+                  "TAGH": 0.030,
                   "TAGM": 0.030  }
 #                  "TAGH": 0.050,
 #                  "TAGM": 0.050  }
     
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_2018production and @status_approved"
     #RCDB_QUERY = "@is_production"
+    #RCDB_QUERY = ""
+    RCDB_QUERY = "@is_dirc_production"
     #RCDB_QUERY = "@is_2018production and status!=0"
+    #RCDB_QUERY = "daq_run == 'PHYSICS_DIRC' and beam_current > 2 and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
     VARIATION = "default"
     DRY_RUN = False
 
@@ -183,14 +192,19 @@ def main():
         run_chan_errors = {}
 
         try:
-            f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver16/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-            #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver09/hists/Run%06d/hd_calib_pass2_Run%06d_001.root"%(run,run))
+            #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver28/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+            #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver26/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+            #f = TFile("/cache/halld/RunPeriod-2019-01/calib/ver13/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2016-02/mon_ver17/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver34/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
-            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver21/rootfiles/hd_root_%06d.root"%run)
+            f = TFile("/work/halld/data_monitoring/RunPeriod-2019-01/mon_ver07/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-08/mon_ver12/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
+            #f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/2018-01/hd_root.root")
             #f = TFile("/group/halld/Users/sdobbs/hd_root.root")
             
             if detector == "SC":
@@ -204,10 +218,11 @@ def main():
             elif detector == "BCAL":
                 #locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsP_Pi-")
                 #locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
-                locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsShowerE_Photon")
+                locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsShowerE_Photon")
                 locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D", 20,250)
             elif detector == "FCAL":
                 #locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
+                #locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
                 locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsShowerE_Photon")
                 locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D")
             elif detector == "TAGH":
@@ -232,7 +247,7 @@ def main():
         if detector == "FDC":
             (adc_shift, tdc_shift) = CalcFDCShifts(f)
             print "shift = %6.3f, %6.3f"%(adc_shift,tdc_shift)
-
+ 
             if DRY_RUN:
                 continue
 
@@ -281,6 +296,8 @@ def main():
                 variation_name=VARIATION,
                 min_run=run,
                 max_run=run,
+#                min_run=60879,
+#                max_run=60883,
 #                min_run=40785,
 #                max_run=ccdb.INFINITE_RUN,
                 comment="Fixed calibrations due to bad alignment with RF")

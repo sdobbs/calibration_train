@@ -100,7 +100,7 @@ class HDSubmitCalibJobSWIF:
         if self.time_limit:
             cmd += " -time %dhours"%int(self.time_limit)
 
-        if the_pass == "fix":
+        if the_pass == "fix" or the_pass == "fix-primex" :
             wrapper_cmd = "job_wrapper-fix.sh"
         else:
             wrapper_cmd = "job_wrapper.sh"
@@ -137,8 +137,8 @@ class HDSubmitCalibJobSWIF:
             os.system("mkdir -p %s"%logdir)
 
         # prepare command
-        #cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,self.track)
-        cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,"debug")
+        cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,self.track)
+        #cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,"debug")
         cmd += " -os centos7 "
         cmd += " -stdout file:%s/log/%06d/log_%s_%06d_%03d"%(self.basedir,run,the_pass,run,filenum)
         cmd += " -stderr file:%s/log/%06d/err_%s_%06d_%03d"%(self.basedir,run,the_pass,run,filenum)
@@ -179,8 +179,14 @@ class HDSubmitCalibJobSWIF:
             self.AddEVIOJobToSWIF(run,filenum,the_pass,"calib_job1.sh")
         elif the_pass == "fix":
             self.AddEVIOJobToSWIF(run,filenum,the_pass,"calib_job_fix.sh")
+        elif the_pass == "fix-primex":
+            self.AddEVIOJobToSWIF(run,filenum,the_pass,"calib_job_fix.sh")
         elif the_pass == "pass2":
             self.AddEVIOJobToSWIF(run,filenum,the_pass,"file_calib_pass_final.sh")
+        elif the_pass == "pass2-primex":
+            self.AddEVIOJobToSWIF(run,filenum,the_pass,"file_calib_pass_final-primex.sh")
+        elif the_pass == "fix-skim":
+            self.AddEVIOJobToSWIF(run,filenum,the_pass,"file_calib_fix-skim.sh")
         elif the_pass == "skim":
             self.AddEVIOJobToSWIF(run,filenum,the_pass,"file_calib_skim.sh")
         elif the_pass == "random":

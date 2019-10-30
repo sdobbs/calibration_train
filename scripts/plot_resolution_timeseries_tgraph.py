@@ -24,7 +24,8 @@ def LoadCCDB():
 def main():
     # Defaults
     OUTPUT_FILENAME = "out.root"
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = "@is_2018production and @status_approved"
     VARIATION = "default"
     BEGINRUN = 1
     ENDRUN = 100000000
@@ -75,11 +76,19 @@ def main():
     #sc_res = []
     #tof_res = []
     bcal_res = array('f') 
+    bcal_pip_res = array('f') 
+    bcal_p_res = array('f') 
+    bcal_gam_res = array('f') 
+    bcal_gamall_res = array('f') 
     fcal_res = array('f') 
     sc_res = array('f') 
     tof_res = array('f') 
 
     bcal_mean = array('f') 
+    bcal_pip_mean = array('f') 
+    bcal_p_mean = array('f') 
+    bcal_gam_mean = array('f') 
+    bcal_gamall_mean = array('f') 
     fcal_mean = array('f') 
     sc_mean = array('f') 
     tof_mean = array('f') 
@@ -91,7 +100,8 @@ def main():
     for run in runs:
         print "==%d=="%run
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver25/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver25/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver21/rootfiles/hd_root_%06d.root"%run)
 
         #print "== /cache/halld/RunPeriod-2017-01/calib/ver14/hists/Run%06d/hd_calib_verify_Run%06d_001.root =="%(run,run)
 
@@ -102,6 +112,14 @@ def main():
         except:
             bcal_mean.append(0)
             bcal_res.append(0)
+            bcal_p_mean.append(0)
+            bcal_p_res.append(0)
+            bcal_pip_mean.append(0)
+            bcal_pip_res.append(0)
+            bcal_gam_mean.append(0)
+            bcal_gam_res.append(0)
+            bcal_gamall_mean.append(0)
+            bcal_gamall_res.append(0)
             fcal_mean.append(0)
             fcal_res.append(0)
             sc_mean.append(0)
@@ -120,6 +138,53 @@ def main():
         
         bcal_mean.append(mean)
         bcal_res.append(sigma)
+
+
+        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsP_Pi+")
+        locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiPlus_1D")
+
+        maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
+        fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.4)
+        mean = fr.Parameter(1)
+        sigma = fr.Parameter(2)
+        
+        bcal_pip_mean.append(mean)
+        bcal_pip_res.append(sigma)
+
+        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsP_Proton")
+        locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Proton_1D")
+
+        maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
+        fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.4)
+        mean = fr.Parameter(1)
+        sigma = fr.Parameter(2)
+        
+        bcal_p_mean.append(mean)
+        bcal_p_res.append(sigma)
+
+
+        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsShowerE_Photon")
+        locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D")
+        maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
+        fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.4)
+        mean = fr.Parameter(1)
+        sigma = fr.Parameter(2)
+
+        bcal_gam_mean.append(mean)
+        bcal_gam_res.append(sigma)
+
+
+        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsShowerE_Photon")
+        #locHist_DeltaTVsP_PiPlus.Print("base")
+        #exit(0)
+        locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D", 20,250)
+        maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
+        fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.4)
+        mean = fr.Parameter(1)
+        sigma = fr.Parameter(2)
+
+        bcal_gamall_mean.append(mean)
+        bcal_gamall_res.append(sigma)
 
         # FCAL
         locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
@@ -198,8 +263,28 @@ def main():
     # write out graphs
     bcal_gr = TGraph(len(runs_arr), runs_arr, bcal_res)
     bcal_gr.SetName("bcal_res")
-    bcal_gr.SetTitle("BCAL time resolution vs. run number")
+    bcal_gr.SetTitle("BCAL #pi^{-} time resolution vs. run number")
     bcal_gr.Write()
+
+    bcal_p_gr = TGraph(len(runs_arr), runs_arr, bcal_p_res)
+    bcal_p_gr.SetName("bcal_p_res")
+    bcal_p_gr.SetTitle("BCAL p time resolution vs. run number")
+    bcal_p_gr.Write()
+
+    bcal_pip_gr = TGraph(len(runs_arr), runs_arr, bcal_pip_res)
+    bcal_pip_gr.SetName("bcal_pip_res")
+    bcal_pip_gr.SetTitle("BCAL #pi^{+} time resolution vs. run number")
+    bcal_pip_gr.Write()
+
+    bcal_gam_gr = TGraph(len(runs_arr), runs_arr, bcal_gam_res)
+    bcal_gam_gr.SetName("bcal_gam_res")
+    bcal_gam_gr.SetTitle("BCAL #gamma time resolution vs. run number")
+    bcal_gam_gr.Write()
+
+    bcal_gamall_gr = TGraph(len(runs_arr), runs_arr, bcal_gamall_res)
+    bcal_gamall_gr.SetName("bcal_gamall_res")
+    bcal_gamall_gr.SetTitle("BCAL #gamma(all) time resolution vs. run number")
+    bcal_gamall_gr.Write()
 
     fcal_gr = TGraph(len(runs_arr), runs_arr, fcal_res)
     fcal_gr.SetName("fcal_res")
@@ -218,8 +303,28 @@ def main():
 
     bcal_mean_gr = TGraph(len(runs_arr), runs_arr, bcal_mean)
     bcal_mean_gr.SetName("bcal_mean")
-    bcal_mean_gr.SetTitle("BCAL time mean vs. run number")
+    bcal_mean_gr.SetTitle("BCAL #pi^{-} time mean vs. run number")
     bcal_mean_gr.Write()
+
+    bcal_mean_p_gr = TGraph(len(runs_arr), runs_arr, bcal_p_mean)
+    bcal_mean_p_gr.SetName("bcal_p_mean")
+    bcal_mean_p_gr.SetTitle("BCAL p time mean vs. run number")
+    bcal_mean_p_gr.Write()
+
+    bcal_mean_pip_gr = TGraph(len(runs_arr), runs_arr, bcal_pip_mean)
+    bcal_mean_pip_gr.SetName("bcal_pip_mean")
+    bcal_mean_pip_gr.SetTitle("BCAL #pi^{+} time mean vs. run number")
+    bcal_mean_pip_gr.Write()
+
+    bcal_mean_gam_gr = TGraph(len(runs_arr), runs_arr, bcal_gam_mean)
+    bcal_mean_gam_gr.SetName("bcal_gam_mean")
+    bcal_mean_gam_gr.SetTitle("BCAL #gamma time mean vs. run number")
+    bcal_mean_gam_gr.Write()
+
+    bcal_mean_gamall_gr = TGraph(len(runs_arr), runs_arr, bcal_gamall_mean)
+    bcal_mean_gamall_gr.SetName("bcal_gamall_mean")
+    bcal_mean_gamall_gr.SetTitle("BCAL #gamma(all) time mean vs. run number")
+    bcal_mean_gamall_gr.Write()
 
     fcal_mean_gr = TGraph(len(runs_arr), runs_arr, fcal_mean)
     fcal_mean_gr.SetName("fcal_mean")

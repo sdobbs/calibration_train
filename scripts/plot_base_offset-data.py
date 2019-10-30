@@ -168,6 +168,7 @@ def main():
     tof_runs = array('f')
     fcal_runs = array('f')
     bcal_runs = array('f')
+    bcal_gam_runs = array('f')
     tagh_runs = array('f')
     tagm_runs = array('f')
     cdc_runs = array('f')
@@ -178,6 +179,7 @@ def main():
     tof_run_offsets = array('f')
     fcal_run_offsets = array('f')
     bcal_run_offsets = array('f')
+    bcal_gam_run_offsets = array('f')
     tagh_run_offsets = array('f')
     tagm_run_offsets = array('f')
     cdc_run_offsets = array('f')
@@ -195,7 +197,7 @@ def main():
         run_chan_errors = {}
 
         try:
-            f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver06/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+            f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver30/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2016-02/mon_ver16/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver29/rootfiles/hd_root_%06d.root"%run)
@@ -242,6 +244,20 @@ def main():
                 #print "shift = %6.3f"%mean
                 bcal_runs.append(run)
                 bcal_run_offsets.append(mean)
+            except:
+                print "bad BCAL fit, skipping..."
+
+            # neutral showers
+            locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsShowerE_Photon")
+            locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D", 20,250)
+            (low_limit, high_limit) = FIT_RANGE["BCAL"]
+            maximum = locHist.GetBinCenter(locHist.GetMaximumBin())
+            try:
+                fr = locHist.Fit("gaus", "SQ", "", maximum - low_limit, maximum + high_limit)
+                mean = fr.Parameter(1)
+                #print "shift = %6.3f"%mean
+                bcal_gam_runs.append(run)
+                bcal_gam_run_offsets.append(mean)
             except:
                 print "bad BCAL fit, skipping..."
 
@@ -333,6 +349,13 @@ def main():
     gr2.SetMarkerColor(3)
     gr2.SetMarkerStyle(20)
     gr2.SetName("bcal_run_offsetss")
+    gr2.Write()
+    
+    gr2 = TGraph(len(bcal_gam_runs), bcal_gam_runs, bcal_gam_run_offsets)
+    gr2.SetLineColor(4)
+    gr2.SetMarkerColor(4)
+    gr2.SetMarkerStyle(20)
+    gr2.SetName("bcal_gam)run_offsetss")
     gr2.Write()
     
     gr2 = TGraph(len(fcal_runs), fcal_runs, fcal_run_offsets)

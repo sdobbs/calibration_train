@@ -29,8 +29,9 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"  
+    #RCDB_QUERY = "@is_2018production and @status_approved"  
     #RCDB_QUERY = "@is_production"
+    RCDB_QUERY = ""
     #RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
 
@@ -98,9 +99,11 @@ def main():
         run_chan_errors = {}
 
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver06/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver12/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-08/mon_ver08/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/cache/halld/RunPeriod-2018-08/calib/ver02/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/work/halld/home/sdobbs/calib/2018-01/hd_root.root")
+        f = TFile("/group/halld/Users/sdobbs/hd_root.root")
         htagm = f.Get("/HLDetectorTiming/TAGH/TAGHHit TDC_ADC Difference")
 
         try:
@@ -125,8 +128,8 @@ def main():
                 continue
 
             # only look for shifts > 1.ns in this
-            #if math.fabs(tdiff) < 1.:
-            if math.fabs(tdiff) < 0.5:
+            if math.fabs(tdiff) < 1.:
+            #if math.fabs(tdiff) < 0.5:
                 continue
 
             run_chan_errors[i-1] = tdiff

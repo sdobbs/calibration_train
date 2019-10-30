@@ -3,9 +3,12 @@
 /BCAL/timewalk_tdc
 /BCAL/channel_global_offset
 /BCAL/tdiff_u_d
+/BCAL/ADC_timing_offsets
 /CDC/base_time_offset
 /CDC/digi_scales
 /FCAL/base_time_offset
+/FCAL/ADC_Offsets
+/FCAL/timing_offsets
 /FDC/base_time_offset
 /FDC/package1/wire_timing_offsets
 /FDC/package2/wire_timing_offsets
@@ -17,8 +20,13 @@
 /PHOTON_BEAM/microscope/base_time_offset
 /PHOTON_BEAM/microscope/fadc_time_offsets
 /PHOTON_BEAM/microscope/tdc_time_offsets
+/PHOTON_BEAM/microscope/tdc_timewalk_corrections
 /START_COUNTER/base_time_offset
 /START_COUNTER/adc_timing_offsets
 /START_COUNTER/tdc_timing_offsets
 /TOF/base_time_offset
 /TOF/adc_timing_offsets
+/PHOTON_BEAM/pair_spectrometer/base_time_offset
+/PHOTON_BEAM/pair_spectrometer/coarse/tdc_timing_offsets
+/PHOTON_BEAM/pair_spectrometer/coarse/adc_timing_offsets
+/PHOTON_BEAM/pair_spectrometer/fine/adc_timing_offsets

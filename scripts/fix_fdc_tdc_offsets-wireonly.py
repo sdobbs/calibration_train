@@ -111,9 +111,10 @@ def main():
         # find the offset relative to the base FDC time
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver13/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver06/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver16/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver17/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-        f = TFile("/group/halld/Users/sdobbs/hd_root.root")
+        f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/hd_root.root")
+        #f = TFile("/group/halld/Users/sdobbs/hd_root.root")
 
         # see if the files exists
         try:
@@ -198,7 +199,7 @@ def main():
 
 
         #break
-        #continue
+        continue
 
         # save results
         if( (package_times_shifted[0]==False) and (package_times_shifted[1]==False) and (package_times_shifted[2]==False) and (package_times_shifted[3]==False) ):

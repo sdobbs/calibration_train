@@ -28,7 +28,9 @@ def main():
 
     # Defaults
     OUTPUT_FILENAME = "out.root"
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_2018production"
+    RCDB_QUERY = "@is_2018production and @status_approved"
     SRC_VARIATION = "calib"
     DEST_VARIATION = "default"
     VERBOSE = 1
@@ -119,7 +121,8 @@ def main():
                 data=assignment.constant_set.data_table,
                 path=ccdb_table,
                 variation_name=DEST_VARIATION,
-                min_run=run,
+                #min_run=run,
+                min_run=60556,
                 #max_run=run,
                 max_run=ccdb.INFINITE_RUN,
                 comment="Copied from variation \'%s\'"%ccdb_table)

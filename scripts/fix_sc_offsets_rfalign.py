@@ -30,8 +30,10 @@ def main():
 
     # Defaults
     #RCDB_QUERY = "@is_production and @status_approved"
-    RCDB_QUERY = "@is_2018production and status!=0"
+    #RCDB_QUERY = "@is_2018production and status!=0"
+    RCDB_QUERY = ""
     VARIATION = "default"
+    #VARIATION = "calib"
 
     BEGINRUN = 30000
     ENDRUN = 39999
@@ -104,12 +106,12 @@ def main():
         run_chan_errors = {}
 
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver05/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver10/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         #f = TFile("/lustre/expphy/volatile/halld/home/gxproj3/hd_root_041482.root")
         #f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/hd_root.root")
-        #f = TFile("/group/halld/Users/sdobbs/hd_root.root")
+        f = TFile("/group/halld/Users/sdobbs/hd_root.root")
         #htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
         h = f.Get("/HLDetectorTiming/SC_Target_RF_Compare/Sector 01")
 
@@ -130,8 +132,8 @@ def main():
             maximum = h.GetBinCenter(h.GetMaximumBin());
             #fr = h.Fit("gaus++pol0", "QSQ", "", -2, 2);
             fn.SetParameter(0, 100);
-            fn.SetParameter(1, 0);
-            fn.SetParameter(2, 0.2);
+            fn.SetParameter(1, maximum);
+            fn.SetParameter(2, 0.3);
             fr = h.Fit(fn, "SQ", "", -2, 2);
             try:
                 tdiff = fr.Parameter(1);
@@ -175,14 +177,16 @@ def main():
                 path="/START_COUNTER/adc_timing_offsets",
                 variation_name=VARIATION,
                 min_run=run,
-                max_run=run,
+                #max_run=run,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Fixed calibrations due to bad RF shifts")
         ccdb_conn.create_assignment(
                 data=tdc_offsets,
                 path="/START_COUNTER/tdc_timing_offsets",
                 variation_name=VARIATION,
                 min_run=run,
-                max_run=run,
+                #max_run=run,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Fixed calibrations due to bad RF shifts")
 
 
