@@ -42,7 +42,7 @@ def ProcessFilePass1(args):
     cwd = args[2]
 
     print "sshing to %s"%host_mapping[fnum]
-    cmd = "ssh %s 'cd %s; ./file_calib_pass1.sh %06d %03d'"%(host_mapping[fnum],cwd,run,fnum)
+    cmd = "ssh %s 'cd %s; ./file_calib_pass1-primex.sh %06d %03d'"%(host_mapping[fnum],cwd,run,fnum)
     if DRY_RUN:
         print cmd
     else:
@@ -121,7 +121,8 @@ if __name__ == "__main__":
     RUNS             = ''
     RUN_PERIOD       = 'RunPeriod-2019-01'
     #RCDB_PRODUCTION_SEARCH = "@is_2018production"
-    RCDB_PRODUCTION_SEARCH = "daq_config in ['FCAL_BCAL_PS_DIRC_m9.conf', 'FCAL_BCAL_PS_DIRC_m10.conf']  and event_count > 10000000"
+    RCDB_PRODUCTION_SEARCH = "daq_run == 'PHYSICS_PRIMEX' and event_count > 1000000 and collimator_diameter != 'Blocking'"
+    #RCDB_PRODUCTION_SEARCH = "daq_config in ['FCAL_BCAL_PS_DIRC_m9.conf', 'FCAL_BCAL_PS_DIRC_m10.conf']  and event_count > 10000000"
     #RCDB_SEARCH_MIN  = 40000
     #RCDB_SEARCH_MIN  = 41857
     RCDB_SEARCH_MIN  = 60550
@@ -337,7 +338,7 @@ if __name__ == "__main__":
 
         # merge and run over the results
         # write log file!
-        cmd = "./run_calib_pass1.sh %06d %s"%(run,os.getcwd())
+        cmd = "./run_calib_pass1-primex.sh %06d %s"%(run,os.getcwd())
         if DRY_RUN:
             print cmd
         else:

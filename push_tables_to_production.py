@@ -8,7 +8,6 @@ from optparse import OptionParser
 from array import array
 import pprint
 import datetime
-import ConfigParser
 
 import ccdb
 from ccdb import Directory, TypeTable, Assignment, ConstantSet
@@ -26,21 +25,13 @@ def LoadCCDB():
 
 
 # assumes both are same table format
-def check_out_of_tolerance(table1,table2,tolerance,verbose=0,masks=None):
-    #pp = pprint.PrettyPrinter(indent=4)
+def check_out_of_tolerance(table1,table2,tolerance,verbose=0):
     result = False
     modified_channels = []
     max_diff = 0
     # I hope these are all non-strings...
     for row in xrange(len(table1)):
         for col in xrange(len(table1[row])):
-            #pp.pprint("check")
-            #pp.pprint( (row,col) )
-            #pp.pprint( masks )
-            if masks is not None and (row,col) in masks:
-                #print "skipping entry:  (%d,%d)"%(row,col)
-                continue
-
             #print float(table1[row][col]),float(table2[row][col])
             diff = abs(float(table1[row][col])-float(table2[row][col]))
             if diff > tolerance:
@@ -89,7 +80,7 @@ def MakeTOLERANCES_HTML(tolerance_table, color='black'):
     html += '<table border="0" bgcolor="#DDD" cellpadding="5" cellspacing="2">\n' # Actual table
 
     # Add a header
-    html += '<TR> <TH>Table</TH><TH>Value (ns)</TH> </TR>'
+    html += '<TR> <TH>Table</TH><TH>Value</TH> </TR>'
 
     for table_name in sorted(tolerance_table.keys()):
         html += '  <TR>\n'
@@ -109,9 +100,7 @@ def MakeTOLERANCES_HTML(tolerance_table, color='black'):
 #--------------------------------------------------------
 # MakeCCDBTABLE_HTML
 #--------------------------------------------------------
-def MakeCCDBTABLE_HTML(ccdb_table, modified_channels, color='black', ccdb=None):
-    if ccdb is not None:
-        table_info = ccdb.get_type_table(ccdb_table)
+def MakeCCDBTABLE_HTML(ccdb_table, modified_channels, color='black'):
 
     # Open HTML table
     html  = '<p>\n'
@@ -124,10 +113,7 @@ def MakeCCDBTABLE_HTML(ccdb_table, modified_channels, color='black', ccdb=None):
 
     for ( (row,col),old_val,new_val ) in modified_channels:
         html += '  <TR>\n'
-        if ccdb is None:
-            html += '    <TD align="center><font color="black">' + str(row) + ', ' + str(col)  + '</font></TD>\n'
-        else:
-            html += "    <TD align=\"center\"><font color=\"black\">[%d] %s</font></TD>\n"%(row,table_info.columns[col].name)
+        html += '    <TD align="center><font color="black">' + str(row) + ', ' + str(col)  + '</font></TD>\n'
         html += '    <TD align="center"><font color="black">' + str(old_val) + '</font></TD>\n'
         html += '    <TD align="center"><font color="black">' + str(new_val) + '</font></TD>\n'
         html += '  </TR>\n'
@@ -179,8 +165,6 @@ def main():
     END_RUN = 10000000
     VERBOSE = 2
     DUMMY_RUN = False
-    FORCE_COMMIT = False
-    MAX_RUN = ccdb.INFINITE_RUN
 
     # Define command line options
     parser = OptionParser(usage = "dump_timeseries.py ccdb_tablename")
@@ -194,8 +178,6 @@ def main():
                      help="Starting run for output")
     parser.add_option("-e","--end-run", dest="end_run",
                      help="Ending run for output")
-    parser.add_option("-m","--max-run", dest="max_run",
-                     help="Max run to apply constants for")
     parser.add_option("-D","--dest_variation", dest="dest_variation", 
                       help="Desitination CCDB variation to use")
     parser.add_option("-S","--src_variation", dest="src_variation", 
@@ -204,10 +186,6 @@ def main():
                       help="Do everything but actually committing changes to the CCDB")
     parser.add_option("-L","--logentry", dest="logentry", 
                       help="File to write elogbook entry.")
-    parser.add_option("-M","--mask_file", dest="mask_file", 
-                      help="File containing channels to mask.")
-    parser.add_option("-f","--force", dest="force_commit", action="store_true", 
-                      help="Copy all specified tables.")
 
     (options, args) = parser.parse_args(sys.argv)
 
@@ -238,28 +216,11 @@ def main():
         BEGIN_RUN = options.begin_run
     if options.end_run:
         END_RUN = options.end_run
-    if options.max_run:
-        MAX_RUN = options.max_run
     if options.dummy_run:
         DUMMY_RUN = True
     LOGENTRY = None
     if options.logentry:
         LOGENTRY = options.logentry
-    if options.force_commit:
-        FORCE_COMMIT = options.force_commit
-    CHANNEL_MASKS = None
-    if options.mask_file:
-        CHANNEL_MASKS = {}
-        config =  ConfigParser.ConfigParser()
-        config.read(options.mask_file)
-        #pp.pprint(config.sections())
-        #pp.pprint(config.get(config.sections()[0], "mask"))
-        for section in config.sections():
-            CHANNEL_MASKS[section] = []
-            for pair in config.get(config.sections()[0], "mask").split(' '):
-                (row,col) = pair.split(',')
-                CHANNEL_MASKS[section].append( (int(row),int(col)) )
-        #pp.pprint(CHANNEL_MASKS)
 
     if VERBOSE>0:
         print "CCDB_TABLES:"
@@ -315,23 +276,15 @@ def main():
             # get source data
             assignment = ccdb_conn.get_assignment(ccdb_table, run, SRC_VARIATION)
             reference_assignment = ccdb_conn.get_assignment(ccdb_table, run, DEST_VARIATION)
-            #reference_assignment = ccdb_conn.get_assignment(ccdb_table, 31000, DEST_VARIATION)
             #pp.pprint(assignment.constant_set.data_table)
 
-
-            channel_mask=None
-            if CHANNEL_MASKS is not None and ccdb_table in CHANNEL_MASKS:
-                channel_mask = CHANNEL_MASKS[ccdb_table]
-                #print "set mask for " + ccdb_table
-                #pp.pprint(channel_mask)
-
-            (success, modified_channels) = check_out_of_tolerance(assignment.constant_set.data_table, reference_assignment.constant_set.data_table, CCDB_TOLERANCES[ccdb_table], verbose=VERBOSE, masks=channel_mask)
-            if not success and not FORCE_COMMIT:
+            (success, modified_channels) = check_out_of_tolerance(assignment.constant_set.data_table, reference_assignment.constant_set.data_table, CCDB_TOLERANCES[ccdb_table], verbose=VERBOSE)
+            if not success:
                 continue
                                       
             print "COPYING ",ccdb_table," ..."
             if LOGENTRY:
-                print>>elogentry, MakeCCDBTABLE_HTML(ccdb_table, modified_channels, ccdb=ccdb_conn)
+                print>>elogentry, MakeCCDBTABLE_HTML(ccdb_table, modified_channels)
             if VERBOSE>1:
                 print "NEW"
                 pp.pprint(assignment.constant_set.data_table)
@@ -346,8 +299,7 @@ def main():
                 path=ccdb_table,
                 variation_name=DEST_VARIATION,
                 min_run=run,
-                max_run=MAX_RUN,
-                #max_run=ccdb.INFINITE_RUN,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Copied from variation \'%s\'"%ccdb_table)
 
 
@@ -360,8 +312,7 @@ def main():
                     path=ccdb_table,
                     variation_name=DEST_VARIATION,
                     min_run=run,
-                    max_run=run,
-                    #max_run=ccdb.INFINITE_RUN,
+                    max_run=ccdb.INFINITE_RUN,
                     comment="Copied from variation \'%s\'"%ccdb_table)
 
         #print "===%d==="%run

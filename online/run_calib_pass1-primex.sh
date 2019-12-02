@@ -35,8 +35,8 @@ RUN_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}.root
 echo ==second pass calibrations==
 echo Running: HLDetectorTiming, AdjustTiming.C
 python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/AdjustTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
-echo Running: CDC_amp, CDC_gains.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME $HALLD_HOME/src/plugins/Calibration/CDC_amp/CDC_gains.C\(1\)
+#echo Running: CDC_amp, CDC_gains.C
+#python run_single_root_command.py -F $RUN_OUTPUT_FILENAME $HALLD_HOME/src/plugins/Calibration/CDC_amp/CDC_gains.C\(1\)
 #echo Running: BCAL_TDC_Timing, ExtractTimeWalk.C
 #python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 #echo Running: PS_E_calib, PSEcorr.C
@@ -46,18 +46,18 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME $HALLD_HOME/src/plugin
 echo ==make monitoring output==
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_CalorimeterTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_CalorimeterTiming.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_PIDSystemTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_PIDSystemTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackMatchedTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackMatchedTiming.C
+#python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackMatchedTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackMatchedTiming.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackingTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackingTiming.C
+#python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackingTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackingTiming.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment2 $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment2.C
 python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
 
 # update CCDB
 echo ==update CCDB==
-ccdb add /CDC/digi_scales -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_new_ascale.txt 
-./add_consts-adjust.sh ${RUNNUM} 
-#./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
+#ccdb add /CDC/digi_scales -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_new_ascale.txt 
+#./add_consts-adjust.sh ${RUNNUM} 
+./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
 retval=$?
 
 #./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
@@ -91,7 +91,8 @@ exit 0
 ###################################################
 # now, move the constants to default if it looks like they need it
 if [ "$retval" -eq "0" ]; then
-    python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+    #python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+    #python push_tables_to_production.py  online_ccdb_tables_to_push.primex -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
     #python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
     
     # make a logbook entry if the data is there

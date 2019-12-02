@@ -1,0 +1,3 @@
+/PHOTON_BEAM/microscope/fadc_time_offsets 0.00001
+/PHOTON_BEAM/microscope/tdc_time_offsets 0.00001
+/PHOTON_BEAM/microscope/tdc_timewalk_corrections 0.00001

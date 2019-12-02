@@ -22,13 +22,13 @@ double GetBaseOffset(TString fname) {
     return t;
 }
 void GetCCDBOffsetsBase(double &adc_offset_psc, double &tdc_offset_psc, double &adc_offset_ps) {
-    ifstream fin("offsets/base_time_offset_ccdb.txt");
+    ifstream fin("ps_offsets/base_time_offset_ccdb.txt");
     fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     fin >> adc_offset_psc >> tdc_offset_psc >> adc_offset_ps;
     fin.close();
 }
 void GetPSCCCDBOffsetsTDC(double* tdc_offsets, const int N) {
-    ifstream fin("offsets/tdc_timing_offsets_psc_ccdb.txt");
+    ifstream fin("ps_offsets/tdc_timing_offsets_psc_ccdb.txt");
     fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     for (int i = 0; i < N; i++) {
         fin >> tdc_offsets[i];
@@ -36,7 +36,7 @@ void GetPSCCCDBOffsetsTDC(double* tdc_offsets, const int N) {
     fin.close();
 }
 void GetPSCCCDBOffsetsADC(double* adc_offsets, const int N) {
-    ifstream fin("offsets/adc_timing_offsets_psc_ccdb.txt");
+    ifstream fin("ps_offsets/adc_timing_offsets_psc_ccdb.txt");
     fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     for (int i = 0; i < N; i++) {
         fin >> adc_offsets[i];
@@ -44,7 +44,7 @@ void GetPSCCCDBOffsetsADC(double* adc_offsets, const int N) {
     fin.close();
 }
 void GetPSCCDBOffsetsADC(double* adc_offsets_l, double* adc_offsets_r, const int N) {
-    ifstream fin("offsets/adc_timing_offsets_ps_ccdb.txt");
+    ifstream fin("ps_offsets/adc_timing_offsets_ps_ccdb.txt");
     fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     for (int i = 0; i < N; i++) {
         fin >> adc_offsets_l[i] >> adc_offsets_r[i];
@@ -54,7 +54,7 @@ void GetPSCCDBOffsetsADC(double* adc_offsets_l, double* adc_offsets_r, const int
 void WriteBaseOffsets(double TAGH_mu, double tdc_mu, double tdcadc_mu, double ps_mu) {
     double adc_ccdb_psc; double tdc_ccdb_psc; double adc_ccdb_ps;
     GetCCDBOffsetsBase(adc_ccdb_psc,tdc_ccdb_psc,adc_ccdb_ps);
-    ofstream fout; fout.open("offsets/base_time_offset.txt");
+    ofstream fout; fout.open("ps_offsets/base_time_offset.txt");
     TString sep = "        ";
     double adc_mu = tdc_mu - tdcadc_mu; // mean PSC ADC time
     fout << adc_ccdb_psc - adc_mu + TAGH_mu << sep << tdc_ccdb_psc - tdc_mu + TAGH_mu << sep << adc_ccdb_ps - ps_mu + TAGH_mu << endl;
@@ -63,33 +63,33 @@ void WriteBaseOffsets(double TAGH_mu, double tdc_mu, double tdcadc_mu, double ps
 void WritePSCTDCOffsets(double *y, double mean, const int N) {
     double y_ccdb[N];
     GetPSCCCDBOffsetsTDC(y_ccdb,N);
-    ofstream fout; fout.open("offsets/tdc_timing_offsets_psc.txt");
+    ofstream fout; fout.open("ps_offsets/tdc_timing_offsets_psc.txt");
     TString sep = "        ";
     for (int i = 0; i < N; i++) fout << y_ccdb[i] + y[i] - mean << endl;
     fout.close();
-    fout.open("offsets/tdc_timing_offsets_psc_diff.txt");
+    fout.open("ps_offsets/tdc_timing_offsets_psc_diff.txt");
     for (int i = 0; i < N; i++) fout << y[i] - mean << endl;
     fout.close();
 }
 void WritePSCADCOffsets(double *y_tdcadc, double mean_tdcadc, double *y, double mean, const int N) {
     double y_ccdb[N];
     GetPSCCCDBOffsetsADC(y_ccdb,N);
-    ofstream fout; fout.open("offsets/adc_timing_offsets_psc.txt");
+    ofstream fout; fout.open("ps_offsets/adc_timing_offsets_psc.txt");
     TString sep = "        ";
     for (int i = 0; i < N; i++) fout << y_ccdb[i] + y[i] - mean - (y_tdcadc[i] - mean_tdcadc) << endl;
     fout.close();
-    fout.open("offsets/adc_timing_offsets_psc_diff.txt");
+    fout.open("ps_offsets/adc_timing_offsets_psc_diff.txt");
     for (int i = 0; i < N; i++) fout << y[i] - mean - (y_tdcadc[i] - mean_tdcadc) << endl;
     fout.close();
 }
 void WritePSADCOffsets(double *y, double mean, const int N) {
     double yl_ccdb[int(N/2)]; double yr_ccdb[int(N/2)];
     GetPSCCDBOffsetsADC(yl_ccdb,yr_ccdb,int(N/2));
-    ofstream fout; fout.open("offsets/adc_timing_offsets_ps.txt");
+    ofstream fout; fout.open("ps_offsets/adc_timing_offsets_ps.txt");
     TString sep = "        ";
     for (int i = 0; i < int(N/2); i++) fout << yl_ccdb[i] + y[i] - mean << sep << yr_ccdb[i] + y[i+145] - mean << endl;
     fout.close();
-    fout.open("offsets/adc_timing_offsets_ps_diff.txt");
+    fout.open("ps_offsets/adc_timing_offsets_ps_diff.txt");
     for (int i = 0; i < int(N/2); i++) fout << y[i] - mean << sep << y[i+145] - mean << endl;
     fout.close();
 }
