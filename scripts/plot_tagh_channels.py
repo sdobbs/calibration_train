@@ -6,9 +6,13 @@ import rcdb
 from optparse import OptionParser
 from array import array
 import pprint
+import math
 
 import ccdb
 from ccdb import Directory, TypeTable, Assignment, ConstantSet
+
+from ROOT import TFile,TH1I,TH2I,TCanvas
+
 
 def LoadCCDB():
     sqlite_connect_str = "mysql://ccdb_user@hallddb.jlab.org/ccdb"
@@ -16,7 +20,7 @@ def LoadCCDB():
     #sqlite_connect_str = "sqlite:////group/halld/www/halldweb/html/dist/ccdb.sqlite"
     provider = ccdb.AlchemyProvider()                        # this class has all CCDB manipulation functions
     provider.connect(sqlite_connect_str)                     # use usual connection string to connect to database
-    provider.authentication.current_user_name = "anonymous"  # to have a name in logs
+    provider.authentication.current_user_name = "sdobbs"  # to have a name in logs
 
     return provider
 
@@ -24,9 +28,16 @@ def LoadCCDB():
 def main():
     pp = pprint.PrettyPrinter(indent=4)
 
+    c1 = TCanvas("c1","c1",800,600)
+
     # Defaults
     RCDB_QUERY = "@is_production and @status_approved"
-    VARIATION = "calib"
+    VARIATION = "default"
+
+    BEGINRUN = 30000
+    ENDRUN = 39999
+    #BEGINRUN = 30596
+    #ENDRUN = 30596
 
     # Define command line options
     parser = OptionParser(usage = "fix_sc_offsets.py ccdb_tablename")
@@ -34,6 +45,10 @@ def main():
                       help="File of runs to look at")
     parser.add_option("-V","--variation", dest="variation", 
                       help="CCDB variation to use")
+    parser.add_option("-b","--begin_run", dest="begin_run",
+                      help="Starting run when scanning RCDB")
+    parser.add_option("-e","--end_run", dest="end_run",
+                      help="Ending run when scanning RCDB")
     #parser.add_option("-p","--disable_plots", dest="disable_plotting", action="store_true",
     #                 help="Don't make PNG files for web display")
     
@@ -45,6 +60,10 @@ def main():
 
     if options.variation:
         VARIATION = options.variation
+    if options.begin_run:
+        BEGINRUN = int(options.begin_run)
+    if options.end_run:
+        ENDRUN = int(options.end_run)
 
     # Load CCDB
     ccdb_conn = LoadCCDB()
@@ -64,48 +83,51 @@ def main():
         rcdb_conn = None
         try:
             rcdb_conn = rcdb.RCDBProvider("mysql://rcdb@hallddb.jlab.org/rcdb")
-            runs = [ r.number for r in rcdb_conn.select_runs(RCDB_QUERY) ]
+            runs = [ r.number for r in rcdb_conn.select_runs(RCDB_QUERY, BEGINRUN, ENDRUN) ]
         except:
             e = sys.exc_info()[0]
             print "Could not connect to RCDB: " + str(e)
     
+    outf = open("bad_channels.txt","w")
 
     # Print to screen
     for run in runs:
         print "===%d==="%run
-        adc_toff_assignment = ccdb_conn.get_assignment("/START_COUNTER/adc_timing_offsets", run, VARIATION)
-        tdc_toff_assignment = ccdb_conn.get_assignment("/START_COUNTER/tdc_timing_offsets", run, VARIATION)
-        #pp.pprint(adc_toff_assignment.constant_set.data_table)
+        print>>outf, "===%d==="%run
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver20/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver34/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
+        #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
+        #f = TFile("/lustre/expphy/work/halld/home/gxproj3/hd_root.root")
+        #f = TFile("/home/gxproj3/work/TAGM/hd_root.root")
+        f = TFile("/w/halld-scifs17exp/home/sdobbs/hd_root.root")
+        htagm = f.Get("/HLDetectorTiming/TRACKING/TAGH - RFBunch Time")
 
-        adc_offsets = adc_toff_assignment.constant_set.data_table
-        tdc_offsets = tdc_toff_assignment.constant_set.data_table
+        try:
+            n = htagm.GetNbinsX()
+        except:
+            print "file for run %d doesn't exit, skipping..."%run
+            continue
 
-        # fix 2ns offsets
-        for x in xrange(len(adc_offsets)):
-            if(float(adc_offsets[x][0]) > 2.):
-                steps = int(float(adc_offsets[x][0]))/2
-                adc_offsets[x][0] = str(float(adc_offsets[x][0]) - 2.*float(steps))
-                tdc_offsets[x][0] = str(float(tdc_offsets[x][0]) - 2.*float(steps))
-            if(float(adc_offsets[x][0]) < 2.):
-                steps = int(-float(adc_offsets[x][0]))/2
-                adc_offsets[x][0] = str(float(adc_offsets[x][0]) + 2.*float(steps))
-                tdc_offsets[x][0] = str(float(tdc_offsets[x][0]) + 2.*float(steps))
 
-    
-        ccdb_conn.create_assignment(
-                data=adc_offsets,
-                path="/START_COUNTER/adc_timing_offsets",
-                variation_name=VARIATION,
-                min_run=run,
-                max_run=run,
-                comment="Fixed calibrations due to wrong RF buckets")
-        ccdb_conn.create_assignment(
-                data=tdc_offsets,
-                path="/START_COUNTER/tdc_timing_offsets",
-                variation_name=VARIATION,
-                min_run=run,
-                max_run=run,
-                comment="Fixed calibrations due to wrong RF buckets")
+        #htagm.Print("base")
+        pdf_fname = "/work/halld/home/gxproj3/tagm_plots/tagh_rfalign_r%d.pdf"%run
+        for i in xrange(1,htagm.GetNbinsX()+1):
+
+            hy = htagm.ProjectionY("_%d"%i,i,i)
+            tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
+
+            if tdiff>1.:
+                print "bad channel = %d"%i
+                print>>outf, "bad channel = %d"%i
+            hy.Draw()
+
+            if i==1:
+                c1.Print(pdf_fname+"(")
+            if i==(htagm.GetNbinsX()):
+                c1.Print(pdf_fname+")")
+            else:
+                c1.Print(pdf_fname)
+            
 
 
 ## main function 

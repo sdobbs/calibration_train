@@ -25,27 +25,32 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
+    RCDB_QUERY = "@is_production and status>0"
     #RCDB_QUERY = "@is_production and @status_approved"
-    RCDB_QUERY = "@is_2018production"
     VARIATION = "default"
     VERBOSE = 1
+
+    BEGINRUN = 40000
+    ENDRUN = 49999
 
     # Define command line options
     parser = OptionParser(usage = "fix_sc_offsets.py ccdb_tablename")
     parser.add_option("-V","--variation", dest="variation", 
                       help="CCDB variation to use")
+    parser.add_option("-b","--begin_run", dest="begin_run",
+                      help="Starting run when scanning RCDB")
+    parser.add_option("-e","--end_run", dest="end_run",
+                      help="Ending run when scanning RCDB")
     #parser.add_option("-p","--disable_plots", dest="disable_plotting", action="store_true",
     #                 help="Don't make PNG files for web display")
     
     (options, args) = parser.parse_args(sys.argv)
 
-    if(len(args) < 4):
-        parser.print_help()
-        sys.exit(0)
+    #if(len(args) < 2):
+    #    parser.print_help()
+    #    sys.exit(0)
 
-    SUBDETECTOR = args[1]
-    RUN = int(args[2])
-    shift_val = float(args[3])
+    #FILENAME = args[1]
 
     if options.variation:
         VARIATION = options.variation
@@ -53,30 +58,32 @@ def main():
     # Load CCDB
     ccdb_conn = LoadCCDB()
 
-    print "===run %d, %s/base_time_offset==="%(RUN,SUBDETECTOR)
-    assignment = ccdb_conn.get_assignment("/%s/base_time_offset"%SUBDETECTOR, RUN, VARIATION)
-    offsets = assignment.constant_set.data_table
+    # Load RCDB
+    rcdb_conn = None
+    try:
+        rcdb_conn = rcdb.RCDBProvider("mysql://rcdb@hallddb.jlab.org/rcdb")
+        runs = [ r.number for r in rcdb_conn.select_runs(RCDB_QUERY, BEGINRUN, ENDRUN) ]
+    except:
+        e = sys.exc_info()[0]
+        print "Could not connect to RCDB: " + str(e)
+        sys.exit(0)
 
-    if VERBOSE>0:
-        print "Before:"
-        pp.pprint(offsets)
+    beam_energy_data = rcdb_conn.select_values(['beam_energy'], RCDB_QUERY, run_min=BEGINRUN, run_max=ENDRUN)
+    beam_energy_dict = dict( (x[0],x[1]) for x in beam_energy_data )
 
-    for x in xrange(len(offsets[0])):
-        print x
-        offsets[0][x] = str(float(offsets[0][x]) - shift_val)
-    
-    if VERBOSE>0:
-        print "After:"
-        pp.pprint(offsets)
+    for run in runs:
+        beam_energy = float(beam_energy_dict[run])/1000.
 
-    ccdb_conn.create_assignment(
-        data=offsets,
-        path="/%s/base_time_offset"%SUBDETECTOR,
-        variation_name=VARIATION,
-        min_run=RUN,
-        max_run=ccdb.INFINITE_RUN,
-        #max_run=RUN,
-        comment="shift by %6.3f"%shift_val)
+        print "==setting beam energy for run %d as %f=="%(run,beam_energy)
+        #continue
+
+        ccdb_conn.create_assignment(
+            data=[[beam_energy]],
+            path="/PHOTON_BEAM/endpoint_energy",
+            variation_name=VARIATION,
+            min_run=run,
+            max_run=run,
+            comment="value from RCDB")
 
 ## main function 
 if __name__ == "__main__":

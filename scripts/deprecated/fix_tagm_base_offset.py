@@ -89,10 +89,12 @@ def main():
     # Print to screen
     for run in runs:
         print "===%d==="%run
+
         off_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/microscope/base_time_offset", run, VARIATION)
         #pp.pprint(tdc_toff_assignment.constant_set.data_table)
         base_offsets = off_assignment.constant_set.data_table
 
+        """
         # let's find the changes to make
         run_chan_errors = {}
 
@@ -112,6 +114,8 @@ def main():
 
         print "shift = " + str(mean)
         #continue
+        """
+        mean = 20.
 
         # fix if shifted more than 50 ps
         if abs(mean) < 0.050:
@@ -120,7 +124,7 @@ def main():
 
         # let's apply the offsets
         base_offsets[0][0] = str(float(base_offsets[0][0]) - mean)
-        base_offsets[0][1] = str(float(base_offsets[0][1]) - mean)
+        #base_offsets[0][1] = str(float(base_offsets[0][1]) - mean)
 
         ccdb_conn.create_assignment(
                 data=base_offsets,

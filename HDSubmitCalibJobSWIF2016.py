@@ -67,6 +67,12 @@ class HDSubmitCalibJobSWIF:
         the_pass - text string describing which calibration pass this job is associated with
         command_to_run - the command that the job will execute
         """
+        # make directory for log
+        logdir = "%s/log/%06d"%(self.basedir,run)
+        if(not os.path.exists(logdir)):
+            os.system("mkdir -p %s"%logdir)
+
+        # prepare command
         #inputfile="/mss/halld/%s/rawdata/Run%06d/hd_rawdata_%06d_%03d.evio"%(HDJobUtils.GetRunPeriodFromRun(run),run,run,filenum)
         #inputfile="/mss/halld/RunPeriod-%s/rawdata/Run%06d/hd_rawdata_%06d_%03d.evio"%(self.run_period,run,run,filenum)
         inputfile=filename
@@ -77,8 +83,8 @@ class HDSubmitCalibJobSWIF:
         cmd += " -os centos7 "
         # stage file from tape
         cmd += " -input data.evio mss:%s"%inputfile   
-        cmd += " -stdout file:%s/log/log_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
-        cmd += " -stderr file:%s/log/err_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
+        cmd += " -stdout file:%s/log/%06d/log_%s_%06d_%03d"%(self.basedir,run,the_pass,run,filenum)
+        cmd += " -stderr file:%s/log/%06d/err_%s_%06d_%03d"%(self.basedir,run,the_pass,run,filenum)
         cmd += " -cores %d"%int(self.nthreads)  
         cmd += " -tag run %d"%(run)
         cmd += " -tag file %d"%(filenum)
@@ -118,13 +124,19 @@ class HDSubmitCalibJobSWIF:
         the_pass - text string describing which calibration pass this job is associated with
         command_to_run - the command that the job will execute
         """
+        # make directory for log
+        logdir = "%s/log/%06d"%(self.basedir,run)
+        if(not os.path.exists(logdir)):
+            os.system("mkdir -p %s"%logdir)
+
+        # prepare command
         #cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,self.track)
         cmd = "swif add-job -workflow %s -project %s -track %s "%(self.workflow,self.project,"debug")
         cmd += " -os centos7 "
-        cmd += " -stdout file:%s/log/log_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
-        cmd += " -stderr file:%s/log/err_%s_%06d_%03d"%(self.basedir,the_pass,run,filenum)
-        #cmd += " -stdout file:%s/log/log_%s_%06d_%03d_%s"%(self.basedir,the_pass,run,filenum,log_suffix)
-        #cmd += " -stderr file:%s/log/err_%s_%06d_%03d_%s"%(self.basedir,the_pass,run,filenum,log_suffix)
+        cmd += " -stdout file:%s/log/%06d/log_%s_%06d_%03d"%(self.basedir,run,the_pass,run,filenum)
+        cmd += " -stderr file:%s/log/%06d/err_%s_%06d_%03d"%(self.basedir,run,the_pass,run,filenum)
+        #cmd += " -stdout file:%s/log/%06d/log_%s_%06d_%03d_%s"%(self.basedir,the_pass,run,filenum,log_suffix)
+        #cmd += " -stderr file:%s/log/%06d/err_%s_%06d_%03d_%s"%(self.basedir,the_pass,run,filenum,log_suffix)
         cmd += " -tag run %d"%(run)
         cmd += " -tag file %s"%("all")
         cmd += " -tag pass %s"%(the_pass)

@@ -26,6 +26,7 @@ def main():
     # Defaults
     OUTPUT_FILENAME = "out.root"
     RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
     BEGINRUN = 1
     ENDRUN = 100000000

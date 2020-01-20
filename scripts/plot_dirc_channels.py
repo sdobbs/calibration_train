@@ -31,7 +31,8 @@ def main():
     c1 = TCanvas("c1","c1",800,600)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"
+    #RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = ""
     VARIATION = "default"
 
     BEGINRUN = 30000
@@ -94,12 +95,13 @@ def main():
     for run in runs:
         print "===%d==="%run
         print>>outf, "===%d==="%run
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver34/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
         #f = TFile("/lustre/expphy/work/halld/home/gxproj3/hd_root.root")
         #f = TFile("/home/gxproj3/work/TAGM/hd_root.root")
-        htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
+        f = TFile("/group/halld/Users/sdobbs/hd_root.root")
+        htagm = f.Get("/HLDetectorTiming/DIRC/DIRCHit North Per Channel t_{DIRC} - t_{track}")
 
         try:
             n = htagm.GetNbinsX()
@@ -109,33 +111,31 @@ def main():
 
 
         #htagm.Print("base")
-        pdf_fname = "/work/halld/home/gxproj3/tagm_plots/tagm_rfalign_r%d.pdf"%run
+        pdf_fname = "/work/halld/home/gxproj3/dirc_hists/dirc_deltat_r%d.pdf"%run
+        c1.Print(pdf_fname+"[")
+
         for i in xrange(1,htagm.GetNbinsX()+1):
-            # don't plot individual columns
-            if i>=10 and i<=14:
-                continue
-            if i>=33 and i<=37:
-                continue
-            if i>=92 and i<=96:
-                continue
-            if i>=115 and i<=119:
-                continue
 
             hy = htagm.ProjectionY("_%d"%i,i,i)
             tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
+            hy.Rebin(5)
 
-            if tdiff>1.:
-                print "bad channel = %d"%i
-                print>>outf, "bad channel = %d"%i
+            if hy.Integral() == 0:
+                continue
+
+            maximum = hy.GetBinCenter(hy.GetMaximumBin());
+            fr = hy.Fit("gaus", "SQ", "", maximum - 6, maximum + 6);
+            mean = fr.Parameter(1);
+
+            print "mean = %6.3f"%mean
+
+            #if tdiff>1.:
+            #    print "bad channel = %d"%i
+            #    print>>outf, "bad channel = %d"%i
             hy.Draw()
-
-            if i==1:
-                c1.Print(pdf_fname+"(")
-            if i==(htagm.GetNbinsX()):
-                c1.Print(pdf_fname+")")
-            else:
-                c1.Print(pdf_fname)
+            c1.Print(pdf_fname)
             
+        c1.Print(pdf_fname+"]")
 
 
 ## main function 

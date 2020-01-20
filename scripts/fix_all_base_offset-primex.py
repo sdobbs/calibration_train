@@ -29,9 +29,8 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     # Defaults
-    #RCDB_QUERY = "@is_production and @status_approved"
-    #RCDB_QUERY = "@is_dirc_production"
     RCDB_QUERY = ""
+    #RCDB_QUERY = "@is_production and @status_approved"
     VARIATION = "default"
 
     BEGINRUN = 30000
@@ -100,8 +99,8 @@ def main():
         fcal_base_time_offsets = fcal_base_time_assignment.constant_set.data_table
         bcal_base_time_assignment = ccdb_conn.get_assignment("/BCAL/base_time_offset", run, VARIATION)
         bcal_base_time_offsets = bcal_base_time_assignment.constant_set.data_table
-        tof_base_time_assignment = ccdb_conn.get_assignment("/TOF/base_time_offset", run, VARIATION)
-        tof_base_time_offsets = tof_base_time_assignment.constant_set.data_table
+        #tof_base_time_assignment = ccdb_conn.get_assignment("/TOF/base_time_offset", run, VARIATION)
+        #tof_base_time_offsets = tof_base_time_assignment.constant_set.data_table
         sc_base_time_assignment = ccdb_conn.get_assignment("/START_COUNTER/base_time_offset", run, VARIATION)
         sc_base_time_offsets = sc_base_time_assignment.constant_set.data_table
 
@@ -116,17 +115,13 @@ def main():
         # let's find the changes to make
         run_chan_errors = {}
 
-        """
         #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver18/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-        #f = TFile("/cache/halld/RunPeriod-2018-08/calib/ver04/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/cache/halld/RunPeriod-2018-08/calib/ver04/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver11/rootfiles/hd_root_%06d.root"%run)
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2019-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-        locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/SC/DeltaTVsP_Pi-")
+        locHist = f.Get("/HLDetectorTiming/TRACKING/Tagger - RFBunch 1D Time")
 
         try:
-            locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
-
             maximum = locHist.GetBinCenter(locHist.GetMaximumBin());
             fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.3);
             mean = fr.Parameter(1);
@@ -134,11 +129,8 @@ def main():
         except:
             print "file for run %d doesn't exit, skipping..."%run
             continue
-        """
 
-        mean = 2
         print "shift = " + str(mean)
-        #continue
 
         # fix if shifted more than 20 ps
         if abs(mean) < 0.020:
@@ -146,7 +138,7 @@ def main():
 
 
         # let's apply the offsets
-        delta = round(mean)
+        delta = mean
 
         new_sc_adc_run_offset = float(sc_base_time_offsets[0][0]) - delta
         new_sc_tdc_run_offset = float(sc_base_time_offsets[0][1]) - delta
@@ -156,8 +148,8 @@ def main():
 
         new_bcal_adc_run_offset = float(bcal_base_time_offsets[0][0]) - delta
         new_bcal_tdc_run_offset = float(bcal_base_time_offsets[0][1]) - delta
-        new_tof_adc_run_offset = float(tof_base_time_offsets[0][0]) - delta
-        new_tof_tdc_run_offset = float(tof_base_time_offsets[0][1]) - delta
+        #new_tof_adc_run_offset = float(tof_base_time_offsets[0][0]) - delta
+        #new_tof_tdc_run_offset = float(tof_base_time_offsets[0][1]) - delta
         new_fdc_adc_run_offset = float(fdc_base_time_offsets[0][0]) - delta
         new_fdc_tdc_run_offset = float(fdc_base_time_offsets[0][1]) - delta
 
@@ -170,30 +162,29 @@ def main():
         new_psc_adc_run_offset = float(ps_base_time_offsets[0][0]) - delta
         new_psc_tdc_run_offset = float(ps_base_time_offsets[0][1]) - delta
 
-
         ccdb_conn.create_assignment(
             data=[ [new_sc_adc_run_offset, new_sc_tdc_run_offset] ],
             path="/START_COUNTER/base_time_offset",
             variation_name=VARIATION,
             min_run=run,
-            max_run=run,
-            #max_run=ccdb.INFINITE_RUN,
+            #max_run=run,
+            max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
         ccdb_conn.create_assignment(
             data=[ [new_cdc_adc_run_offset ] ],
             path="/CDC/base_time_offset",
             variation_name=VARIATION,
             min_run=run,
-            max_run=run,
-            #max_run=ccdb.INFINITE_RUN,
+            #max_run=run,
+            max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
         ccdb_conn.create_assignment(
             data=[ [new_fcal_adc_run_offset] ],
             path="/FCAL/base_time_offset",
             variation_name=VARIATION,
             min_run=run,
-            max_run=run,
-            #max_run=ccdb.INFINITE_RUN,
+            #max_run=run,
+            max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
 
         ccdb_conn.create_assignment(
@@ -201,29 +192,25 @@ def main():
             path="/BCAL/base_time_offset",
             variation_name=VARIATION,
             min_run=run,
-            max_run=run,
-            #max_run=ccdb.INFINITE_RUN,
+            #max_run=run,
+            max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
-
-        ccdb_conn.create_assignment(
-            data=[ [new_tof_adc_run_offset, new_tof_tdc_run_offset] ],
-            path="/TOF/base_time_offset",
-            variation_name=VARIATION,
-            min_run=run,
-            max_run=run,
-            #max_run=ccdb.INFINITE_RUN,
-            comment="Manual shift, from SC alignment")
-
+        #ccdb_conn.create_assignment(
+        #    data=[ [new_tof_adc_run_offset, new_tof_tdc_run_offset] ],
+        #    path="/TOF/base_time_offset",
+        #    variation_name=VARIATION,
+        #    min_run=run,
+        #    max_run=run,
+        #    comment="Manual shift, from SC alignment")
         ccdb_conn.create_assignment(
             data=[ [new_fdc_adc_run_offset, new_fdc_tdc_run_offset] ],
             path="/FDC/base_time_offset",
             variation_name=VARIATION,
             min_run=run,
-            max_run=run,
-            #max_run=ccdb.INFINITE_RUN,
+            #max_run=run,
+            max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
 
-        """
         ccdb_conn.create_assignment(
             data=[ [new_tagh_adc_run_offset, new_tagh_tdc_run_offset] ],
             path="/PHOTON_BEAM/hodoscope/base_time_offset",
@@ -248,7 +235,7 @@ def main():
             #max_run=run,
             max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
-        """
+
 
 
 

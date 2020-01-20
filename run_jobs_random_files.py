@@ -13,6 +13,5 @@ with open(FILENAME, "r") as f:
         #print (fnums)
 
         for fnum in fnums:
-            os.system("python HDSubmitCalibJobSWIF.py configs/data.config %s pass2 %d %d"%(RUNPERIOD,run,fnum))
+            os.system("python HDSubmitCalibJobSWIF.py configs/random.config %s random %d %d"%(RUNPERIOD,run,fnum))
             #os.system("python HDSubmitCalibJobSWIF.py configs/data.config %s skim %d %d"%(RUNPERIOD,run,fnum))
-            #os.system("python HDSubmitCalibJobSWIF.py configs/data.config %s fix %d %d"%(RUNPERIOD,run,fnum))

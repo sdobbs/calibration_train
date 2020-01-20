@@ -112,8 +112,8 @@ def main():
         #os.system("ls -lh %s"%fname)
         #f = TFile(fname)
         #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver12/rootfiles/hd_root_%06d.root"%run)
-        #fname = "/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver13/rootfiles/hd_root_%06d.root"%run
-        fname = "/cache/halld/RunPeriod-2017-01/calib/ver15/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run)
+        #fname = "/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver15/rootfiles/hd_root_%06d.root"%run
+        fname = "/cache/halld/RunPeriod-2017-01/calib/ver24/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run)
         #fname = "/home/gxproj3/volatile/2017-01/ver12/hd_root_%06d.root"%run
 
         #os.system("python timing.py -b %s %d rf default"%(fname,run))

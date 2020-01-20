@@ -11,7 +11,7 @@ import math
 import ccdb
 from ccdb import Directory, TypeTable, Assignment, ConstantSet
 
-from ROOT import TFile,TH1I,TH2I,TCanvas
+from ROOT import TFile,TH1I,TH2I,TCanvas,TF1
 
 
 def LoadCCDB():
@@ -25,19 +25,29 @@ def LoadCCDB():
     return provider
 
 
+def FindFDCPackageChamber(plane):
+    package = plane / 6 + 1
+    chamber = plane % 6
+    if(chamber == 0):
+        chamber = 6
+        package -= 1
+  
+    return (package, chamber)
+
+
 def main():
     pp = pprint.PrettyPrinter(indent=4)
-
-    c1 = TCanvas("c1","c1",800,600)
+    c1 = TCanvas("c1", "", 800, 600)
 
     # Defaults
-    RCDB_QUERY = "@is_production and @status_approved"
+    RCDB_QUERY = ""
+    #RCDB_QUERY = "@is_2018production and status != 0"
+    #RCDB_QUERY = "@is_2018production"
+    #RCDB_QUERY = "@is_2018production and @status_approved"
     VARIATION = "default"
 
     BEGINRUN = 30000
     ENDRUN = 39999
-    #BEGINRUN = 30596
-    #ENDRUN = 30596
 
     # Define command line options
     parser = OptionParser(usage = "fix_sc_offsets.py ccdb_tablename")
@@ -88,55 +98,55 @@ def main():
             e = sys.exc_info()[0]
             print "Could not connect to RCDB: " + str(e)
     
-    outf = open("bad_channels.txt","w")
 
     # Print to screen
     for run in runs:
         print "===%d==="%run
-        print>>outf, "===%d==="%run
-        f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver15/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver34/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
-        #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-        #f = TFile("/lustre/expphy/work/halld/home/gxproj3/hd_root.root")
-        #f = TFile("/home/gxproj3/work/TAGM/hd_root.root")
-        htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
 
+        # find the offset relative to the base FDC time
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver06/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/cache/halld/RunPeriod-2017-01/calib/ver03/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
+        f = TFile("/group/halld/Users/sdobbs/hd_calib_pass1_Run041989.root")
+
+        # see if the files exists
         try:
-            n = htagm.GetNbinsX()
+            hfdctdc = f.Get("HLDetectorTiming/FDC/FDCHit Wire time vs. module")
+            maximum = hfdctdc.GetBinCenter(hfdctdc.GetMaximumBin());
         except:
-            print "file for run %d doesn't exit, skipping..."%run
+            print "fail 1"
             continue
 
+        c1.Print("out.pdf[")
 
-        #htagm.Print("base")
-        pdf_fname = "/work/halld/home/gxproj3/tagm_plots/tagm_rfalign_r%d.pdf"%run
-        for i in xrange(1,htagm.GetNbinsX()+1):
-            # don't plot individual columns
-            if i>=10 and i<=14:
-                continue
-            if i>=33 and i<=37:
-                continue
-            if i>=92 and i<=96:
-                continue
-            if i>=115 and i<=119:
-                continue
+        fdcTimeHist = f.Get("/HLDetectorTiming/TRACKING/Earliest Flight-time Corrected FDC Time")
+        MPV = 0;
+        try:
+            maximum = fdcTimeHist.GetBinCenter(fdcTimeHist.GetMaximumBin());
+            fr = fdcTimeHist.Fit("landau", "S", "", maximum - 3.5, maximum + 6);
+            MPV = fr.Parameter(1);
 
-            hy = htagm.ProjectionY("_%d"%i,i,i)
-            tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
+            fdcTimeHist.Draw()
+            c1.Print("out.pdf")
+        except:
+            print "fail 2"
+            pass
 
-            if tdiff>1.:
-                print "bad channel = %d"%i
-                print>>outf, "bad channel = %d"%i
-            hy.Draw()
+        #c1.Print("out.pdf[")
 
-            if i==1:
-                c1.Print(pdf_fname+"(")
-            if i==(htagm.GetNbinsX()):
-                c1.Print(pdf_fname+")")
-            else:
-                c1.Print(pdf_fname)
-            
+        for plane in xrange(1,hfdctdc.GetNbinsX()+1):
+            projY = hfdctdc.ProjectionY("temp_%d"%plane, plane, plane);
+            maximum = projY.GetBinCenter(projY.GetMaximumBin());
+            projY.Draw()
 
+            fn = TF1("f", "gaus")
+            fn.SetParameters(100, maximum, 20)
+            projY.Fit(fn, "S", "", maximum - 10, maximum + 10)
+
+            c1.Print("out.pdf")
+
+        c1.Print("out.pdf]")
 
 ## main function 
 if __name__ == "__main__":

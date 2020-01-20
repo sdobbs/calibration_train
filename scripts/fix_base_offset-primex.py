@@ -98,8 +98,8 @@ def main():
                   "BCAL": 0.010,
                   "FDC":  1.,
                   "CDC":  1.,
-                  #"PS":  1.,
-                  "PS":  0.30,
+                  "PS":  1.,
+#                  "PS":  0.30,
 #                  "TAGH": 0.50,
                   "TAGH": 0.030,
                   "TAGM": 0.030  }
@@ -109,10 +109,8 @@ def main():
     #RCDB_QUERY = "@is_production and @status_approved"
     #RCDB_QUERY = "@is_2018production and @status_approved"
     #RCDB_QUERY = "@is_production"
-    #RCDB_QUERY = ""
-    RCDB_QUERY = "@is_dirc_production"
+    RCDB_QUERY = "@is_primex_production"
     #RCDB_QUERY = "@is_2018production and status!=0"
-    #RCDB_QUERY = "daq_run == 'PHYSICS_DIRC' and beam_current > 2 and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
     VARIATION = "default"
     DRY_RUN = False
 
@@ -192,17 +190,16 @@ def main():
         run_chan_errors = {}
 
         try:
-            #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver28/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+            f = TFile("/cache/halld/RunPeriod-2019-01/calib/ver08/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
             #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver26/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-            #f = TFile("/cache/halld/RunPeriod-2019-01/calib/ver13/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
+            #f = TFile("/cache/halld/RunPeriod-2018-08/calib/ver05/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2016-02/mon_ver17/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2017-01/mon_ver34/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver18/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver21/rootfiles/hd_root_%06d.root"%run)
-            f = TFile("/work/halld/data_monitoring/RunPeriod-2019-01/mon_ver07/rootfiles/hd_root_%06d.root"%run)
-            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-08/mon_ver12/rootfiles/hd_root_%06d.root"%run)
+            #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-08/mon_ver10/rootfiles/hd_root_%06d.root"%run)
             #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
             #f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/2018-01/hd_root.root")
             #f = TFile("/group/halld/Users/sdobbs/hd_root.root")
@@ -216,15 +213,11 @@ def main():
                 #locHist_DeltaTVsP_PiPlus.Print("base")
                 locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D", 35, 250)
             elif detector == "BCAL":
-                #locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsP_Pi-")
-                #locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
-                locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/BCAL/DeltaTVsShowerE_Photon")
-                locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D", 20,250)
+                locHist = f.Get("/HLDetectorTiming/TRACKING/BCAL - RF Time (Neutral)")
+            elif detector == "CCAL":
+                locHist = f.Get("/HLDetectorTiming/TRACKING/CCAL - RF Time (Neutral)")
             elif detector == "FCAL":
-                #locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsP_Pi-")
-                #locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_PiMinus_1D")
-                locHist_DeltaTVsP_PiPlus = f.Get("Independent/Hist_DetectorPID/FCAL/DeltaTVsShowerE_Photon")
-                locHist = locHist_DeltaTVsP_PiPlus.ProjectionY("DeltaTVsP_Photon_1D")
+                locHist = f.Get("/HLDetectorTiming/TRACKING/FCAL - RF Time (Neutral)")
             elif detector == "TAGH":
                 locHist = f.Get("/HLDetectorTiming/TRACKING/Tagger - RFBunch 1D Time")
             elif detector == "TAGM":
@@ -296,8 +289,6 @@ def main():
                 variation_name=VARIATION,
                 min_run=run,
                 max_run=run,
-#                min_run=60879,
-#                max_run=60883,
 #                min_run=40785,
 #                max_run=ccdb.INFINITE_RUN,
                 comment="Fixed calibrations due to bad alignment with RF")

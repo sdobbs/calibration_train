@@ -54,7 +54,8 @@ def main():
         for line in f:
             tokens = line.strip().split()
             RUN = int(float(tokens[0]))
-            beam_energy = float(tokens[1])/1000.
+            #beam_energy = float(tokens[1])/1000.
+            beam_energy = float(tokens[2])/1000.
 
             print "==setting beam energy for run %d as %f=="%(RUN,beam_energy)
         

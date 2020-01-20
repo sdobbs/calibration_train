@@ -30,15 +30,12 @@ def main():
 
     # Defaults
     #RCDB_QUERY = "@is_production and @status_approved"
-    RCDB_QUERY = "@is_primex_production"
-    #RCDB_QUERY = "@is_2018production and @status_approved"
-    #RCDB_QUERY = "@is_2018production and status!=0"
+    #RCDB_QUERY = "@is_production"
+    RCDB_QUERY = "@is_2018production and status!=0"
     VARIATION = "default"
 
-    BEGINRUN = 50000
-    ENDRUN = 59999
-    #BEGINRUN = 30596
-    #ENDRUN = 30596
+    BEGINRUN = 30000
+    ENDRUN = 39999
 
     # Define command line options
     parser = OptionParser(usage = "fix_sc_offsets.py ccdb_tablename")
@@ -92,94 +89,51 @@ def main():
 
     # Print to screen
     for run in runs:
-        #if (run==30818) or (run==30951):
-        #    continue
-
         print "===%d==="%run
-        adc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/microscope/fadc_time_offsets", run, VARIATION)
-        tdc_toff_assignment = ccdb_conn.get_assignment("/PHOTON_BEAM/microscope/tdc_time_offsets", run, VARIATION)
+        adc_toff_assignment = ccdb_conn.get_assignment("/START_COUNTER/adc_timing_offsets", run, VARIATION)
+        tdc_toff_assignment = ccdb_conn.get_assignment("/START_COUNTER/tdc_timing_offsets", run, VARIATION)
         #pp.pprint(tdc_toff_assignment.constant_set.data_table)
         adc_offsets = adc_toff_assignment.constant_set.data_table
         tdc_offsets = tdc_toff_assignment.constant_set.data_table
 
         # let's find the changes to make
         run_chan_errors = {}
-
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver05/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver20/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-08/mon_ver13/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/work/halld/data_monitoring/RunPeriod-2019-01/mon_ver08/rootfiles/hd_root_%06d.root"%run)
-        #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver17/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
-        f = TFile("/cache/halld/RunPeriod-2019-01/calib/ver08/hists/Run%06d/hd_calib_verify_Run%06d_000.root"%(run,run))
+        
+        #f = TFile("/cache/halld/RunPeriod-2018-01/calib/ver06/hists/Run%06d/hd_calib_verify_Run%06d_001.root"%(run,run))
+        f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver13/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver07/rootfiles/hd_root_%06d.root"%run)
+        #f = TFile("/work/halld/data_monitoring/RunPeriod-2018-01/mon_ver01/rootfiles/hd_root_%06d.root"%run)
         #f = TFile("/lustre/expphy/work/halld/home/sdobbs/calib/2017-01/hd_root.root")
-        #f = TFile("/w/halld-scifs17exp/home/sdobbs/calib/hd_root.root")
-        #f = TFile("/group/halld/Users/sdobbs/hd_root.root")
-        htagm = f.Get("/HLDetectorTiming/TRACKING/TAGM - RFBunch Time")
-
+        #htagh = f.Get("/HLDetectorTiming/SC/SCHit TDC_ADC Difference")
+        htagh = f.Get("/Independent/Hist_Reconstruction/SCRFDeltaTVsSector")
+        #htagh.Print("base")
+        
         try:
-            n = htagm.GetNbinsX()
+            n = htagh.GetNbinsX()
         except:
             print "file for run %d doesn't exit, skipping..."%run
             continue
 
-        #htagm.Print("base")
-        for i in xrange(1,htagm.GetNbinsX()+1):
-            # don't fix individual columns  
-            if i>=10 and i<=14:
-                continue
-            if i>=33 and i<=37:
-                continue
-            if i>=92 and i<=96:
-                continue
-            if i>=115 and i<=119:
-                continue
-
-            # bad quality columns
-            #if i>=41 and i<47:
-            #    continue
-            #if i>=47 and i<53:
-            #    continue
-            if i==26:
-                continue
-
-            #if i<100:
-            #    continue
-
-            #if (run==30299) and (i==31):
-            #    continue
-
-
-            hy = htagm.ProjectionY("_%d"%i,i,i)
+        for i in xrange(1,htagh.GetNbinsX()+1):
+            hy = htagh.ProjectionY("_%d"%i,i,i)
             #print i,hy.GetBinCenter(hy.GetMaximumBin())
             #print i,hy.GetBinLowEdge(hy.GetMaximumBin()+1)
             tdiff = hy.GetBinLowEdge(hy.GetMaximumBin()+1)
-
+        
             maximum = hy.GetBinCenter(hy.GetMaximumBin());
-            fr = hy.Fit("gaus", "QSQ", "", maximum - 0.3, maximum + 0.3);
-            try:
-                tdiff = fr.Parameter(1);
-            except:
-                continue
-
-            #print i,tdiff
+            fr = hy.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.3);
+            tdiff = fr.Parameter(1);
 
             # no data in these channels
-            if tdiff < -38.:
-                #if tdiff < -110.:
+            if tdiff < -18.:
                 continue
-
-            # temp
-            #if abs(tdiff) > 80.:
-            #    continue
 
             # this channel is fine!
             if tdiff == 0.:
                 continue
 
-
             # only look for shifts > 1.ns in this
-            #if math.fabs(tdiff) < 1.:
-            if math.fabs(tdiff) < 2.:
+            if math.fabs(tdiff) < 1.:
                 continue
 
             run_chan_errors[i-1] = tdiff
@@ -190,28 +144,31 @@ def main():
 
         print "shifts = "
         pp.pprint(run_chan_errors)
-        
         #continue
-        
+
+        #pp.pprint(tdc_offsets)
+
         # let's apply the offsets
         for chan,tdiff in run_chan_errors.iteritems():
-            adc_offsets[chan][2] = str(float(adc_offsets[chan][2]) + tdiff)
-            tdc_offsets[chan][2] = str(float(tdc_offsets[chan][2]) + tdiff)
+            adc_offsets[chan][0] = str(float(adc_offsets[chan][0]) + tdiff)
+            tdc_offsets[chan][0] = str(float(tdc_offsets[chan][0]) + tdiff)
     
         ccdb_conn.create_assignment(
                 data=adc_offsets,
-                path="/PHOTON_BEAM/microscope/fadc_time_offsets",
+                path="/START_COUNTER/adc_timing_offsets",
+                #path="/START_COUNTER/tdc_timing_offsets",
                 variation_name=VARIATION,
                 min_run=run,
                 max_run=run,
-                comment="Fixed calibrations due to bad RF shifts")
+                comment="Fixed calibrations due to bad RF alignment")
+
         ccdb_conn.create_assignment(
                 data=tdc_offsets,
-                path="/PHOTON_BEAM/microscope/tdc_time_offsets",
+                path="/START_COUNTER/tdc_timing_offsets",
                 variation_name=VARIATION,
                 min_run=run,
                 max_run=run,
-                comment="Fixed calibrations due to bad RF shifts")
+                comment="Fixed calibrations due to bad RF alignment")
 
 
 ## main function 
