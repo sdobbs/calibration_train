@@ -29,7 +29,7 @@ export JANA_CALIB_CONTEXT="variation=default"
 #cp -v data_link.evio data.evio
 #ls -lh data.evio
 
-ln -s data/hd_rawdata_${RUN}_000.evio data.evio
+ln -s data/hd_rawdata_${RUN}_001.evio data.evio
 
 RUNNUM=`echo ${RUN} | awk '{printf "%d\n",$0;}'`
 
@@ -47,7 +47,7 @@ PASS0_OUTPUT_FILENAME=hd_calib_pass0.1_Run${RUN}.root
 echo ==zeroth pass, first step==
 echo Running these plugins: $ZEROTH_CALIB_PLUGINS
 #hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
-hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
+hd_root  -PEVENTS_TO_SKIP=100  --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
 retval=$?
 # save results
 #mkdir -p ${SMALL_OUTPUTDIR}/Run${RUN}/pass0/
@@ -66,13 +66,13 @@ fi
 echo ==run calibrations==
 
 echo Running: RF_online, RFMacro_ROCTITimes.C
-python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_ROCTITimes $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_ROCTITimes.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_ROCTITimes $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_ROCTITimes.C
 echo Running: RF_online, RFMacro_TDCConversion.C
-python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_TDCConversion $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_TDCConversion.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_TDCConversion $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_TDCConversion.C
 echo Running: RF_online, RFMacro_SignalPeriod.C
-python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_SignalPeriod $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_SignalPeriod.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_SignalPeriod $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_SignalPeriod.C
 echo Running: RF_online, RFMacro_BeamBunchPeriod.C
-python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_BeamBunchPeriod $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_BeamBunchPeriod.C
+python run_single_root_command.py -F $PASS0_OUTPUT_FILENAME -O pass0_RF_BeamBunchPeriod $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_BeamBunchPeriod.C
 
 
 ##########################################################################
@@ -91,7 +91,7 @@ PASS0_OUTPUT_FILENAME=hd_calib_pass0.3_Run${RUN}.root
 echo ==zeroth pass, third step==
 echo Running these plugins: $ZEROTH_CALIB_PLUGINS
 #hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} --PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
-hd_root --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 --PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
+hd_root  -PEVENTS_TO_SKIP=100  --nthreads=$NTHREADS -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 --PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS0_OUTPUT_FILENAME -PEVENTS_TO_KEEP=$NEVENTS_ZEROTH_PASS -PPLUGINS=$ZEROTH_CALIB_PLUGINS ./data.evio
 retval=$?
 
 # save results
@@ -108,8 +108,8 @@ echo ==run calibrations==
 # error check?
 
 echo Running: RF_online, RFMacro_FineTimeOffsets.C
-#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib_pass0\"\)
-python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"${VARIATION}\"\) 
+#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"calib_pass0\"\)
+python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O pass0_RF_FineTimeOffsets $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/calib_scripts/RFMacro_FineTimeOffsets.C\(${RUNNUM},\"${VARIATION}\"\) 
 
 # update CCDB
 ccdb add /PHOTON_BEAM/RF/time_offset -v $VARIATION -r ${RUN}-${RUN} rf_fine_time_offsets.txt #"fine time offsets"
@@ -136,9 +136,9 @@ ccdb add /PHOTON_BEAM/RF/time_offset_var -v $VARIATION -r ${RUN}-${RUN} rf_time_
 # process the results
 #echo ==run calibrations==
 #echo Running: RF_online, RFMacro_FineTimeOffsets.C
-#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O verify_RF1 $HALLD_HOME/src/plugins/monitoring/RF_online/HistMacro_RF_p1.C
-#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O verify_RF2 $HALLD_HOME/src/plugins/monitoring/RF_online/HistMacro_RF_p2.C
-#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O verify_RF3 $HALLD_HOME/src/plugins/monitoring/RF_online/HistMacro_RF_p3.C
+#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O verify_RF1 $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/HistMacro_RF_p1.C
+#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O verify_RF2 $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/HistMacro_RF_p2.C
+#python run_single_root_command.py -F  $PASS0_OUTPUT_FILENAME -O verify_RF3 $HALLD_RECON_HOME/src/plugins/monitoring/RF_online/HistMacro_RF_p3.C
 
 echo ==done==
 date

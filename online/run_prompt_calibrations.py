@@ -35,7 +35,7 @@ import ccdb
 
 
 def ProcessFilePass1(args):
-    host_mapping = { 0: "gluon105", 1: "gluon106", 2: "gluon107" }
+    host_mapping = { 0: "gluon122", 1: "gluon123", 2: "gluon124" }
 
     run = args[0]
     fnum = args[1]
@@ -57,8 +57,7 @@ def ProcessTaggerCalibrations(run,cwd):
     #run = args[0]
     #cwd = args[1]
 
-    #hosts = ["gluon111", "gluon112", "gluon113", "gluon114", "gluon115", "gluon116" ]
-    hosts = [ "gluon112", "gluon113", "gluon114", "gluon115", "gluon116" ]
+    hosts = [ "gluon125", "gluon105", "gluon106" ]
     hostname = hosts[tagger_rr_ind]
     if tagger_rr_ind+1 >= len(hosts):
         tagger_rr_ind = 0
@@ -66,7 +65,7 @@ def ProcessTaggerCalibrations(run,cwd):
         tagger_rr_ind += 1
 
     #cmd = "do_tagger.sh %d"%(run)
-    cmd = "ssh %s 'cd %s; ./do_tagger.sh %d' > %s/log/calib.tagger.r%d.log"%(hostname,cwd,run,'/gluonwork1/Users/sdobbs/calibration_train/online',run)
+    cmd = "ssh %s 'cd %s; ./do_tagger.sh %d' >& %s/log/calib.tagger.r%d.log"%(hostname,cwd,run,'/gluonwork1/Users/sdobbs/calibration_train/online',run)
     if DRY_RUN:
         print cmd
     else:
@@ -119,14 +118,17 @@ if __name__ == "__main__":
     RCDB_PASS        = 'GlueX_2come'
     #RCDB_PASS        = ''
     RUNS             = ''
-    RUN_PERIOD       = 'RunPeriod-2019-01'
-    #RCDB_PRODUCTION_SEARCH = "@is_2018production"
-    RCDB_PRODUCTION_SEARCH = "daq_config in ['FCAL_BCAL_PS_DIRC_m9.conf', 'FCAL_BCAL_PS_DIRC_m10.conf']  and event_count > 10000000"
+    RUN_PERIOD       = 'RunPeriod-2019-11'
+    #RCDB_PRODUCTION_SEARCH = "@is_dirc_production"
+    RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC' and beam_current > 10. and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
+    #RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC_TRD' and beam_current > 10. and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
+    #3RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC_TRD' and event_count > 5000000"
     #RCDB_SEARCH_MIN  = 40000
     #RCDB_SEARCH_MIN  = 41857
-    RCDB_SEARCH_MIN  = 60550
-    RCDB_SEARCH_MAX  = 70000
+    RCDB_SEARCH_MIN  = 71336
+    RCDB_SEARCH_MAX  = 79000
     GLUONRAID = "gluonraid2"
+
 
     SCRIPT_DIR = "/gluonwork1/Users/sdobbs/calibration_train/online"
     BASE_DIR = "/gluonwork1/Users/sdobbs/calibrations/%s"%RUN_PERIOD
@@ -275,16 +277,17 @@ if __name__ == "__main__":
                 solenoid_map_assignment = ccdb_conn.get_assignment("/Magnets/Solenoid/solenoid_map", run, "default")
                 current_solenoid_map = solenoid_map_assignment.constant_set.data_table[0][0]
 
-                solenoid_current = get_solenoid_current(rcdb_conn, run)
-                new_solenoid_map = "Magnets/Solenoid/"+get_fieldmap(solenoid_current)
+                try:
+                    solenoid_current = get_solenoid_current(rcdb_conn, run)
+                    new_solenoid_map = "Magnets/Solenoid/"+get_fieldmap(solenoid_current)
+                    
+                    print " old solenoid map = %s   new solenoid map = %s"%(current_solenoid_map,new_solenoid_map)
 
-                print " old solenoid map = %s   new solenoid map = %s"%(current_solenoid_map,new_solenoid_map)
-
-                if not DRY_RUN and current_solenoid_map != new_solenoid_map:
-                    print "Updating solenoid map!"
-                    print "not yet"
-                    """
-                    ccdb_conn.create_assignment(
+                    if not DRY_RUN and current_solenoid_map != new_solenoid_map:
+                        print "Updating solenoid map!"
+                        print "not yet"
+                        """
+                        ccdb_conn.create_assignment(
                         data=[[new_solenoid_map]],
                         path="/Magnets/Solenoid/solenoid_map",
                         variation_name="default",
@@ -292,11 +295,13 @@ if __name__ == "__main__":
                         max_run=ccdb.INFINITE_RUN,
                         comment="Online updates based on RCDB")
 
-                    #if not DRY_RUN:
-                    query = "UPDATE online_info SET rcdb_update=TRUE WHERE run='%s'"%run
-                    calibdb_cursor.execute(query)            
-                    calibdb_cnx.commit()
-                    """
+                        #if not DRY_RUN:
+                        query = "UPDATE online_info SET rcdb_update=TRUE WHERE run='%s'"%run
+                        calibdb_cursor.execute(query)            
+                        calibdb_cnx.commit()
+                        """
+                except:
+                    print "Problem checking solenoid current, skipping..."
         #continue
 
         # check to make sure that the first file exists, to correctly handle the current run
@@ -325,7 +330,8 @@ if __name__ == "__main__":
             print cmd
         else:
             os.system(cmd)
-
+        
+    
         # run over one file, adjust timing alignments
         # plugins: HLDetectorTiming, CDC_amp, TOF_TDC_shift
         p = multiprocessing.Pool(3)
@@ -348,7 +354,8 @@ if __name__ == "__main__":
         ptag = multiprocessing.Process(target=ProcessTaggerCalibrations, args=(run,os.getcwd()))
         ptag.start()
         tagger_threads.append(ptag)
-                  
+
+       
         # update calibration status
         if not DRY_RUN:
             query = "UPDATE online_info SET done=TRUE WHERE run='%s'"%run

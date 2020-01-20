@@ -109,15 +109,15 @@ def MakeTOLERANCES_HTML(tolerance_table, color='black'):
 #--------------------------------------------------------
 # MakeCCDBTABLE_HTML
 #--------------------------------------------------------
-def MakeCCDBTABLE_HTML(ccdb_table, modified_channels, color='black', ccdb=None):
+def MakeCCDBTABLE_HTML(ccdb_table, modified_channels, color='black', ccdb=None, bgcolor="#DDD"):
     if ccdb is not None:
         table_info = ccdb.get_type_table(ccdb_table)
 
     # Open HTML table
     html  = '<p>\n'
     html += '<b>' + ccdb_table + '</b>\n'
-    html += '<table><tr><td><div style="border:2px solid '+color+'; background-color:#CCC">\n' # This just gives a border around outside of table
-    html += '<table border="0" bgcolor="#DDD" cellpadding="5" cellspacing="2">\n' # Actual table
+    html += "<table><tr><td><div style=\"border:2px solid '+color+'; background-color:%s\">\n"%(bgcolor) # This just gives a border around outside of table
+    html += "<table border=\"0\" bgcolor=\"%s\" cellpadding=\"5\" cellspacing=\"2\">\n"%(bgcolor) # Actual table
 
     # Add a header
     html += '<TR> <TH>Row,Column</TH><TH>Old Value</TH><TH>New Value</TH> </TR>\n'
@@ -309,7 +309,7 @@ def main():
             print>>elogentry, "<h2>Modified Tables</h2>\n"
 
         print "===Checking run %d==="%run
-        for ccdb_table in CCDB_TABLES:
+        for ccdb_table in sorted(CCDB_TABLES):
             if VERBOSE>1:
                 print "==checking %s for run %d=="%(ccdb_table,run)
             # get source data
@@ -346,8 +346,8 @@ def main():
                 path=ccdb_table,
                 variation_name=DEST_VARIATION,
                 min_run=run,
-                max_run=MAX_RUN,
-                #max_run=ccdb.INFINITE_RUN,
+                #max_run=MAX_RUN,
+                max_run=ccdb.INFINITE_RUN,
                 comment="Copied from variation \'%s\'"%ccdb_table)
 
 

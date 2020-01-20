@@ -110,7 +110,7 @@ void WriteFitResults2(ofstream &fout, TH1 *h, TString htype, int counter) {
     delete canvas; delete plot;
     if (counter > 0) fout << counter << sep << max << sep << mean.getVal() << sep << mean.getError() << sep << sigma1.getVal() << endl;
 }
-int fits(TString rootFile, bool doAllFits) {
+int ps_fits(TString rootFile, bool doAllFits) {
     TFile *f = new TFile(rootFile,"read");
     TString hnames[] = {"PSC_tdcadcTimeDiffVsID","PSCRF_tdcTimeDiffVsID","PSRF_adcTimeDiffVsID"};
     TString htypes[] = {"TDCADC","PSC","PS"};

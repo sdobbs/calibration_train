@@ -34,24 +34,25 @@ RUN_OUTPUT_FILENAME=hd_calib_pass1_Run${RUN}.root
 
 echo ==second pass calibrations==
 echo Running: HLDetectorTiming, AdjustTiming.C
-python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/AdjustTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
+#python run_single_root_command.py $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/FitScripts/AdjustTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
+python run_single_root_command.py AdjustTiming.C\(\"${RUN_OUTPUT_FILENAME}\",${RUNNUM},\"${VARIATION}\"\)
 echo Running: CDC_amp, CDC_gains.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME $HALLD_HOME/src/plugins/Calibration/CDC_amp/CDC_gains.C\(1\)
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME $HALLD_RECON_HOME/src/plugins/Calibration/CDC_amp/CDC_gains.C\(1\)
 #echo Running: BCAL_TDC_Timing, ExtractTimeWalk.C
-#python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C\(\"${RUN_OUTPUT_FILENAME}\"\)
+#python run_single_root_command.py $HALLD_RECON_HOME/src/plugins/Calibration/BCAL_TDC_Timing/FitScripts/ExtractTimeWalk.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 #echo Running: PS_E_calib, PSEcorr.C
-#python run_single_root_command.py $HALLD_HOME/src/plugins/Calibration/PS_E_calib/PSEcorr.C\(\"${RUN_OUTPUT_FILENAME}\"\)
+#python run_single_root_command.py $HALLD_RECON_HOME/src/plugins/Calibration/PS_E_calib/PSEcorr.C\(\"${RUN_OUTPUT_FILENAME}\"\)
 #python run_calib_pass2.py $RUN_OUTPUT_FILENAME
 
 echo ==make monitoring output==
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_CalorimeterTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_CalorimeterTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_PIDSystemTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_PIDSystemTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackMatchedTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackMatchedTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackingTiming $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackingTiming.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment2 $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment2.C
-python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlignment $HALLD_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_CalorimeterTiming $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_CalorimeterTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_PIDSystemTiming $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_PIDSystemTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackMatchedTiming $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackMatchedTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerTiming $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TrackingTiming $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TrackingTiming.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerRFAlignment2 $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerRFAlignment2.C
+python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlignment $HALLD_RECON_HOME/src/plugins/Calibration/HLDetectorTiming/HistMacro_TaggerSCAlignment.C
 
 # update CCDB
 echo ==update CCDB==
@@ -86,21 +87,20 @@ retval=$?
 echo ==DEBUG==
 ls -lhR
 
-exit 0
-
 ###################################################
 # now, move the constants to default if it looks like they need it
-if [ "$retval" -eq "0" ]; then
-    python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
-    #python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+#if [ "$retval" -eq "0" ]; then
+python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+#python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
     
-    # make a logbook entry if the data is there
-    if [ -f "logbook.txt" ]; then
-	echo ==submit logbook entry==
-	/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue --cert /gluonwork1/Users/sdobbs/calibration_train/online/elogcert
-	#/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook TLOG
-    fi
+# make a logbook entry if the data is there
+if [ -f "logbook.txt" ]; then
+    echo ==submit logbook entry==
+    /site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue
+    #/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue --cert /gluonwork1/Users/sdobbs/calibration_train/online/elogcert
+    #/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook TLOG
 fi
+#fi
 
 # and send update email
 if [ -f "message.txt" ]; then

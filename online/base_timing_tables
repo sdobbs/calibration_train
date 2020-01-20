@@ -1,7 +1,7 @@
 /CDC/base_time_offset 1.
 /FDC/base_time_offset 2.
 /FCAL/base_time_offset 0.050
-/TOF/base_time_offset 0.010
+/TOF2/base_time_offset 0.010
 /START_COUNTER/base_time_offset 0.040 
 /PHOTON_BEAM/hodoscope/base_time_offset 0.030
 /PHOTON_BEAM/microscope/base_time_offset 0.030

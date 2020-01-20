@@ -93,7 +93,7 @@ void WritePSADCOffsets(double *y, double mean, const int N) {
     for (int i = 0; i < int(N/2); i++) fout << y[i] - mean << sep << y[i+145] - mean << endl;
     fout.close();
 }
-int offsets(TString dir) {
+int ps_offsets(TString dir) {
     system("mkdir -p offsets");
     // PSC offsets
     const int N = 16; // counters
