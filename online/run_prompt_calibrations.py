@@ -32,7 +32,7 @@ import glob
 from optparse import OptionParser
 import rcdb
 import ccdb
-
+from epics import caget,caput
 
 def ProcessFilePass1(args):
     host_mapping = { 0: "gluon122", 1: "gluon123", 2: "gluon124" }
@@ -59,7 +59,10 @@ def ProcessTaggerCalibrations(run,cwd):
 
     hosts = [ "gluon125", "gluon105", "gluon106" ]
     hostname = hosts[tagger_rr_ind]
-    if tagger_rr_ind+1 >= len(hosts):
+
+    # do round robining of hosts
+    tagger_rr_ind = tagger_rr_ind + 1
+    if tagger_rr_ind >= len(hosts):
         tagger_rr_ind = 0
     else:
         tagger_rr_ind += 1
@@ -103,6 +106,152 @@ def get_fieldmap(current):
 def get_solenoid_current(rcdb_conn, run):
     return rcdb_conn.get_condition(run, "solenoid_current").value
 
+def update_cdc_gains(ccdb_conn, run):
+    TOLERANCE = 1.e-5  # constant used for comparisons
+
+    # get info from EPICS
+    print caget("RESET:i:GasPanelBarPress1")
+    cdc_pressure = float(caget("RESET:i:GasPanelBarPress1"))
+    cdc_temp_1 = float(caget("GAS:i::CDC_Temps-CDC_D1_Temp"))
+    cdc_temp_2 = float(caget("GAS:i::CDC_Temps-CDC_D2_Temp"))
+    cdc_temp_3 = float(caget("GAS:i::CDC_Temps-CDC_D3_Temp"))
+    cdc_temp_4 = float(caget("GAS:i::CDC_Temps-CDC_D4_Temp"))
+    cdc_temp_5 = float(caget("GAS:i::CDC_Temps-CDC_D5_Temp"))
+
+    # check ranges to make sure things are not crazy
+    if(cdc_pressure < 50. or cdc_pressure > 150.):
+        return
+
+    # average and check ranges
+    ntemps = 0
+    temp_avg = 0.
+    temps = [cdc_temp_1, cdc_temp_2, cdc_temp_3, cdc_temp_4, cdc_temp_5]
+    for temp in temps:
+        if(temp > 20. and temp < 30.):
+            ntemps += 1
+            temp_avg += (temp+273.)  # don't forget to convert deg C -> deg K
+
+    if ntemps == 0:
+        return
+    temp_avg /= float(ntemps)
+
+    # do calc
+    PoverT = cdc_pressure / temp_avg
+
+    # from https://logbooks.jlab.org/entry/3759767
+    #newgain = -0.9305 + 3.227 * PoverT
+    # updated based on https://logbooks.jlab.org/entry/3781319 - sdobbs (2/10/2020)
+    newgain =  -0.984748 + 3.36527 * PoverT
+
+    # update CCDB for this run
+    ccdb_conn.create_assignment(
+        data=[["%5.3f"%newgain, 0.8]],
+        path="/CDC/digi_scales",
+        variation_name="default",
+        min_run=run,
+        max_run=run,
+        comment="Online update based on EPICS")
+
+
+def update_beam_currents(rcdb_conn, run):
+    # get the start time for the run
+    rundata = rcdb_conn.get_run(run)    
+    if rundata.start_time is None and rundata.end_time is None:
+        return
+
+    run_start_time = rundata.start_time
+    run_end_time = rundata.end_time
+    if run_start_time is None:
+        run_start_time = run_end_time
+        if run_start_time.minute-5 < 0.:
+            run_start_time = datetime.datetime(run_start_time.year,run_start_time.month,run_start_time.day,run_start_time.hour-1,run_start_time.minute-5+60,run_start_time.second)
+    if run_end_time is None or run_end_time == run_start_time:
+        run_end_time = run_start_time
+        if run_end_time.minute+15. > 60.:
+            run_end_time = datetime.datetime(run_end_time.year,run_end_time.month,run_end_time.day,run_end_time.hour+1,run_end_time.minute-60+15,run_end_time.second)
+    if run_end_time == run_start_time:
+        run_end_time = datetime.datetime(run_end_time.year,run_end_time.month,run_end_time.day,run_end_time.hour,run_end_time.minute+1,run_end_time.second)
+
+    begintime = datetime.datetime.strftime(run_start_time, '%Y-%m-%d %H:%M:%S')
+    # if the run has a set end time, then use that, otherwise use the current time
+    if run_end_time:
+        endtime = datetime.datetime.strftime(run_end_time, '%Y-%m-%d %H:%M:%S')
+    else:
+        endtime = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')  # current date/time
+
+    # Beam current - uses the primary BCM, IBCAD00CRCUR6
+    conditions = {}
+    # We could also use the following: IPM5C11.VAL,IPM5C11A.VAL,IPM5C11B.VAL,IPM5C11C.VAL
+    try: 
+        # save integrated beam current over the whole run
+        # use MYA archive commands to calculate average
+
+        # build myStats command
+        cmds = []
+        cmds.append("myStats")
+        cmds.append("-b")
+        cmds.append(begintime)
+        cmds.append("-e")
+        cmds.append(endtime)
+        cmds.append("-l")
+        cmds.append("IBCAD00CRCUR6")
+        # execute external command
+        p = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        # iterate over output
+        n = 0
+        for line in p.stdout:
+            n += 1
+            if n == 1:     # skip header
+                continue 
+            tokens = line.strip().split()
+            if len(tokens) < 3:
+                continue
+            key = tokens[0]
+            value = tokens[2]    ## average value
+            if key == "IBCAD00CRCUR6":
+                conditions["beam_current"] = float(value)
+    except:
+        conditions["beam_current"] = -1.
+
+    # now only do this when the current is on
+    try: 
+        # save integrated beam current over the whole run
+        # use MYA archive commands to calculate average
+        # build myStats command
+        cmds = []
+        cmds.append("myStats")
+        cmds.append("-b")
+        cmds.append(begintime)
+        cmds.append("-e")
+        cmds.append(endtime)
+        cmds.append("-c")
+        cmds.append("IBCAD00CRCUR6")
+        cmds.append("-r")
+        cmds.append("5:5000")        
+        cmds.append("-l")
+        cmds.append("IBCAD00CRCUR6")
+        # execute external command
+        p = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        # iterate over output
+        n = 0
+        for line in p.stdout:
+            n += 1
+            if n == 1:     # skip header
+                continue 
+            tokens = line.strip().split()
+            if len(tokens) < 3:
+                continue
+            key = tokens[0]
+            value = tokens[2]    ## average value
+            if key == "IBCAD00CRCUR6":
+                conditions["beam_on_current"] = float(value)
+    except:
+        conditions["beam_on_current"] = -1.
+
+    # Add all the values that we've determined to the RCDB
+    rcdb_conn.add_conditions(run, conditions, replace=True)
+
+####################################################################################
 
 # this part gets executed when this file is run on the command line 
 if __name__ == "__main__":
@@ -120,12 +269,14 @@ if __name__ == "__main__":
     RUNS             = ''
     RUN_PERIOD       = 'RunPeriod-2019-11'
     #RCDB_PRODUCTION_SEARCH = "@is_dirc_production"
-    RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC' and beam_current > 10. and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
+    RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC' and event_count > 5000000"
+    #RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC' and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
+    #RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC' and beam_current > 10. and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
     #RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC_TRD' and beam_current > 10. and event_count > 5000000 and solenoid_current > 100 and collimator_diameter != 'Blocking'"
     #3RCDB_PRODUCTION_SEARCH = "daq_run=='PHYSICS_DIRC_TRD' and event_count > 5000000"
     #RCDB_SEARCH_MIN  = 40000
     #RCDB_SEARCH_MIN  = 41857
-    RCDB_SEARCH_MIN  = 71336
+    RCDB_SEARCH_MIN  = 71500
     RCDB_SEARCH_MAX  = 79000
     GLUONRAID = "gluonraid2"
 
@@ -215,7 +366,7 @@ if __name__ == "__main__":
     RCDB_RUNS = [ c_rows[row][0] for row in xrange(len(c_rows)) ]
 
     # pull list of production runs
-    rcdb_conn = rcdb.RCDBProvider("mysql://rcdb@hallddb/rcdb")
+    rcdb_conn = rcdb.RCDBProvider(RCDB)
     runs = rcdb_conn.select_runs(RCDB_PRODUCTION_SEARCH, RCDB_SEARCH_MIN, RCDB_SEARCH_MAX)
     RCDB_PRODUCTION_RUNS = [ run.number for run in runs ]
 
@@ -274,6 +425,15 @@ if __name__ == "__main__":
             if rcdb_info[0]==0:
                 # update some CCDB info
                 ccdb_conn = LoadCCDB()
+
+                # calculate a first guess for the CDC gain scale by looking at the current temperature and pressure
+                update_cdc_gains(ccdb_conn, run)
+                
+                # beam current calculations are not updating well into the RCDB, so let's do them again
+                update_beam_currents(rcdb_conn, run)
+                #update_beam_currents(cnx, run)
+
+                # update the solenoid map based on the
                 solenoid_map_assignment = ccdb_conn.get_assignment("/Magnets/Solenoid/solenoid_map", run, "default")
                 current_solenoid_map = solenoid_map_assignment.constant_set.data_table[0][0]
 
@@ -322,6 +482,7 @@ if __name__ == "__main__":
         os.system("cp -v %s/online_ccdb_tables_to_push %s"%(SCRIPT_DIR,rundir))
         os.system("cp -v %s/online_ccdb_tables_to_push.tagm %s"%(SCRIPT_DIR,rundir))
         os.system("ln -s /%s/rawdata/volatile/%s/rawdata/Run%06d ./data"%(GLUONRAID,RUN_PERIOD,run))
+        os.system("touch %s/updated_tables.txt"%(rundir))
 
         # calibrate RF
         cmd = "./file_calib_pass0.sh %06d"%run
@@ -330,8 +491,15 @@ if __name__ == "__main__":
             print cmd
         else:
             os.system(cmd)
-        
-    
+
+        # check for 2ns shfits
+        cmd = "./file_calib_check2ns_shift.sh %06d 000"%run
+        # write log file!
+        if DRY_RUN:
+            print cmd
+        else:
+            os.system(cmd)
+
         # run over one file, adjust timing alignments
         # plugins: HLDetectorTiming, CDC_amp, TOF_TDC_shift
         p = multiprocessing.Pool(3)

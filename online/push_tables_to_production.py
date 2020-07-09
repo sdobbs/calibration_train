@@ -353,6 +353,7 @@ def main():
 
             # HANDLE SOME SPECIAL CASES
             if ccdb_table == "/PHOTON_BEAM/RF/time_offset":
+                ## if the time offsets changed, then we should update the variance as well
                 ccdb_table = "/PHOTON_BEAM/RF/time_offset_var"
                 assignment = ccdb_conn.get_assignment(ccdb_table, run, SRC_VARIATION)
                 ccdb_conn.create_assignment(
@@ -360,14 +361,18 @@ def main():
                     path=ccdb_table,
                     variation_name=DEST_VARIATION,
                     min_run=run,
-                    max_run=run,
-                    #max_run=ccdb.INFINITE_RUN,
+                    #max_run=run,
+                    max_run=ccdb.INFINITE_RUN,
                     comment="Copied from variation \'%s\'"%ccdb_table)
 
         #print "===%d==="%run
         #pp.pprint(assignment.constant_set.data_table)
 
     if LOGENTRY:
+        print>>elogentry, "<h3>Other Tables Updated for Run-dependent Calibrations</h3>\n"
+        with open("updated_tables.txt") as f:
+            for line in f:
+                print>>elogentry, line.strip()+"<br>\n"
         elogentry.close()
     
 

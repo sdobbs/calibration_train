@@ -262,9 +262,9 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
    }
    ofstream outFile;
    TH2I *thisHist; 
+
+   /***** old TAGM calibrations, now we just do the base times, the rest is handled by another plugin  
    thisHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TRACKING", "TAGM - SC Target Time");
-
-
    if (useRF) thisHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TRACKING", "TAGM - RFBunch Time");
    if (thisHist != NULL){
       //Statistics on these histograms are really quite low we will have to rebin and do some interpolation
@@ -384,12 +384,14 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
       outFile.close();
 
    }
+   ***/
 
 
+   // TAGM base time calibration
    TH1I *tagmRFalignHist = ExtractTrackBasedTimingNS::Get1DHistogram("HLDetectorTiming", "TRACKING", "TAGM - RFBunch 1D Time");
    if(tagmRFalignHist != NULL) {
      double maximum = tagmRFalignHist->GetBinCenter(tagmRFalignHist->GetMaximumBin());
-     TFitResultPtr fr = tagmRFalignHist->Fit("gaus", "SQ", "", maximum - 0.3, maximum + 0.4);
+     TFitResultPtr fr = tagmRFalignHist->Fit("gaus", "SQ", "", maximum - 0.3, maximum + 0.3);
      double meanOffset = fr->Parameter(1);
    
      outFile.open(prefix + "tagm_base_time.txt", ios::out);
@@ -401,15 +403,69 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
      outFile.close();
    }
 
+
+
    thisHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TRACKING", "TAGH - SC Target Time");
    if (useRF) thisHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TRACKING", "TAGH - RFBunch Time");
    if (thisHist != NULL) {
       outFile.open(prefix + "tagh_tdc_timing_offsets.txt", ios::out | ios::trunc);
       outFile.close(); // clear file
-      outFile.open(prefix + "tagh_adc_timing_offsets.txt", ios::out | ios::trunc);
-      outFile.close(); // clear file
+      //outFile.open(prefix + "tagh_adc_timing_offsets.txt", ios::out | ios::trunc);   // KEEP THESE FIXED FOR NOW
+      //outFile.close(); // clear file
+
+      int nBinsX = thisHist->GetNbinsX();
+      //double taghAdcOffsets[274] = { 0. };
+      //double taghTdcOffsets[274] = { 0. };
+      outFile.open(prefix + "tagh_tdc_timing_offsets.txt");
+      for (int i = 1; i <= nBinsX; i++) {
+	      if (tagh_counter_quality[i-1] == 0.0) {
+		      outFile << i << " " << 0 << endl;
+		      continue;
+	      }
+
+	      TH1D *projY = thisHist->ProjectionY("temp", i, i);
+	      double delta = 0.;
+	      if(projY->Integral() > 0.) {
+		      double maximum = projY->GetBinCenter(projY->GetMaximumBin());
+		      TFitResultPtr fr = projY->Fit("gaus", "QSQ", "", maximum - 0.3, maximum + 0.3);
+		      delta = fr->Parameter(1);
+
+		      // check for bad fit
+		      if(delta < -37.)
+			      delta = 0.;
+		      if(fabs(delta) < 0.1)
+			      delta = 0.;
+	      }
+
+	      double ccdb = tagh_tdc_time_offsets[i-1];
+	      double offset = ccdb + delta;
+	      
+	      outFile << i << " " << offset << endl;
+	      if (verbose) printf("TDC\t%i\t%.3f\t\t%.3f\t\t%.3f\n", i, delta, ccdb, offset);
+      }
+      outFile.close();
+
+   }
 
 
+   // TAGH base time calibration
+   TH1I *taghRFalignHist = ExtractTrackBasedTimingNS::Get1DHistogram("HLDetectorTiming", "TRACKING", "Tagger - RFBunch 1D Time");
+   if(taghRFalignHist != NULL) {
+     double maximum = taghRFalignHist->GetBinCenter(taghRFalignHist->GetMaximumBin());
+     TFitResultPtr fr = taghRFalignHist->Fit("gaus", "SQ", "", maximum - 0.3, maximum + 0.3);
+     double meanOffset = fr->Parameter(1);
+   
+     outFile.open(prefix + "tagh_base_time.txt", ios::out);
+     if (verbose) {
+       printf("TAGH ADC Base = %f - (%f) = %f\n", tagh_t_base_fadc, meanOffset, tagh_t_base_fadc - meanOffset);
+       printf("TAGH TDC Base = %f - (%f) = %f\n", tagh_t_base_tdc, meanOffset, tagh_t_base_tdc - meanOffset);
+     }
+     outFile << tagh_t_base_fadc - meanOffset << " " << tagh_t_base_tdc - meanOffset << endl;
+     outFile.close();
+   }
+
+
+      /* 
       // Also realign ADCs and TDCs
       // assuming anything larger than 28 ns is due to a TDC shift, otherwise the ADCs are shifted
       TH2I *taghADCTDCHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TAGH", "TAGHHit TDC_ADC Difference");
@@ -451,7 +507,9 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
 	     taghAdcOffsets[i-1] = maxMean;
 	 }
       }
+      */
 
+/*
       // Setup histogram for determining the most probable change in offset for each F1TDC slot
       // This is needed to account for the occasional uniform shift in offsets of the 32 counters in a slot
       // Disable this for now, it hasn't been working well...
@@ -551,7 +609,7 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
          double ccdb = tagh_tdc_time_offsets[i-1];
          double offset = ccdb + delta - taghTdcOffsets[i-1];
          //if (i == 1) c1_tdcOffset = offset;
-         //offset -= c1_tdcOffset;
+         //offset -= c1_tdcOffset;   // disable recentering
          outFile << i << " " << offset << endl;
          //if (verbose) printf("TDC\t%i\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\n", i, delta, ccdb, mpDelta[tdc_slot-1], offset);
          if (verbose) printf("TDC\t%i\t%.3f\t\t%.3f\t\t%.3f\n", i, delta, ccdb, offset);
@@ -576,14 +634,14 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
          double ccdb = tagh_fadc_time_offsets[i-1];
          double offset = ccdb + delta - taghAdcOffsets[i-1];
          if (i == 1) c1_adcOffset = offset;
-         offset -= c1_adcOffset;
+         //offset -= c1_adcOffset;   // disable recentering
          outFile << i << " " << offset << endl;
          //if (verbose) printf("ADC\t%i\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\n", i, delta, ccdb, mpDelta[tdc_slot-1], offset);
          if (verbose) printf("ADC\t%i\t%.3f\t\t%.3f\t\t%.3f\n", i, delta, ccdb, offset);
       }
       outFile.close();
 
-      outFile.open(prefix + "tagh_base_time.txt");
+      //outFile.open(prefix + "tagh_base_time.txt");
       outFile << tagh_t_base_fadc - c1_adcOffset << " " << tagh_t_base_tdc - c1_tdcOffset << endl;
       if (verbose) {
          printf("TAGH ADC Base = %f - (%f) = %f\n", tagh_t_base_fadc, c1_adcOffset, tagh_t_base_fadc - c1_adcOffset);
@@ -591,6 +649,7 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
       }
       outFile.close();
    }
+*/
 
    // We can use the RF time to calibrate the SC time 
    double meanSCOffset = 0.0; // In case we change the time of the SC, we need this in this scope

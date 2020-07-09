@@ -13,7 +13,8 @@ if [ ! -f $LOCKFILE ]; then
     touch $LOCKFILE
     #python run_prompt_calibrations.py  60550-60851   >& log/calib.`date +%F_%T`.log
     #python run_prompt_calibrations.py  70995-71124 |& tee log/calib.`date +%F_%T`.log
-    python run_prompt_calibrations.py  71336- |& tee log/calib.`date +%F_%T`.log
+    python run_prompt_calibrations.py  71914- |& tee log/calib.`date +%F_%T`.log
+    #python run_prompt_calibrations.py  71500- 
     rm -f $LOCKFILE
 
     # send update email

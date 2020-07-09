@@ -90,8 +90,8 @@ ls -lhR
 ###################################################
 # now, move the constants to default if it looks like they need it
 #if [ "$retval" -eq "0" ]; then
-python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
-#python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+#python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+####python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
     
 # make a logbook entry if the data is there
 if [ -f "logbook.txt" ]; then
@@ -103,11 +103,11 @@ fi
 #fi
 
 # and send update email
-if [ -f "message.txt" ]; then
-    cp -v message.txt /group/halld/Users/sdobbs/simple_email_list/lists/online_calibrations/
-    cd /group/halld/Users/sdobbs/simple_email_list/lists/online_calibrations
-    /group/halld/Users/sdobbs/simple_email_list/scripts/simple_email_list.pl
-fi
+#if [ -f "message.txt" ]; then
+#    cp -v message.txt /group/halld/Users/sdobbs/simple_email_list/lists/online_calibrations/
+#    cd /group/halld/Users/sdobbs/simple_email_list/lists/online_calibrations
+#    /group/halld/Users/sdobbs/simple_email_list/scripts/simple_email_list.pl
+#fi
 
 ###################################################
 
