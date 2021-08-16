@@ -46,7 +46,9 @@ def ProcessFilePass1(args):
     if DRY_RUN:
         print cmd
     else:
-        os.system(cmd)
+        retval = os.system(cmd)
+        if(retval != 0):
+            print "ERROR in run %d file_calib_pass1.sh(%d): %d"%(run,fnum,retval)
 
 
 tagger_rr_ind = 0
@@ -57,7 +59,7 @@ def ProcessTaggerCalibrations(run,cwd):
     #run = args[0]
     #cwd = args[1]
 
-    hosts = [ "gluon125", "gluon105", "gluon106" ]
+    hosts = [ "gluon125", "gluon105", "gluon106", "gluon107" ]
     hostname = hosts[tagger_rr_ind]
 
     # do round robining of hosts
@@ -73,7 +75,10 @@ def ProcessTaggerCalibrations(run,cwd):
         print cmd
     else:
         #os.system(cmd)
-        subprocess.call(cmd, shell=True)
+        #retval = subprocess.call(cmd, shell=True)  # wait until command is done
+        retval = subprocess.Popen(cmd, shell=True)  # let process run in the background
+        #if(retval != 0):
+        #    print "ERROR in run %d do_tagger.sh: %d"%(run,retval)
 
 def ProcessTest():
     cmd = "ssh gluon111 'ls -lh' > %s/log/test.r%d.log"%('/gluonwork1/Users/sdobbs/calibration_train/online',0)
@@ -110,7 +115,7 @@ def update_cdc_gains(ccdb_conn, run):
     TOLERANCE = 1.e-5  # constant used for comparisons
 
     # get info from EPICS
-    print caget("RESET:i:GasPanelBarPress1")
+    #print caget("RESET:i:GasPanelBarPress1")
     cdc_pressure = float(caget("RESET:i:GasPanelBarPress1"))
     cdc_temp_1 = float(caget("GAS:i::CDC_Temps-CDC_D1_Temp"))
     cdc_temp_2 = float(caget("GAS:i::CDC_Temps-CDC_D2_Temp"))
@@ -147,6 +152,67 @@ def update_cdc_gains(ccdb_conn, run):
     ccdb_conn.create_assignment(
         data=[["%5.3f"%newgain, 0.8]],
         path="/CDC/digi_scales",
+        variation_name="default",
+        min_run=run,
+        max_run=run,
+        comment="Online update based on EPICS")
+
+# update the initial CDC time-to-distance calibrations based on the ambient pressure
+# Naomi provided the following mapping:
+# run    "kPa"   mmHg     
+#71734  97.5318  739.87
+#  741.61
+#71735  97.9678  743.35 
+# 746.915
+#71672  98.8616 750.48
+# 755.610
+#72187  100.148  760.74
+# 765.35
+#71467  101.303 769.96
+# 773.965
+#71824  102.306  777.97
+
+CDC_TTOD_TABLE = [ ] 
+CDC_TTOD_TABLE.append( [ [ 1.02196, -0.0800837, 0, -0.110526, -0.462576, 0, 0.0038821, 0.289286, 0, 1.1, -0.08 ],
+                         [ 1.02196, 0.0800837, 0, -0.110526, 0.462576, 0, 0.0038821, -0.289286, 0, 1.1, -0.08 ] ] )
+CDC_TTOD_TABLE.append( [ [ 1.0193, -0.0704149, 0, -0.107234, -0.476431, 0, 0.00335708, 0.286611, 0, 1.1, -0.08 ],  
+                         [ 1.0193, 0.0704149, 0, -0.107234, 0.476431, 0, 0.00335708, -0.286611, 0, 1.1, -0.08 ] ] )
+CDC_TTOD_TABLE.append( [ [ 1.01681, -0.0542194, 0, -0.105428, -0.502977, 0, 0.00345319, 0.301217, 0, 1.1, -0.08 ], 
+                         [ 1.01681, 0.0542194, 0, -0.105428, 0.502977, 0, 0.00345319, -0.301217, 0, 1.1, -0.08 ] ] )
+CDC_TTOD_TABLE.append( [ [ 1.0117, -0.0635804, 0, -0.101684, -0.465007, 0, 0.0052687, 0.227823, 0, 1.1, -0.08 ],   
+                         [ 1.0117, 0.0635804, 0, -0.101684, 0.465007, 0, 0.0052687, -0.227823, 0, 1.1, -0.08 ] ] )
+CDC_TTOD_TABLE.append( [ [ 1.00479, -0.0503435, 0, -0.0909644, -0.486412, 0, -0.00673478, 0.306132, 0, 1.1, -0.08 ],   
+                         [ 1.00479, 0.0503435, 0, -0.0909644, 0.486412, 0, -0.00673478, -0.306132, 0, 1.1, -0.08 ] ] )
+CDC_TTOD_TABLE.append( [ [ 0.998255, -0.0144274, 0, -0.0830508, -0.560996, 0, -0.00967542, 0.348271, 0, 1.1, -0.08 ],  
+                         [ 0.998255, 0.0144274, 0, -0.0830508, 0.560996, 0, -0.00967542, -0.348271, 0, 1.1, -0.08 ] ] )
+
+
+def update_cdc_ttod(ccdb_conn, run):
+    TOLERANCE = 1.e-5  # constant used for comparisons
+    plimits = [741.61, 746.915, 755.61, 765.35, 773.965]
+
+    # get info from EPICS
+    #print caget("RESET:i:GasPanelBarPress1")
+    cdc_pressure = float(caget("RESET:i:GasPanelBarPress1"))
+
+    # check ranges to make sure things are not crazy
+    if(cdc_pressure < 50. or cdc_pressure > 150.):
+        return
+
+    # convert the pressure to to mmHg
+    mmhg = 7.978*cdc_pressure - 38.23
+
+    # figure out the index into the TtoD table
+    ind = 0
+    while mmhg > plimits[ind] and ind < len(plimits):
+      ind += 1
+      if ind == 5:
+        break
+      
+    # update CCDB for this run
+    ccdb_conn.create_assignment(
+        data=CDC_TTOD_TABLE[ind],
+        path="/CDC/drift_parameters",
         variation_name="default",
         min_run=run,
         max_run=run,
@@ -429,6 +495,9 @@ if __name__ == "__main__":
                 # calculate a first guess for the CDC gain scale by looking at the current temperature and pressure
                 update_cdc_gains(ccdb_conn, run)
                 
+                # and make a first guess for the CDC time to distance, since this depends on pressure
+                update_cdc_ttod(ccdb_conn, run)
+
                 # beam current calculations are not updating well into the RCDB, so let's do them again
                 update_beam_currents(rcdb_conn, run)
                 #update_beam_currents(cnx, run)
@@ -490,7 +559,9 @@ if __name__ == "__main__":
         if DRY_RUN:
             print cmd
         else:
-            os.system(cmd)
+            retval = os.system(cmd)
+            if(retval != 0):
+                print "ERROR in run %d file_calib_pass0.sh: %d"%(run,retval)
 
         # check for 2ns shfits
         cmd = "./file_calib_check2ns_shift.sh %06d 000"%run
@@ -498,7 +569,9 @@ if __name__ == "__main__":
         if DRY_RUN:
             print cmd
         else:
-            os.system(cmd)
+            retval = os.system(cmd)
+            if(retval != 0):
+                print "ERROR in run %d file_calib_check2ns_shift.sh: %d"%(run,retval)
 
         # run over one file, adjust timing alignments
         # plugins: HLDetectorTiming, CDC_amp, TOF_TDC_shift
@@ -517,19 +590,21 @@ if __name__ == "__main__":
         else:
             os.system(cmd)
 
-        # start up tagger calibrations
-        # TAGH timewalks depend on HLDT (ADC/TDC alignment)
-        ptag = multiprocessing.Process(target=ProcessTaggerCalibrations, args=(run,os.getcwd()))
-        ptag.start()
-        tagger_threads.append(ptag)
-
-       
         # update calibration status
         if not DRY_RUN:
             query = "UPDATE online_info SET done=TRUE WHERE run='%s'"%run
             print query
             calibdb_cursor.execute(query)
             calibdb_cnx.commit()
+
+        # start up tagger calibrations
+        # TAGH timewalks depend on HLDT (ADC/TDC alignment)
+        ProcessTaggerCalibrations(run,os.getcwd())
+        #ptag = multiprocessing.Process(target=ProcessTaggerCalibrations, args=(run,os.getcwd()))
+        #ptag.start()
+        #tagger_threads.append(ptag)
+
+       
 
         # see if we should stop earlier
         if os.path.exists("%s/force.stop"%SCRIPT_DIR):
@@ -539,5 +614,5 @@ if __name__ == "__main__":
     # finish and clean up
     calibdb_cursor.close()
     calibdb_cnx.close()
-    for thr in tagger_threads:
-        thr.join()
+    #for thr in tagger_threads:
+    #    thr.join()

@@ -56,7 +56,7 @@ python run_single_root_command.py -F $RUN_OUTPUT_FILENAME -O pass2_TaggerSCAlign
 
 # update CCDB
 echo ==update CCDB==
-ccdb add /CDC/digi_scales -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_new_ascale.txt 
+#ccdb add /CDC/digi_scales -v $VARIATION -r ${RUNNUM}-${RUNNUM} cdc_new_ascale.txt 
 ./add_consts-adjust.sh ${RUNNUM} 
 #./add_consts-adjust.sh ${RUNNUM} ${RUNNUM}
 retval=$?
@@ -89,17 +89,18 @@ ls -lhR
 
 ###################################################
 # now, move the constants to default if it looks like they need it
-#if [ "$retval" -eq "0" ]; then
-#python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
-####python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
-    
-# make a logbook entry if the data is there
-if [ -f "logbook.txt" ]; then
-    echo ==submit logbook entry==
-    /site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue
-    #/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue --cert /gluonwork1/Users/sdobbs/calibration_train/online/elogcert
-    #/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook TLOG
+if [ "$retval" -eq "0" ]; then
+    python push_tables_to_production.py  online_ccdb_tables_to_push -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
+    ####python push_tables_to_production.py  online_ccdb_tables_to_push.tagm -R $RUNNUM -m $RUNNUM --logentry=logbook.txt --mask_file=channel_masks >> message.txt
 fi
+
+# make a logbook entry if the data is there
+#if [ -f "logbook.txt" ]; then
+#    echo ==submit logbook entry==
+#    /site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue
+#    #/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook HDMONITOR --logbook HDRUN --noqueue --cert /g#luonwork1/Users/sdobbs/calibration_train/online/elogcert
+#    #/site/ace/certified/apps/bin/logentry --title "Run $RUNNUM online calibrations" --html --body logbook.txt --entrymaker hdops --tag Autolog --logbook TLOG
+#fi
 #fi
 
 # and send update email

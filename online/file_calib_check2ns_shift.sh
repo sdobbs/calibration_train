@@ -37,12 +37,12 @@ CALIB_OPTIONS="  -PEVENTS_TO_KEEP=20000 -PTRKFIT:HYPOTHESES_POSITIVE=8 -PTRKFIT:
 PASS2_OUTPUT_FILENAME=hd_calib_2ns_check_Run${RUN}_${FILE}.root
 # run
 echo Running these plugins: $CALIB_PLUGINS
-hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS2_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data/hd_rawdata_${RUN}_${FILE}.evio
+timeout 900 hd_root --nthreads=$NTHREADS  -PEVIO:RUN_NUMBER=${RUNNUM} -PJANA:BATCH_MODE=1 -PPRINT_PLUGIN_PATHS=1 -PTHREAD_TIMEOUT=300 -POUTPUT_FILENAME=$PASS2_OUTPUT_FILENAME -PPLUGINS=$CALIB_PLUGINS $CALIB_OPTIONS ./data/hd_rawdata_${RUN}_${FILE}.evio
 retval=$?
 
 # now check for correction
-python fix_all_base_offset.py ${RUN} ${PASS2_OUTPUT_FILENAME}
-python fix_all_base_offset.py -V calib ${RUN} ${PASS2_OUTPUT_FILENAME}
+python fix_all_base_offset.py ${RUN} ${PASS2_OUTPUT_FILENAME}  >> message.txt
+python fix_all_base_offset.py -V calib ${RUN} ${PASS2_OUTPUT_FILENAME}  >> message.txt
 
 
 echo ==done==

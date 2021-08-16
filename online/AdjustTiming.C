@@ -263,6 +263,19 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
    ofstream outFile;
    TH2I *thisHist; 
 
+
+   // check to make sure we have enough data to fit anything
+   TH1I *this1DHist = ExtractTrackBasedTimingNS::Get1DHistogram("HLDetectorTiming", "TRACKING", "BCAL - SC Target Time");
+   if(this1DHist == NULL) {
+	   cout << "No BCAL - SC Target Time histogram exists, exiting ..." << endl;
+	   return;
+   }
+   if(this1DHist->Integral() < 200.) {
+	   cout << "Too few counts in BCAL - SC Target Time (" << this1DHist->Integral() << "), exiting ..." << endl;
+	   return;
+   }
+
+
    /***** old TAGM calibrations, now we just do the base times, the rest is handled by another plugin  
    thisHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TRACKING", "TAGM - SC Target Time");
    if (useRF) thisHist = ExtractTrackBasedTimingNS::Get2DHistogram("HLDetectorTiming", "TRACKING", "TAGM - RFBunch Time");
@@ -762,7 +775,7 @@ void AdjustTiming(TString fileName = "hd_root.root", int runNumber = 10390, TStr
       outFile.close();
    }
 
-   TH1I *this1DHist = ExtractTrackBasedTimingNS::Get1DHistogram("HLDetectorTiming", "TRACKING", "TOF - RF Time");
+   this1DHist = ExtractTrackBasedTimingNS::Get1DHistogram("HLDetectorTiming", "TRACKING", "TOF - RF Time");
    if(this1DHist != NULL){
       //Gaussian
       Double_t maximum = this1DHist->GetBinCenter(this1DHist->GetMaximumBin());

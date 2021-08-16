@@ -11,7 +11,6 @@ ccdb add CDC/base_time_offset -v $VARIATION -r $RUNMIN-$RUNMAX cdc_base_time.txt
 #ccdb add BCAL/base_time_offset -v $VARIATION -r $RUNMIN-$RUNMAX bcal_base_time.txt
 ccdb add FCAL/base_time_offset -v $VARIATION -r $RUNMIN-$RUNMAX fcal_base_time.txt
 #ccdb add TOF/base_time_offset -v $VARIATION -r $RUNMIN-$RUNMAX tof_base_time.txt
-# TEMP
 ccdb add TOF2/base_time_offset -v $VARIATION -r $RUNMIN-$RUNMAX tof_base_time.txt 
 ccdb add START_COUNTER/base_time_offset -v $VARIATION -r $RUNMIN-$RUNMAX sc_base_time.txt
 #ccdb add START_COUNTER/adc_timing_offsets -v $VARIATION -r $RUNMIN-$RUNMAX  sc_adc_timing_offsets.txt

@@ -82,7 +82,7 @@ def main():
     locHist = f.Get("HLDetectorTiming/TRACKING/SC - RF Time")
 
     maximum = locHist.GetBinCenter(locHist.GetMaximumBin());
-    fr = locHist.Fit("gaus", "S", "", maximum - 0.3, maximum + 0.3);
+    fr = locHist.Fit("gaus", "SQ", "", maximum - 0.3, maximum + 0.3);
     mean = fr.Parameter(1);
 
 
@@ -90,8 +90,9 @@ def main():
     #continue
 
     # check that the mean is ~2ns 
-    if abs(mean) > 1.5 and abs(mean) < 2.5:
-        os.system("echo correcting for 2ns shift for %s variation ... >> message.txt"%VARIATION)
+    if abs(mean) > 1.2 and abs(mean) < 2.5:
+        #os.system("echo correcting for 2ns shift for %s variation ... >> message.txt"%VARIATION)
+        print "correcting for 2ns shift for %s variation ..."
 
         if mean > 0:
             mean = 2.
@@ -205,8 +206,8 @@ def main():
             #max_run=run,
             max_run=ccdb.INFINITE_RUN,
             comment="Manual shift, from SC alignment")
-
-
+    else:
+        print "no correction needed ..."
 
 
 ## main function 
